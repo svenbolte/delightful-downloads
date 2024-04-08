@@ -3,10 +3,10 @@ Contributors: A5hleyRich, Sven Bolte, others (best of forks)
 Tags: download, manager, downloads, monitor, shortcode, delightful downloads, file, counter, tracking, infobox, fixed filetree,ipflag, chartscodes
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 9.9.76
-Stable tag: 9.9.76
+Version: 9.9.77
+Stable tag: 9.9.77
 Requires at least: 6.0
-Tested up to: 6.4.3
+Tested up to: 6.5
 Requires PHP: 8.0
 
 A super-awesome downloads manager and statistics tracker for WordPress.

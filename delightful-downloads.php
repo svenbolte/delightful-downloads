@@ -8,10 +8,10 @@ Description: A super-awesome downloads manager for WordPress with htacces file l
 Text Domain: delightful-downloads
 Domain Path: /languages/
 License: GPL2
-Version: 9.9.76
-Stable tag: 9.9.76
+Version: 9.9.77
+Stable tag: 9.9.77
 Requires at least: 5.3
-Tested up to: 6.4.3
+Tested up to: 6.5
 Requires PHP: 8.0
 */
 

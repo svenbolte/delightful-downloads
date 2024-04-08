@@ -196,12 +196,12 @@ function dedo_get_shortcode_lists() {
 					<div style="display:flex;width:100%">
 					<div style="display:inline-block;min-width:55px;width:55px">%icon%</div>
 					<div style="display:inline-block;width:100%;min-width:70%">
-					<div class="'.$userfade.'" style="background-color:#fff5">%locked% &nbsp; %adminedit%
-					%datesymbol%%filename%%filesize%%count%%downloadtime%</div>
+					<div class="'.$userfade.'" style="background-color:#fff5">%locked% &nbsp; %adminedit% %datesymbol%</div>
 					<div class="greybox" style="background-color:#fff5">%category% %tags%</div>
 					<h6 style="margin-top:4px"><a style="display:block;max-width:98vw;white-space:nowrap;overflow:hidden" href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
 					<i class="fa fa-download"></i> %title%</a></h6>
-					<div>%description%</div></div>%thumb%</div>'
+					<div>%filename%%filedate%%filesize%%count%%downloadtime%<br>%description%</div>
+					</div>%thumb%</div>'
 	 	)
 	);
 	return apply_filters( 'dedo_get_lists', $lists );
@@ -315,15 +315,17 @@ function download_times($filesize) {
  	}
 	// post thumbnail - Beitragsbild mit img-zoom on hover
  	if ( strpos( $string, '%thumb%' ) !== false ) {
- 		$value = '<div style="padding-top:2em;display:inline-block;max-width:200px;border:1px none"><img class="img-zoom" style="min-height:100px;transform-origin: center right" src="' . get_the_post_thumbnail_url( $id ) . '"></div>';
+ 		$value = '<div style="float:right;padding-top:0;display:inline-block;max-width:200px;border:1px none"><img class="img-zoom" style="min-height:100px;transform-origin: center right" src="' . get_the_post_thumbnail_url( $id ) . '"></div>';
  		$string = str_replace( '%thumb%', $value, $string );
  	}
  	// file-date created modified
  	if ( strpos( $string, '%filedate%' ) !== false ) {
  		if (!empty( get_post_meta( $id, '_dedo_file_url', true ) )) {
 			$fpath = dedo_get_abs_path(get_post_meta( $id, '_dedo_file_url', true));
+			$diff = time() - filemtime($fpath);
+			if (round((intval($diff) / 86400), 0) < 30) $newcolor = "#fd0a"; else $newcolor = "#fffa";
 			$filecd = wp_date( get_option( 'date_format' ).' '.get_option( 'time_format' ), filemtime($fpath));
-			if (!empty($filecd)) $value = '<span class="newlabel white"><i title="'.__('file upload date','delightful-downloads').'" class="fa fa-calendar-check-o" style="font-size:1.1em;margin-right:3px"></i>'.$filecd.'</span>'; else $value="";
+			if (!empty($filecd)) $value = '<span class="newlabel" style="background-color:'.$newcolor.'"><i title="'.__('file upload date','delightful-downloads').'" class="fa fa-calendar-check-o" style="font-size:1.1em;margin-right:3px"></i>'.$filecd.' '.ago(filemtime($fpath)).'</span>'; else $value="";
 		} else { $value='';  }	
 		$string = str_replace( '%filedate%', $value, $string );
  	}
