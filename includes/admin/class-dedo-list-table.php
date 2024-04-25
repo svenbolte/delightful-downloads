@@ -182,13 +182,9 @@ class DEDO_List_Table extends WP_List_Table {
 				}
 				break;
 			case 'ip_address':
-				if ( empty( $item->user_ip ) ) {
-					return;
-				}
+				if ( empty( $item->user_ip) ) return;
 				// Wenn ipflag plugin aktiv
-				if( class_exists( 'ipflag' ) ) {
-					$flagge = '<br>' . do_shortcode('[ipflag ip="'.$item->user_ip.'"]');
-				}	
+				if( class_exists( 'ipflag' ) ) $flagge = '<br>' . do_shortcode('[ipflag ip="'.inet_ntop( $item->user_ip ).'"]');
 				return inet_ntop( $item->user_ip ) . $flagge;
 				break;
 			case 'user_agent':

@@ -18,6 +18,12 @@ Requires PHP: 8.1
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) {	exit; }
 
+// Load plugin textdomain.
+function dedo_load_textdomain() {
+	load_plugin_textdomain( 'delightful-downloads', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+}
+add_action( 'plugins_loaded', 'dedo_load_textdomain' );
+
 /**
  * Delightful Downloads
  * @package  Delightful Downloads
@@ -80,9 +86,7 @@ class Delightful_Downloads {
 	protected function init( $path, $version ) {
 		$this->path    = $path;
 		$this->version = $version;
-
 		self::$instance->constants();
-		self::$instance->textdomain();
 		self::$instance->options();
 		self::$instance->includes();
 
@@ -138,12 +142,6 @@ class Delightful_Downloads {
 		}
 	}
 
-	/**
-	 * Textdomain
-	 */
-	protected function textdomain() {
-		load_plugin_textdomain( 'delightful-downloads', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-	}
 
 	/**
 	 * Options
