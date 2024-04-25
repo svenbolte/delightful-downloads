@@ -6,13 +6,13 @@ Author URI: https://github.com/svenbolte/
 Author: Ashley Rich und PBMod
 Description: A super-awesome downloads manager for WordPress with htacces file limits and file icons and one day passes.
 Text Domain: delightful-downloads
-Domain Path: /languages/
+Domain Path: /languages
 License: GPL2
-Version: 9.9.77
-Stable tag: 9.9.77
+Version: 9.9.78
+Stable tag: 9.9.78
 Requires at least: 5.3
 Tested up to: 6.5.2
-Requires PHP: 8.0
+Requires PHP: 8.1
 */
 
 // Exit if accessed directly
@@ -142,8 +142,7 @@ class Delightful_Downloads {
 	 * Textdomain
 	 */
 	protected function textdomain() {
-		load_textdomain( 'delightful-downloads', WP_LANG_DIR . '/delightful-downloads/delightful-downloads-' . get_locale() . '.mo' );
-		load_plugin_textdomain( 'delightful-downloads', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+		load_plugin_textdomain( 'delightful-downloads', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 	}
 
 	/**
