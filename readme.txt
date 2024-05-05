@@ -3,8 +3,8 @@ Contributors: A5hleyRich, Sven Bolte, others (best of forks)
 Tags: download, manager, downloads, monitor, shortcode, delightful downloads, file, counter, tracking, infobox, fixed filetree,ipflag, chartscodes
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 9.9.78
-Stable tag: 9.9.78
+Version: 9.9.80
+Stable tag: 9.9.80
 Requires at least: 6.0
 Tested up to: 6.5.2
 Requires PHP: 8.1
@@ -463,6 +463,9 @@ Please refer to the [documentation] in this readme.txt.
 
 
 ==================== Changelog ==========================================================================
+
+= 9.9.80 =
+fontawesome updates, some icons added. only needed when not penguin-mod theme
 
 = 9.9.76 =
 documentation with shortwords %% updated

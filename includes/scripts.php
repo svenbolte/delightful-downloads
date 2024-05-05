@@ -22,7 +22,7 @@ function dedo_enqueue_scripts( $page ) {
 	// load fontawesome 4.7 if not penguin theme
 	$wpxtheme = wp_get_theme(); // gets the current theme
 	if ( 'Penguin' == $wpxtheme->name || 'Penguin' == $wpxtheme->parent_theme ) { $xpenguin = true;} else { $xpenguin=false; }
-	if (!$xpenguin) wp_enqueue_style('font-awesome', DEDO_PLUGIN_URL . 'assets/font-awesome/css/font-awesome.min.css', true);
+	if (!$xpenguin) wp_enqueue_style('font-awesome', DEDO_PLUGIN_URL . 'assets/font-awesome/css/fontawesomeplus.min.css', true);
 	
 	// Load css sprite for file type icons
 	wp_register_style( 'filetype-style', DEDO_PLUGIN_URL . 'assets/css/filetypes.min.css' );
