@@ -82,7 +82,6 @@ if( !function_exists('ago')) {
 
 // Shortcode Styles
 function dedo_get_shortcode_styles() {
-	if (empty(get_theme_mod('userfade')) || is_user_logged_in()) $userfade='iconleiste'; else $userfade='iconfade';
 	$styles = array(
 	 	'infobox'		=> array(
 	 		'name'			=> __( 'Infobox mit Icon, Rahmen und Details', 'delightful-downloads' ),
@@ -90,7 +89,7 @@ function dedo_get_shortcode_styles() {
 					<div style="display:flex;width:100%">
 					<div style="display:inline-block;min-width:60px;width:60px">%icon%</div>
 					<div style="display:inline-block;width:100%;min-width:70%">
-					<div class="'.$userfade.'" style="background-color:#fff5">
+					<div class="iconleiste" style="background-color:#fff5">
 					%locked% &nbsp; %adminedit%%datesymbol%%filesize%%downloadtime%%count%%filename%</div> 
 					<div class="greybox" style="background-color:#fff5">%category% %tags%</div>
 					<h6 style="margin-top:6px"><a href="%permalink%" title="'.__( 'download details', 'delightful-downloads' ).'" rel="nofollow">
@@ -139,7 +138,6 @@ function dedo_get_shortcode_styles() {
  * Returns List Styles
  */
 function dedo_get_shortcode_lists() {
-	if (empty(get_theme_mod('userfade')) || is_user_logged_in()) $userfade='iconleiste'; else $userfade='iconfade';
 	$lists = array(
 	 	'title'				=> array(
 	 		'name'				=> __( 'Title', 'delightful-downloads' ),
@@ -184,7 +182,7 @@ function dedo_get_shortcode_lists() {
 	 		'format'			=> '<div style="display:flex;width:100%">
 					<div style="display:inline-block;min-width:55px;width:55px">%icon%</div>
 					<div style="display:inline-block;width:100%;min-width:70%;vertical-align:top;line-height:1.35em">
-					<div class="'.$userfade.'" style="background-color:#fff5">%locked% &nbsp; %adminedit%
+					<div class="iconleiste" style="background-color:#fff5">%locked% &nbsp; %adminedit%
 					%dateago%%filesize%%count%</div><div class="greybox" style="background-color:#fff5">%category% %tags%</div>
 					<h6 style="margin-top:4px"><a style="display:block;max-width:98vw;white-space:nowrap;overflow:hidden" href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
 					<i class="fa fa-download"></i> %title%</a></h6>
@@ -196,7 +194,7 @@ function dedo_get_shortcode_lists() {
 					<div style="display:flex;width:100%">
 					<div style="display:inline-block;min-width:55px;width:55px">%icon%</div>
 					<div style="display:inline-block;width:100%;min-width:70%">
-					<div class="'.$userfade.'" style="background-color:#fff5">%locked% &nbsp; %adminedit% %datesymbol%</div>
+					<div class="iconleiste" style="background-color:#fff5">%locked% &nbsp; %adminedit% %datesymbol%</div>
 					<div class="greybox" style="background-color:#fff5">%category% %tags%</div>
 					<h6 style="margin-top:4px"><a style="display:block;max-width:98vw;white-space:nowrap;overflow:hidden" href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
 					<i class="fa fa-download"></i> %title%</a></h6>
