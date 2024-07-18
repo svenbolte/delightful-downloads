@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Version: 9.9.81
 Stable tag: 9.9.81
 Requires at least: 6.0
-Tested up to: 6.5.5
+Tested up to: 6.6
 Requires PHP: 8.2
 
 A super-awesome downloads manager for WordPress with htacces file limits and file icons and one day passes.
