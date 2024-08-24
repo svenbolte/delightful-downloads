@@ -3,11 +3,13 @@ table-layout:fixed
 }
 
 .ddownload-button {
+background-color:#aaa;
+border:1px solid silver;
 border-radius:3px;
-color:#fff;
+color:#ddd;
 display:inline-block;
 font-size:1em;
-padding:8px 12px;
+padding:8px 12px
 }
 
 .ddownload-button:hover {
@@ -16,19 +18,19 @@ color:#fff
 }
 
 .button-grey {
-background-color:#888;
+background-color:#888
 }
 
 .button-red {
-background-color:#f6677b;
+background-color:#f6677b
 }
 
 .button-green {
-background-color:#7ba52d;
+background-color:#7ba52d
 }
 
 .button-black {
-background-color:#222;
+background-color:#222
 }
 
 .dedo-form-error-message {
@@ -41,7 +43,7 @@ transition:transform .1s
 }
 
 img.img-zoom:hover {
-box-shadow:0 0 10px 0 rgba(50,50,50,0.95);
+box-shadow:0 0 10px 0 #323232f2;
 cursor:zoom-in;
 transform:scale(2.0,2.0)
 }

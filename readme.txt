@@ -3,10 +3,10 @@ Contributors: A5hleyRich, Sven Bolte, others (best of forks)
 Tags: download, manager, downloads, monitor, shortcode, delightful downloads, file, counter, tracking, infobox, fixed filetree,ipflag, chartscodes
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 9.9.81
-Stable tag: 9.9.81
+Version: 9.9.82
+Stable tag: 9.9.82
 Requires at least: 6.0
-Tested up to: 6.6
+Tested up to: 6.6.1
 Requires PHP: 8.2
 
 A super-awesome downloads manager for WordPress with htacces file limits and file icons and one day passes.
@@ -463,6 +463,10 @@ Please refer to the [documentation] in this readme.txt.
 
 
 ==================== Changelog ==========================================================================
+
+= 9.9.82 =
+all CSS and JS optimized by webtool and minimized
+birect download button in silver when theme does not offer own button style
 
 = 9.9.80 =
 fontawesome updates, some icons added. only needed when not penguin-mod theme
