@@ -3,8 +3,8 @@ Contributors: A5hleyRich, Sven Bolte, others (best of forks)
 Tags: download, manager, downloads, monitor, shortcode, delightful downloads, file, counter, tracking, infobox, fixed filetree,ipflag, chartscodes
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 9.9.83
-Stable tag: 9.9.83
+Version: 9.9.84
+Stable tag: 9.9.84
 Requires at least: 6.0
 Tested up to: 6.6.2
 Requires PHP: 8.2
