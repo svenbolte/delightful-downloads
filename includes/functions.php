@@ -112,6 +112,7 @@ function dedo_get_shortcode_styles() {
 					<tr><td>'.__( 'download time', 'delightful-downloads' ).'</td><td>%downloadtime%</td></tr>
 					<tr><td>'.__( 'download count', 'delightful-downloads' ).'</td><td>%count%</td></tr>
 					</table>
+					%manexcerpt%
 					</div></blockquote>'
 	 	),
 	 	'button'		=> array(
@@ -252,7 +253,6 @@ function download_times($filesize) {
 	return $dtime;
 }
 
-
 // Replace Wildcards
  function dedo_search_replace_wildcards( $string, $id ) {
  	//adminedit
@@ -306,9 +306,25 @@ function download_times($filesize) {
 		$value = get_the_permalink($id);
  		$string = str_replace( '%permalink%', $value, $string );
  	}
- 	// beschreibung
+ 	// manual excerpt
+ 	if ( strpos( $string, '%manexcerpt%' ) !== false ) {
+		if ( post_password_required( $id) ) {
+			global $post;
+			$post = get_post ( $id );
+			$value = $post->post_excerpt;
+		} else if (has_excerpt( $id )) $value = get_the_excerpt( $id );   // if manual excerpt exists
+		else $value='';
+ 		$string = str_replace( '%manexcerpt%', $value, $string );
+ 	}
+
+	 
+	 // beschreibung
  	if ( strpos( $string, '%description%' ) !== false ) {
- 		$value = get_the_excerpt( $id );
+		if ( post_password_required( $id) ) {
+			global $post;
+			$post = get_post ( $id );
+			$value = $post->post_excerpt;
+		} else $value = get_the_excerpt( $id );
  		$string = str_replace( '%description%', $value, $string );
  	}
 	// post thumbnail - Beitragsbild mit img-zoom on hover
