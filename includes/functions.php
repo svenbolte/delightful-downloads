@@ -44,7 +44,7 @@ function dedo_heatcolor($visithotness) {
 }
 
 
-// Zeitdifferenz ermitteln und gestern/vorgestern/morgen schreiben: chartscodes, dedo, foldergallery, timeclock, w4-post-list
+// Zeitdifferenz ermitteln und gestern/vorgestern/morgen schreiben: chartscodes, dedo, foldergallery, timeclock
 if( !function_exists('ago')) {
 	function ago($timestamp) {
 		if (empty($timestamp)) return;
@@ -55,7 +55,7 @@ if( !function_exists('ago')) {
 			$prepo = __('in', 'penguin');
 			$postpo = '';
 		} else {
-			if ($xlang == 'de-DE') {
+			if ($xlang == 'de') {
 				$prepo = __('vor', 'penguin');
 				$postpo = '';
 			} else {
