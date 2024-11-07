@@ -52,26 +52,26 @@ if( !function_exists('ago')) {
 		date_default_timezone_set('Europe/Berlin');
 		$now = time();
 		if ($timestamp > $now) {
-			$prepo = __('in', 'penguin');
+			$prepo = 'in';
 			$postpo = '';
 		} else {
 			if ($xlang == 'de') {
-				$prepo = __('vor', 'penguin');
+				$prepo = 'vor';
 				$postpo = '';
 			} else {
 				$prepo = '';
-				$postpo = __('ago', 'penguin');
+				$postpo = __('ago', 'delightful-downloads');
 			}
 		}
 		$her = date( 'd.m.Y', intval($timestamp) );
 		if ($her == date('d.m.Y',$now - (24 * 3600))) {
-			$hdate = __('yesterday', 'penguin');
+			$hdate = __('yesterday', 'delightful-downloads');
 		} else if ($her == date('d.m.Y',$now - (48 * 3600))) {
-			$hdate = __('1 day before yesterday', 'penguin');
+			$hdate = __('1 day before yesterday', 'delightful-downloads');
 		} else if ($her == date('d.m.Y',$now + (24 * 3600))) {
-			$hdate = __('tomorrow', 'penguin');
+			$hdate = __('tomorrow', 'delightful-downloads');
 		} else if ($her == date('d.m.Y',$now + (48 * 3600))) {
-			$hdate = __('1 day after tomorrow', 'penguin');
+			$hdate = __('1 day after tomorrow', 'delightful-downloads');
 		} else {
 			$hdate = ' ' . $prepo . ' ' . human_time_diff(intval($timestamp), $now) . ' ' . $postpo;
 		}
