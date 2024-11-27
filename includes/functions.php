@@ -262,7 +262,7 @@ function download_times($filesize) {
 			$hashwert = md5( intval($id) + intval($datetime->format('Ymd')) );
 			if (is_singular() && in_the_loop() ) {
 				$oneday = '<input type="text" title="Copy '.$datetime->format('d.m.Y').' Onedaypass für heute&#10;'.$hashwert.'" class="copy-to-clipboard" style="direction:rtl;cursor:pointer;font-size:0.7em;width:80px;height:17px;margin-top:0" value="' . get_site_url() . '?sdownload=' . esc_attr( $id ) .  '&code='. $hashwert . '" readonly> &nbsp;';
-				$oneday .= '<p class="description" style="display: none;">' . __( 'One day pass copied to clipboard.', 'delightful-downloads' ) . '</p>';
+				$oneday .= '<p class="newlabel yellow" style="display: none;">' . __( 'One day pass copied to clipboard.', 'delightful-downloads' ) . '</p>';
 			} else $oneday='';
 			$string = str_replace( '%adminedit%', ' <a href="'. get_home_url() . '/wp-admin/post.php?post='.$id.'&action=edit"><i title="'. __( 'edit this download', 'delightful-downloads' ) . '" class="fa fa-pencil"></i></a> &nbsp; '.$oneday, $string );
 		} else {
@@ -368,7 +368,7 @@ function download_times($filesize) {
 			$newormod = 'fa fa-calendar-o';
 		}
 		$value = '<span title="' . $erstelltitle . '" class="newlabel" style="background-color:' . $newcolor . '">';
-		$value .= '<i class="' . $newormod . '" style="vertical-align:top;font-size:1.2em;margin:-2px 3px 0 0"></i>';
+		$value .= '<i class="' . $newormod . '" style="font-size:1.1em;margin-right:3px"></i>';
 		if ($diffmod > 0) {
 			$value .= ' ' . get_the_modified_time(get_option('date_format').' '.get_option('time_format'), $id) . ' ' . $modago;
 		} else {
@@ -402,7 +402,7 @@ function download_times($filesize) {
 			$newormod = 'fa fa-calendar-o';
 		}
 		$value = '<span title="' . $erstelltitle . '" class="newlabel" style="background-color:' . $newcolor . '">';
-		$value .= '<i class="' . $newormod . '" style="vertical-align:top;font-size:1.2em;margin:-2px 3px 0 0"></i>';
+		$value .= '<i class="' . $newormod . '" style="font-size:1.1em;margin-right:3px"></i>';
 			if ($diffmod > 0) {
 				$value .= ' ' . $modago;
 			} else {
@@ -435,10 +435,10 @@ function download_times($filesize) {
 		} else {
 			$newormod = 'fa fa-calendar-o';
 		}
-		$value = '<span title="' . $erstelltitle . '" class="newlabel white"><i class="fa fa-calendar-o"  style="vertical-align:top;font-size:1.2em;margin-right:3px"></i>';
+		$value = '<span title="' . $erstelltitle . '" class="newlabel white"><i class="fa fa-calendar-o"  style="font-size:1.1em;margin-right:3px"></i>';
 		$value .= get_post_time(get_option('date_format').' '.get_option('time_format'), false, $id, true) . ' ' . $postago;
 		$value .= '</span>&nbsp;<span title="' . $erstelltitle . '" class="newlabel" style="background-color:' . $newcolor . '">';
-		$value .='<i class="fa fa-calendar-plus-o" style="vertical-align:top;font-size:1.2em;margin-right:3px"></i>';
+		$value .='<i class="fa fa-calendar-plus-o" style="font-size:1.1em;margin-right:3px"></i>';
 		$value .= get_the_modified_time(get_option('date_format').' '.get_option('time_format'), $id) . ' ' . $modago;
 		$value .= '</span>';
 		$string = str_replace( '%date%', $value, $string );
@@ -468,7 +468,7 @@ function download_times($filesize) {
 			$newormod = 'fa fa-calendar-o';
 		}
 		$value = '<span title="' . $erstelltitle . '" class="newlabel" style="background-color:' . $newcolor . '">';
-		$value .= '<i class="' . $newormod . '" style="vertical-align:top;font-size:1.2em;margin-right:3px"></i>';
+		$value .= '<i class="' . $newormod . '" style="font-size:1.1em;margin-right:3px"></i>';
 		$value .= get_the_modified_time(get_option('date_format').' '.get_option('time_format'), $id);
 		$value .= '</span>';
 		$string = str_replace( '%shortdate%', $value, $string );
