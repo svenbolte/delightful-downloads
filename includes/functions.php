@@ -44,7 +44,7 @@ function dedo_heatcolor($visithotness) {
 }
 
 
-// Zeitdifferenz ermitteln und gestern/vorgestern/morgen schreiben: chartscodes, dedo, foldergallery, timeclock
+// Zeitdifferenz ermitteln und gestern/vorgestern/morgen schreiben: penguin-mod, chartscodes, dedo, foldergallery, timeclock
 if( !function_exists('ago')) {
 	function ago($timestamp) {
 		if (empty($timestamp)) return;
@@ -52,7 +52,7 @@ if( !function_exists('ago')) {
 		date_default_timezone_set('Europe/Berlin');
 		$now = time();
 		if ($timestamp > $now) {
-			$prepo = 'in';
+			$prepo = __('in', 'penguin');
 			$postpo = '';
 		} else {
 			if ($xlang == 'de') {
@@ -60,22 +60,22 @@ if( !function_exists('ago')) {
 				$postpo = '';
 			} else {
 				$prepo = '';
-				$postpo = __('ago', 'delightful-downloads');
+				$postpo = ' ' . __('ago', 'penguin');
 			}
 		}
 		$her = date( 'd.m.Y', intval($timestamp) );
 		if ($her == date('d.m.Y',$now - (24 * 3600))) {
-			$hdate = __('yesterday', 'delightful-downloads');
+			$hdate = __('yesterday', 'penguin');
 		} else if ($her == date('d.m.Y',$now - (48 * 3600))) {
-			$hdate = __('1 day before yesterday', 'delightful-downloads');
+			$hdate = __('1 day before yesterday', 'penguin');
 		} else if ($her == date('d.m.Y',$now + (24 * 3600))) {
-			$hdate = __('tomorrow', 'delightful-downloads');
+			$hdate = __('tomorrow', 'penguin');
 		} else if ($her == date('d.m.Y',$now + (48 * 3600))) {
-			$hdate = __('1 day after tomorrow', 'delightful-downloads');
+			$hdate = __('1 day after tomorrow', 'penguin');
 		} else {
-			$hdate = ' ' . $prepo . ' ' . human_time_diff(intval($timestamp), $now) . ' ' . $postpo;
+			$hdate = $prepo . ' ' . human_time_diff(intval($timestamp), $now) . $postpo;
 		}
-		return $hdate;
+		return ' ' . $hdate . ' ';
 	}
 }	
 
