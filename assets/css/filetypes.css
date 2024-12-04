@@ -67,6 +67,14 @@ background:#000c
 content:"exe"
 }
 
+.ftyp-html {
+background:#00fc
+}
+
+.ftyp-html::after {
+content:"html"
+}
+
 .ftyp-msi {
 background:#000d
 }
