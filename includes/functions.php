@@ -852,7 +852,7 @@ function dedo_get_file_name( $path ) {
  * @return string Value of file mime.
  */
 function dedo_get_file_mime( $path ) {
-	$file = wp_check_filetype( $path );
+	$file = wp_check_filetype( $path, array_merge(get_allowed_mime_types(),array('html' => 'text/html')) );
 	return $file['type'];
 }
 
@@ -864,7 +864,7 @@ function dedo_get_file_mime( $path ) {
  * @return string Value of file extension.
  */
 function dedo_get_file_ext( $path ) {
-	$file = wp_check_filetype( $path );
+	$file = wp_check_filetype( $path, array_merge(get_allowed_mime_types(),array('html' => 'text/html')) );
 	return $file['ext'];
 }
 
