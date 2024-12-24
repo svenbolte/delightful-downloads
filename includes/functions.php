@@ -89,9 +89,9 @@ function dedo_get_shortcode_styles() {
 					<div style="display:flex;width:100%">
 					<div style="display:inline-block;min-width:60px;width:60px">%icon%</div>
 					<div style="display:inline-block;width:100%;min-width:70%">
-					<div class="iconleiste" style="background-color:#fff5">
-					%locked% &nbsp; %adminedit%%datesymbol%%filesize%%downloadtime%%count%%filename%</div> 
-					<div class="greybox" style="background-color:#fff5">%category% %tags%</div>
+					<div class="entry-meta-top">
+					%locked% &nbsp; %adminedit%%datesymbol%%filesize%%downloadtime%%count%%filename%  
+					<div class="greybox">%category% %tags%</div></div>
 					<h6 style="margin-top:6px"><a href="%permalink%" title="'.__( 'download details', 'delightful-downloads' ).'" rel="nofollow">
 					%title%</a></h6>
 					<a class="ddownload-button page-numbers"  href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">'.__( 'download file', 'delightful-downloads' ).'</a>
@@ -183,8 +183,8 @@ function dedo_get_shortcode_lists() {
 	 		'format'			=> '<div style="display:flex;width:100%">
 					<div style="display:inline-block;min-width:55px;width:55px">%icon%</div>
 					<div style="display:inline-block;width:100%;min-width:70%;vertical-align:top;line-height:1.35em">
-					<div class="iconleiste" style="background-color:#fff5">%locked% &nbsp; %adminedit%
-					%dateago%%filesize%%count%</div><div class="greybox" style="background-color:#fff5">%category% %tags%</div>
+					<div class="entry-meta-top">%locked% &nbsp; %adminedit%
+					%dateago%%filesize%%count%<div class="greybox">%category% %tags%</div></div>
 					<h6 style="margin-top:4px"><a style="display:block;max-width:98vw;white-space:nowrap;overflow:hidden" href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
 					<i class="fa fa-download"></i> %title%</a></h6>
 					</div></div>'
@@ -195,8 +195,8 @@ function dedo_get_shortcode_lists() {
 					<div style="display:flex;width:100%">
 					<div style="display:inline-block;min-width:55px;width:55px">%icon%</div>
 					<div style="display:inline-block;width:100%;min-width:70%">
-					<div class="iconleiste" style="background-color:#fff5">%locked% &nbsp; %adminedit% %datesymbol%</div>
-					<div class="greybox" style="background-color:#fff5">%category% %tags%</div>
+					<div class="entry-meta-top">%locked% &nbsp; %adminedit% %datesymbol%
+					<div class="greybox">%category% %tags%</div></div>
 					<h6 style="margin-top:4px"><a style="display:block;max-width:98vw;white-space:nowrap;overflow:hidden" href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
 					<i class="fa fa-download"></i> %title%</a></h6>
 					<div>%filename%%filedate%%filesize%%count%%downloadtime%<br>%description%</div>

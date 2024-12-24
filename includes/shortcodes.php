@@ -265,12 +265,12 @@ function dedo_shortcode_ddownload_list( $atts ) {
 			$filecount=0;
 			$tfilesize=0;
 			$listfilter='';
-			echo '<table style="table-layout: fixed" class="ddownloads_list' . $tax_class . $style_class . '">';
 			if (!empty($categories)) $listfilter .= '<i class="fa fa-folder-open-o"></i> '.$categories;
 			if (!empty($tags)) $listfilter .= ' &nbsp;<i class="fa fa-tags"></i> '.$tags;
 			if (!empty($exclude_categories)) $listfilter .= ' &nbsp;<i title="excluded cats" class="fa fa-filter" style="color:tomato"></i><i class="fa fa-folder-open-o"></i> '.$exclude_categories;
 			if (!empty($exclude_tags)) $listfilter .= ' &nbsp;<i title="excluded tags" class="fa fa-filter" style="color:tomato"></i><i class="fa fa-tags"></i> '.$exclude_tags;
-			if (!empty($listfilter)) echo '<thead><tr><th style="width:100%;text-transform:uppercase"><strong>'.__('downloads','delightful_downloads').'</strong> &nbsp;'.$listfilter.'</th></tr></thead><tbody>';
+			if (!empty($listfilter)) echo '<div class="entry-meta-top" style="text-align:centerwidth:100%;text-transform:uppercase"><strong>'.__('downloads','delightful_downloads').'</strong> &nbsp;'.$listfilter.'</div>';
+			echo '<div class="ddownloads_list' . $tax_class . $style_class . '">';
 			while ( $downloads_list->have_posts() ) {
 				$downloads_list->the_post();
 				// Add classes
@@ -280,16 +280,17 @@ function dedo_shortcode_ddownload_list( $atts ) {
 				$filecount++;
 				$dlcount += get_post_meta( get_the_ID(), '_dedo_file_count', true );
 				$tfilesize += (int) get_post_meta( get_the_ID(), '_dedo_file_size', true );
-				echo '<tr><td style="position:relative;width:100%"><div style="background-color:#ffffffbb;color:#000;font-size:1.2em;font-weight:700;position:absolute;left:8px;top:6px;z-index:99999;line-height:1em">'. $filecount.'</div>' . dedo_search_replace_wildcards( $new_style_format, get_the_ID() ) . '</td></tr>';
+				echo '<article style="margin:0 2px 6px 1px"><div style="position:relative"><div style="background-color:#ffffffbb;color:#000;font-size:1.2em;font-weight:700;position:absolute;left:8px;top:6px;z-index:99999;line-height:1em">'. $filecount.'</div></div>' . dedo_search_replace_wildcards( $new_style_format, get_the_ID() ) . '</article>';
 				// Reset classes for next iteration
 				unset( $classes );
 				unset( $new_style_format );
 			}
+			echo '</div>';
 			
 			// File Statistiken, wenn limit nicht gesetzt
 			if ($limit == 0) {
 				$total_files = wp_count_posts( 'dedo_download' )->publish;
-				echo '<tfoot><tr><td>';
+				echo '<div class="entry-meta-top" style="text-align:center;margin-bottom:2em">';
 				if ((int) $filecount < (int) $total_files) {
 					echo '<i class="fa fa-list"></i> <b>'.$filecount.'</b> &nbsp;';
 					echo '<i class="fa fa-expand"></i> <b>' . size_format( $tfilesize, 1 ).'</b>';
@@ -298,9 +299,8 @@ function dedo_shortcode_ddownload_list( $atts ) {
 				echo ' &nbsp; TOTAL <b>'.$total_files.'</b> &nbsp;'
 					.'<i class="fa fa-expand"></i> <b>'.size_format( dedo_get_filesize(), 1 ).'</b> '
 					.'<i class="fa fa-cloud-download"></i> <b>'.number_format_i18n(dedo_total_downloads());
-				echo '</b></td></tr></tfoot>';
+				echo '</b></div>';
 			}	
-			echo '</table>';
 			$output = ob_get_clean();
 			wp_reset_postdata();
 
