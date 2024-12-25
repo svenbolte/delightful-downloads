@@ -1,9 +1,9 @@
 .ddownloads_list {
 display: grid;
-font-size: .9rem;
-grid-gap: 6px;
+gap: .4rem;
 grid-template-columns: 1fr;
-margin: 0 2px;
+grid-auto-rows: minmax(20px, auto);
+margin: 2px;
 }
 
 .ddownload-button {

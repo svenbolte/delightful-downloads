@@ -185,7 +185,7 @@ function dedo_get_shortcode_lists() {
 					<div style="display:inline-block;width:100%;min-width:70%;vertical-align:top;line-height:1.35em">
 					<div class="entry-meta-top">%locked% &nbsp; %adminedit%
 					%dateago%%filesize%%count%<div class="greybox">%category% %tags%</div></div>
-					<h6 style="margin-top:4px"><a style="display:block;max-width:98vw;white-space:nowrap;overflow:hidden" href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
+					<h6 style="margin-top:4px"><a href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
 					<i class="fa fa-download"></i> %title%</a></h6>
 					</div></div>'
 	 	),
@@ -197,7 +197,7 @@ function dedo_get_shortcode_lists() {
 					<div style="display:inline-block;width:100%;min-width:70%">
 					<div class="entry-meta-top">%locked% &nbsp; %adminedit% %datesymbol%
 					<div class="greybox">%category% %tags%</div></div>
-					<h6 style="margin-top:4px"><a style="display:block;max-width:98vw;white-space:nowrap;overflow:hidden" href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
+					<h6 style="margin-top:4px"><a href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
 					<i class="fa fa-download"></i> %title%</a></h6>
 					<div>%filename%%filedate%%filesize%%count%%downloadtime%<br>%description%</div>
 					</div>%thumb%</div>'
