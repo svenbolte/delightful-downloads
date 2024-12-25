@@ -1,11 +1,3 @@
-.ddownloads_list {
-display: grid;
-gap: .4rem;
-grid-template-columns: 1fr;
-grid-auto-rows: minmax(20px, auto);
-margin: 2px;
-}
-
 .ddownload-button {
 background-color:#aaa;
 border:1px solid silver;
