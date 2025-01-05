@@ -3,10 +3,10 @@ Contributors: A5hleyRich, Sven Bolte, others (best of forks)
 Tags: download, manager, downloads, monitor, shortcode, delightful downloads, file, counter, tracking, infobox, fixed filetree,ipflag, chartscodes
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 9.9.84
-Stable tag: 9.9.84
+Version: 9.9.85
+Stable tag: 9.9.85
 Requires at least: 6.0
-Tested up to: 6.7
+Tested up to: 6.7.1
 Requires PHP: 8.2
 
 A super-awesome downloads manager for WordPress with htacces file limits and file icons and one day passes.
@@ -463,6 +463,11 @@ Please refer to the [documentation] in this readme.txt.
 
 
 ==================== Changelog ==========================================================================
+
+= 9.9.85 =
+WP 671 coppatibility
+Shortword %id3tag% added - checking the mime type and if audio/mpeg the id3 Tag will be read and displayed
+(incl. cover image and unsyncedlyrics). Default added on singular view and on infoboxlist templates
 
 = 9.9.83 =
 fontawesomeplus url fixed. Thanks Stefan. now faplus is loaded when using other theme than penguin.

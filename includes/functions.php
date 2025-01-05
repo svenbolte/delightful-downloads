@@ -43,7 +43,6 @@ function dedo_heatcolor($visithotness) {
 	return $hotcolor;	
 }
 
-
 // Zeitdifferenz ermitteln und gestern/vorgestern/morgen schreiben: penguin-mod, chartscodes, dedo, foldergallery, timeclock
 if( !function_exists('ago')) {
 	function ago($timestamp) {
@@ -111,6 +110,7 @@ function dedo_get_shortcode_styles() {
 					<tr><td>'.__( 'file date', 'delightful-downloads' ).'</td><td>%filedate%</td></tr>
 					<tr><td>'.__( 'download time', 'delightful-downloads' ).'</td><td>%downloadtime%</td></tr>
 					<tr><td>'.__( 'download count', 'delightful-downloads' ).'</td><td>%count%</td></tr>
+					<tr><td colspan=2>%id3tag%</td></tr>
 					</table>
 					%manexcerpt%
 					</div></blockquote>'
@@ -200,7 +200,7 @@ function dedo_get_shortcode_lists() {
 					<h6 style="margin-top:4px"><a href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
 					<i class="fa fa-download"></i> %title%</a></h6>
 					<div>%filename%%filedate%%filesize%%count%%downloadtime%<br>%description%</div>
-					</div>%thumb%</div>'
+					</div>%thumb%</div>%id3tag%'
 	 	)
 	);
 	return apply_filters( 'dedo_get_lists', $lists );
@@ -316,9 +316,39 @@ function download_times($filesize) {
 		else $value='';
  		$string = str_replace( '%manexcerpt%', $value, $string );
  	}
-
 	 
-	 // beschreibung
+	// Wenn MP3, dann ID3-Infos ausgeben
+ 	if ( strpos( $string, '%id3tag%' ) !== false ) {
+		$mime_type = dedo_get_file_mime( get_post_meta( $id, '_dedo_file_url', true ) );
+		if ($mime_type == 'audio/mpeg') {
+			$mp3url = get_post_meta( $id, '_dedo_file_url', true );
+			$mp3path = dedo_get_abs_path( $mp3url );
+			$mp3filename = dedo_get_file_name( get_post_meta( $id, '_dedo_file_url', true ) );
+			// Musicplayer
+			$musifile = $mp3path;
+			if (file_exists($musifile)) {
+				require_once( ABSPATH . 'wp-admin/includes/media.php' );
+				$musiurl = $mp3url;
+				$meta = wp_read_audio_metadata( $musifile );
+				$html = '';
+				$html .= '<div class="timeline" style="grid-template-columns:96px 4fr;border:1px dashed silver"><div>';
+				if (!empty($meta['image']['data'])) $html .= '<img style="width:96px" src="data:image/jfif;base64,'.base64_encode($meta['image']['data']).'">';
+				$html .= '</div><div>';
+				// Player nur, wenn nicht password protected
+				if ( !post_password_required( $id) ) $html .= '<audio class="noprint" controlsList="nodownload" style="width:100%" controls src="'.$musiurl.'" preload="metadata"></audio>';
+				$html .='<span style="font-size:.9em;font-style:italic">Titel: '.@$meta['title'].' | Künstler: '.@$meta['artist'].' | Album: '.@$meta['album'].'  | Dauer: '.@$meta['length_formatted']
+					.' | Größe: '.number_format_short($meta['filesize']).' | Komponist: 
+					'.@$meta['composer'].' | Genre: '.@$meta['genre'].' | Jahr: '.@$meta['year'].' | Track: '.@$meta['track_number'];
+					if (!empty(@$meta['unsynchronised_lyric'])) $html .= ' | Lyrics: '.@$meta['unsynchronised_lyric'];
+					$html .= '</span></div></div>'; 
+			}		
+			$value = $html;
+		}	
+		$string = str_replace( '%id3tag%', $value, $string );
+	}
+	
+	
+	// beschreibung
  	if ( strpos( $string, '%description%' ) !== false ) {
 		if ( post_password_required( $id) ) {
 			global $post;
