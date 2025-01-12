@@ -51,7 +51,7 @@ function dedo_update_messages( $messages ) {
 		7 => __('Download saved.', 'delightful-downloads'),
 		8 => __('Download submitted.', 'delightful-downloads'),
 		9 => sprintf( __('Download scheduled for: <strong>%1$s</strong>.', 'delightful-downloads'),
-		  date_i18n( __( 'M j, Y @ G:i', 'delightful-downloads' ), strtotime( $post->post_date ) ) ),
+		  wp_date( __( 'M j, Y @ G:i', 'delightful-downloads' ), strtotime( $post->post_date ) ) ),
 		10 => __('Download draft updated.', 'delightful-downloads'),
 	);
 
