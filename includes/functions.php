@@ -341,9 +341,9 @@ function download_times($filesize) {
 					'.@$meta['composer'].' | Genre: '.@$meta['genre'].' | Jahr: '.@$meta['year'].' | Track: '.@$meta['track_number'];
 					if (!empty(@$meta['unsynchronised_lyric'])) $html .= ' | Lyrics: '.@$meta['unsynchronised_lyric'];
 					$html .= '</span></div></div>'; 
-			}		
+			} else $html = '';		
 			$value = $html;
-		}	
+		} else $value='';	
 		$string = str_replace( '%id3tag%', $value, $string );
 	}
 	
