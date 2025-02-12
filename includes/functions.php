@@ -330,19 +330,33 @@ function download_times($filesize) {
 				require_once( ABSPATH . 'wp-admin/includes/media.php' );
 				$musiurl = $mp3url;
 				$meta = wp_read_audio_metadata( $musifile );
-				$html = '';
-				$html .= '<div class="timeline" style="grid-template-columns:96px 4fr;border:1px dashed silver"><div>';
-				if (!empty($meta['image']['data'])) $html .= '<img style="width:96px" src="data:image/jfif;base64,'.base64_encode($meta['image']['data']).'">';
-				$html .= '</div><div>';
+				$phtml = '<div class="timeline" style="grid-template-columns:96px 4fr;border:1px dashed silver"><div>';
+				if (!empty($meta['image']['data'])) $phtml .= '<img style="width:96px" src="data:'.$meta['image']['mime'].';charset=utf-8;base64,'.base64_encode($meta['image']['data']).'">';
+				$phtml .= '</div><div>';
 				// Player nur, wenn nicht password protected
-				if ( !post_password_required( $id) ) $html .= '<audio class="noprint" controlsList="nodownload" style="width:100%" controls src="'.$musiurl.'" preload="metadata"></audio>';
-				$html .='<span style="font-size:.9em;font-style:italic">Titel: '.@$meta['title'].' | Künstler: '.@$meta['artist'].' | Album: '.@$meta['album'].'  | Dauer: '.@$meta['length_formatted']
-					.' | Größe: '.number_format_short($meta['filesize']).' | Komponist: 
-					'.@$meta['composer'].' | Genre: '.@$meta['genre'].' | Jahr: '.@$meta['year'].' | Track: '.@$meta['track_number'];
-					if (!empty(@$meta['unsynchronised_lyric'])) $html .= ' | Lyrics: '.@$meta['unsynchronised_lyric'];
-					$html .= '</span></div></div>'; 
-			} else $html = '';		
-			$value = $html;
+				if ( !post_password_required( $id) ) $phtml .= '<audio class="noprint" controlsList="nodownload" style="width:100%" controls src="'.$musiurl.'" preload="metadata"></audio>';
+				$phtml .='<span style="font-size:.9em;font-style:italic">';
+				// Metadata Ausgabe auch für penguin podcasts template und für audio template --------------
+				if (isset($meta['title'])) $phtml .= '<i title="title" class="fa fa-ticket"></i> <b>'.$meta['title'].'</b>';
+				if (isset($meta['artist'])) $phtml .= '<i style="margin-left:1em" title="artist" class="fa fa-user"></i> '.$meta['artist'];
+				if (isset($meta['album'])) $phtml .= '<i style="margin-left:1em" title="album" class="fa fa-book"></i> ' . $meta['album'];
+				if (isset($meta['track_number'])) $phtml .= '<i style="margin-left:1em" title="track number" class="fa fa-hashtag"></i> ' . $meta['track_number'];
+				if (isset($meta['year'])) $phtml .= '<i style="margin-left:1em" title="year" class="fa fa-calendar-check-o"></i> '.$meta['year'];
+				if (isset($meta['genre'])) $phtml .= '<i style="margin-left:1em" title="genre" class="fa fa-cubes"></i> ' . $meta['genre'];
+				if (isset($meta['length_formatted'])) $phtml .= '<i style="margin-left:1em" title="length" class="fa fa-clock-o"></i> ' . $meta['length_formatted'];
+				if (isset($meta['composer'])) $phtml .= ' <i style="margin-left:1em" title="composer" class="fa fa-music"></i> ' . $meta['composer'];
+				if (isset($meta['band'])) $phtml .= '<i style="margin-left:1em" title="album artist" class="fa fa-users"></i> ' . $meta['band'];
+				if (isset($meta['filesize'])) $phtml .= '<i style="margin-left:1em" title="filesize" class="fa fa-expand"></i> ' . number_format_short($meta['filesize']);
+				if (isset($meta['part_of_a_set'])) $phtml .= '<i style="margin-left:1em" title="disc number" class="fa fa-circle-thin"></i> ' . $meta['part_of_a_set'];
+				if (isset($meta['encoder_options'])) $phtml .= '<i style="margin-left:1em" title="encoding" class="fa fa-compress"></i> ' . $meta['encoder_options'];
+				if (isset($meta['channelmode'])) $phtml .= '<i style="margin-left:1em" title="channelmode" class="fa fa-microphone"></i> ' . $meta['channelmode'];
+				if (isset($meta['publisher'])) $phtml .= '<i style="margin-left:1em" title="publisher" class="fa fa-newspaper-o"></i> ' . $meta['publisher'];
+				if (isset($meta['comment'])) $phtml .= '<i style="margin-left:1em" class="fa fa-comments"></i> ' . $meta['comment'];
+				if (!empty(@$meta['unsynchronised_lyric'])) $phtml .= '<i style="margin-left:1em" class="fa fa-text-width"></i> ' . $meta['unsynchronised_lyric'];
+				// Metadata identisch Ende -------------------
+				$phtml .= '</span></div></div>'; 
+			} else $phtml = '';		
+			$value = $phtml;
 		} else $value='';	
 		$string = str_replace( '%id3tag%', $value, $string );
 	}
