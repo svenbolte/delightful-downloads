@@ -329,10 +329,9 @@ function download_times($filesize) {
 			if (file_exists($musifile)) {
 				require_once( ABSPATH . 'wp-admin/includes/media.php' );
 				$musiurl = $mp3url;
+				$filename = basename($musiurl);
 				$meta = wp_read_audio_metadata( $musifile );
-				$phtml = '<div class="timeline" style="grid-template-columns:96px 4fr;border:1px dashed silver"><div>';
-				if (!empty($meta['image']['data'])) $phtml .= '<img style="width:96px" src="data:'.$meta['image']['mime'].';charset=utf-8;base64,'.base64_encode($meta['image']['data']).'">';
-				$phtml .= '</div><div>';
+				$phtml = '<div class="timeline" style="border:1px dashed #ccc;display:grid;grid-template-columns:5fr 96px"><div>';
 				// Player nur, wenn nicht password protected
 				if ( !post_password_required( $id) ) $phtml .= '<audio class="noprint" controlsList="nodownload" style="width:100%" controls src="'.$musiurl.'" preload="metadata"></audio>';
 				$phtml .='<span style="font-size:.9em;font-style:italic">';
@@ -352,9 +351,12 @@ function download_times($filesize) {
 				if (isset($meta['channelmode'])) $phtml .= '<i style="margin-left:1em" title="channelmode" class="fa fa-microphone"></i> ' . $meta['channelmode'];
 				if (isset($meta['publisher'])) $phtml .= '<i style="margin-left:1em" title="publisher" class="fa fa-newspaper-o"></i> ' . $meta['publisher'];
 				if (isset($meta['comment'])) $phtml .= '<i style="margin-left:1em" class="fa fa-comments"></i> ' . $meta['comment'];
-				if (!empty(@$meta['unsynchronised_lyric'])) $phtml .= '<i style="margin-left:1em" class="fa fa-text-width"></i> ' . $meta['unsynchronised_lyric'];
-				// Metadata identisch Ende -------------------
-				$phtml .= '</span></div></div>'; 
+				// $phtml .= '<i style="margin-left:1em" class="fa fa-file-audio-o"></i> '.basename($filename);
+				if ( !post_password_required( $id) && !empty(@$meta['unsynchronised_lyric'])) $phtml .= '<i style="margin-left:1em" class="fa fa-text-width"></i> ' . $meta['unsynchronised_lyric'];
+				$phtml .= '</span></div><div>';
+				if (!empty($meta['image']['data'])) $phtml .= '<img class="img-zoom" style="width:96px" src="data:'.$meta['image']['mime'].';charset=utf-8;base64,'.base64_encode($meta['image']['data']).'">';
+				$phtml .= '</div></div>';
+
 			} else $phtml = '';		
 			$value = $phtml;
 		} else $value='';	
