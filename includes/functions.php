@@ -74,7 +74,7 @@ if( !function_exists('ago')) {
 		} else {
 			$hdate = $prepo . ' ' . human_time_diff(intval($timestamp), $now) . $postpo;
 		}
-		return ' ' . $hdate . ' ';
+		return $hdate;
 	}
 }	
 
