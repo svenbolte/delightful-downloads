@@ -134,14 +134,14 @@ function dedo_download_column_contents( $column_name, $post_id ) {
 	// Shortcode column
 	if ( $column_name == 'shortcode' ) {
 		echo '<input type="text" title="id=&quot;' . esc_attr( $post_id ) . '&quot;" class="copy-to-clipboard" value="[ddownload id=&quot;' . esc_attr( $post_id ) . '&quot;]" readonly>';
-		echo '<p class="newlabel yellow" style="display: none;">' . __( 'Shortcode copied to clipboard.', 'delightful-downloads' ) . '</p>';
+		echo '<p class="newlabel" style="background-color:#fe8;display:none">' . __( 'Shortcode copied to clipboard.', 'delightful-downloads' ) . '</p>';
 	}
 
 	// QuickLink
 	if ( $column_name == 'quicklink' ) {
 		global $dedo_options;
 		echo '<input type="text" title="'.$dedo_options['download_url'] . '=' . esc_attr( $post_id ) . '" class="copy-to-clipboard" value="' . get_site_url() . '?' . $text = $dedo_options['download_url'] . '=' . esc_attr( $post_id ) . '" readonly>';
-		echo '<p class="newlabel yellow" style="display: none;">' . __( 'Quicklink copied to clipboard.', 'delightful-downloads' ) . '</p>';
+		echo '<p class="newlabel" style="background-color:#fe8;display:none">' . __( 'Quicklink copied to clipboard.', 'delightful-downloads' ) . '</p>';
 	}
 	
 	// One day pass column
@@ -152,7 +152,7 @@ function dedo_download_column_contents( $column_name, $post_id ) {
 		$hashwertmorgen = md5( intval($post_id) + intval($datetime2->format('Ymd')) );
 		echo '<input type="text" title="für '.$datetime->format('d.m.Y').' heute&#10;'.$hashwert.'" class="copy-to-clipboard" style="direction:rtl;cursor:pointer" value="' . get_site_url() . '?sdownload=' . esc_attr( $post_id ) .  '&code='. $hashwert . '" readonly>';
 		echo '<input type="text" title="für '.$datetime2->format('d.m.Y').' morgen&#10;'.$hashwertmorgen.'" class="copy-to-clipboard" style="direction:rtl;cursor:pointer" value="' . get_site_url() . '?sdownload=' . esc_attr( $post_id ) .  '&code='. $hashwertmorgen . '" readonly>';
-		echo '<p class="newlabel yellow" style="display: none;">' . __( 'One day pass copied to clipboard.', 'delightful-downloads' ) . '</p>';
+		echo '<p class="newlabel" style="background-color:#fe8;display:none">' . __( 'One day pass copied to clipboard.', 'delightful-downloads' ) . '</p>';
 	}
 	
 	// Count column
