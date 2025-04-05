@@ -185,7 +185,7 @@ function dedo_statistics_actions_export() {
 	$output = fopen( 'php://output', 'w' );
 
 	// Column headings
-	fputcsv( $output, array( __( 'ID', 'delightful-downloads' ), __( 'Status', 'delightful-downloads' ), __( 'Date', 'delightful-downloads' ), __( 'Download', 'delightful-downloads' ), __( 'User', 'delightful-downloads' ), __( 'IP Address', 'delightful-downloads' ), __( 'User Agent', 'delightful-downloads' ) ) );
+	fputcsv( $output, array( __( 'ID', 'delightful-downloads' ), __( 'Status', 'delightful-downloads' ), __( 'Date', 'delightful-downloads' ), __( 'Download', 'delightful-downloads' ), __( 'User', 'delightful-downloads' ), __( 'IP Address', 'delightful-downloads' ), __( 'User Agent', 'delightful-downloads' ) ), escape: "" );
 
 	// Add data
 	foreach( $logs as $log ) {
@@ -200,7 +200,7 @@ function dedo_statistics_actions_export() {
             $log['user_ip'] = inet_ntop( $log['user_ip'] );
         }
 		
-		fputcsv( $output, $log );
+		fputcsv( $output, $log, escape: "" );
 	}	
 
 	die();
