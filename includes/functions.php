@@ -79,6 +79,51 @@ if( !function_exists('ago')) {
 }	
 
 
+// Datumbox farbig mit Wochenende SA gelb und SO rot ausgeben aus createdatum und moddatum. wird nur createdatum gesetzt, wird nur das ausgewertet.
+//   enthalten in foldergallery.php, penguin/functions.php, delightful-downloads/includes/functions.php
+//    test:     echo colordatebox( (time()-86400) ,NULL ,NULL,1);        // soll ago angezeit werden, muss der 4. parameter auf 1 ($datum,NULL,NULL,1)
+if( !function_exists('colordatebox')) {
+	function colordatebox($created, $modified = NULL, $noicon = NULL, $showago = NULL) {
+		$modified = $modified ?? $created;
+		$erstelldat = str_replace( ' 00:00', '', wp_date('D d. M Y H:i', $created) );
+		$moddat = str_replace( ' 00:00', '', wp_date('D d. M Y H:i', $modified) );
+		$postago = ago($created);
+		$modago = ago($modified);
+		$diff = time() - $modified;
+		$diffmod = $modified - $created;
+		$diffround = floor($diff / 86400);
+		if ($diffround < -30 || $diffround > 30) $newcolor = "#eee";
+		else if ($diffround != 0) $newcolor = "#fe8";
+		else $newcolor = '#fff';
+		$istoday = date('Y-m-d', $modified) === date('Y-m-d');
+		if ($istoday) $newcolor = "#bfd";
+		$getweekday = wp_date('w', $created);
+		$erstelltitle = __("created", "penguin") . ': ' . $erstelldat . ' ' . $postago.' '.$diffround.' Tg';
+		if ($diffmod != 0) {
+			$erstelltitle .= "\n" . __("modified", "penguin") . ': ' . $moddat . ' ' . $modago;
+			$erstelltitle .= "\n" . __("modified after", "penguin") . ': ' . human_time_diff($created, $modified);
+			$getweekday = wp_date('w', $modified);
+		}
+		$isweekend = ($getweekday == 0) ? '#f00' : (($getweekday == 6) ? '#e60' : '#444'); // angezeigtes create oder mod Datum am Wochenende SA orange SO rote schrift
+		if ($diffmod > 0) {
+			$newormod = 'calendar-plus-o';
+			$anzeigedat = $moddat;
+			if ($showago) $anzeigedat .= ' ' . $modago;
+		} else {
+			$newormod = 'calendar-o';
+			$anzeigedat = $erstelldat;
+			if ($showago) $anzeigedat .= ' ' . $postago;
+		}
+		$colordate = '<span class="newlabel" style="background-color:' . $newcolor . '">';
+		if (!isset($noicon)) {
+			$colordate .= '<i class="fa fa-' . $newormod . '" style="margin-right:3px"></i>';
+		}
+		$colordate .= '<span style="color:' . $isweekend . '" title="' . htmlspecialchars($erstelltitle, ENT_QUOTES) . '">' . $anzeigedat . '</span></span>';
+		return $colordate;
+	}
+}
+
+
 // Shortcode Styles
 function dedo_get_shortcode_styles() {
 	$styles = array(
@@ -146,7 +191,7 @@ function dedo_get_shortcode_lists() {
 	 	),
 	 	'title_date'		=> array(
 	 		'name'				=> __( 'Title/Date)', 'delightful-downloads' ),
-	 		'format'			=> '<a href="%url%" title="%title%" rel="nofollow" class="%class%">%title% (%date%)</a>'
+	 		'format'			=> '<a href="%url%" title="%title%" rel="nofollow" class="%class%">%title% (%datesymbol%)</a>'
 	 	),
 	 	'title_count'		=> array(
 	 		'name'				=> __( 'Title/Count', 'delightful-downloads' ),
@@ -162,11 +207,11 @@ function dedo_get_shortcode_lists() {
 	 	),
 	 	'title_date_ext_filesize'=> array(
 	 		'name'				=> __( 'Title/Date/Extension/Filesize', 'delightful-downloads' ),
-	 		'format'			=> '<a style="margin-left:30px" href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a> &nbsp; %shortdate% &nbsp; %ext% &nbsp; %filesize%'
+	 		'format'			=> '<a style="margin-left:30px" href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a> &nbsp; %datesymbol% &nbsp; %ext% &nbsp; %filesize%'
 	 	),
 	 	'title_ext_filesize_count'=> array(
 	 		'name'				=> __( 'Title/Date/Extension/Filesize/count', 'delightful-downloads' ),
-	 		'format'			=> '<a style="margin-left:30px" href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a> &nbsp; %shortdate% &nbsp; %ext% &nbsp; %filesize% &nbsp; %count%'
+	 		'format'			=> '<a style="margin-left:30px" href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a> &nbsp; %datesymbol% &nbsp; %ext% &nbsp; %filesize% &nbsp; %count%'
 	 	),
 	 	'icon_title_ext_filesize'=> array(
 	 		'name'				=> __( 'Title/Icon/Category/File size', 'delightful-downloads' ),
@@ -382,142 +427,58 @@ function download_times($filesize) {
  	if ( strpos( $string, '%filedate%' ) !== false ) {
  		if (!empty( get_post_meta( $id, '_dedo_file_url', true ) )) {
 			$fpath = dedo_get_abs_path(get_post_meta( $id, '_dedo_file_url', true));
-			$diff = time() - filemtime($fpath);
-			if (round((intval($diff) / 86400), 0) < 30) $newcolor = "#fd0a"; else $newcolor = "#fffa";
-			$filecd = wp_date( get_option( 'date_format' ).' '.get_option( 'time_format' ), filemtime($fpath));
-			if (!empty($filecd)) $value = '<span class="newlabel" style="background-color:'.$newcolor.'"><i title="'.__('file upload date','delightful-downloads').'" class="fa fa-calendar-check-o" style="font-size:1.1em;margin-right:3px"></i>'.$filecd.' '.ago(filemtime($fpath)).'</span>'; else $value="";
+			$value = colordatebox( filectime($fpath), filemtime($fpath) ,NULL,1);
 		} else { $value='';  }	
 		$string = str_replace( '%filedate%', $value, $string );
  	}
-	// datesymbol
+	// datesymbol Datum, farbig mit symbol und allen created und mod date.
  	if ( strpos( $string, '%datesymbol%' ) !== false ) {
-		$diff = time() - get_the_modified_time('U', $id);
-		if (round((intval($diff) / 86400), 0) < 30) {
-			$newcolor = "#fd08";
-		} else {
-			$newcolor = "#fff";
-		}
-		$erstelldat = get_post_time('l, d. M Y H:i:s', false, $id, true);
-		$postago = ago(get_post_time('U, d. F Y H:i:s', false, $id, true));
-		$moddat = get_the_modified_time('l, d. M Y H:i:s', $id);
-		$modago = ago(get_the_modified_time('U, d. F Y H:i:s', $id));
-		$diffmod = get_the_modified_time('U', false, $id, true) - get_post_time('U', false, $id, true);
-		$datumlink= '';
-		$erstelltitle = 'erstellt: ' . $erstelldat . ' ' . $postago;
-		if ($diffmod > 0) {
-			$erstelltitle .= '&#10;verändert: ' . $moddat . ' ' . $modago;
-			$erstelltitle .= '&#10;verändert nach: ' . human_time_diff(get_post_time('U', false, $id, true), get_the_modified_time('U', $id));
-		}
-		if ($diffmod > 86400) {
-			$newormod = 'fa fa-calendar-plus-o';
-		} else {
-			$newormod = 'fa fa-calendar-o';
-		}
-		$value = '<span title="' . $erstelltitle . '" class="newlabel" style="background-color:' . $newcolor . '">';
-		$value .= '<i class="' . $newormod . '" style="font-size:1.1em;margin-right:3px"></i>';
-		if ($diffmod > 0) {
-			$value .= ' ' . get_the_modified_time(get_option('date_format').' '.get_option('time_format'), $id) . ' ' . $modago;
-		} else {
-			$value .= ' ' . get_post_time(get_option('date_format').' '.get_option('time_format'), false, $id, true) . ' ' . $postago;
-		}
-		$value .= '</span>';
+		$erstelldat = get_post_time('U', false, $id, true) - get_post_time('Z');
+		$moddat = get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z');
+		$value = colordatebox( $erstelldat, $moddat, NULL, 1);
 		$string = str_replace( '%datesymbol%', $value, $string );
  	}
-	// dateago
+	// dateago   - so viele Tage wochen her, sonntags rot, samstags orange
  	if ( strpos( $string, '%dateago%' ) !== false ) {
 		$diff = time() - get_the_modified_time('U', $id);
-		if (round((intval($diff) / 86400), 0) < 30) {
-			$newcolor = "#fd08";
+		$diffround = round($diff / 86400);
+		if ($diffround < -30 || $diffround > 30) {
+			$newcolor = "#eee";
+		} elseif ($diffround != 0) {
+			$newcolor = "#fe8";
 		} else {
-			$newcolor = "#fff";
+			$newcolor = "#bfd";
 		}
+		$created = get_post_time('U', false, $id, true) - get_post_time('Z');
+		$modified = get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z');
 		$erstelldat = get_post_time('l, d. M Y H:i:s', false, $id, true);
-		$postago = ago(get_post_time('U, d. F Y H:i:s', false, $id, true));
+		$postago = ago($created);
 		$moddat = get_the_modified_time('l, d. M Y H:i:s', $id);
-		$modago = ago(get_the_modified_time('U, d. F Y H:i:s', $id));
-		$diffmod = get_the_modified_time('U', false, $id, true) - get_post_time('U', false, $id, true);
+		$modago = ago($modified);
+		$diffmod = $modified - $created;
 		$datumlink= '';
 		$erstelltitle = 'erstellt: ' . $erstelldat . ' ' . $postago;
+		$getweekday = wp_date('w', $created);
 		if ($diffmod > 0) {
 			$erstelltitle .= '&#10;verändert: ' . $moddat . ' ' . $modago;
-			$erstelltitle .= '&#10;verändert nach: ' . human_time_diff(get_post_time('U', false, $id, true), get_the_modified_time('U', $id));
+			$erstelltitle .= '&#10;verändert nach: ' . human_time_diff($created, $modified);
+			$getweekday = wp_date('w', $modified);
 		}
 		if ($diffmod > 86400) {
 			$newormod = 'fa fa-calendar-plus-o';
 		} else {
 			$newormod = 'fa fa-calendar-o';
 		}
+		$isweekend = ($getweekday == 0) ? '#f22d' : (($getweekday == 6) ? '#f80' : '#444');
 		$value = '<span title="' . $erstelltitle . '" class="newlabel" style="background-color:' . $newcolor . '">';
 		$value .= '<i class="' . $newormod . '" style="font-size:1.1em;margin-right:3px"></i>';
 			if ($diffmod > 0) {
-				$value .= ' ' . $modago;
+				$value .= '<span style="color:'.$isweekend.'"> ' . $modago . '</span>';
 			} else {
-				$value .=  ' ' . $postago;
+				$value .=  '<span style="color:'.$isweekend.'"> ' . $postago . '</span>';
 			}
 		$value .= '</span>';
 		$string = str_replace( '%dateago%', $value, $string );
- 	}
-	// date
- 	if ( strpos( $string, '%date%' ) !== false ) {
-		$diff = time() - get_the_modified_time('U', $id);
-		if (round((intval($diff) / 86400), 0) < 30) {
-			$newcolor = "#fd08";
-		} else {
-			$newcolor = "#fff";
-		}
-		$erstelldat = get_post_time('l, d. M Y H:i:s', false, $id, true);
-		$postago = ago(get_post_time('U, d. F Y H:i:s', false, $id, true));
-		$moddat = get_the_modified_time('l, d. M Y H:i:s', $id);
-		$modago = ago(get_the_modified_time('U, d. F Y H:i:s', $id));
-		$diffmod = get_the_modified_time('U', false, $id, true) - get_post_time('U', false, $id, true);
-		$datumlink= '';
-		$erstelltitle = 'erstellt: ' . $erstelldat . ' ' . $postago;
-		if ($diffmod > 0) {
-			$erstelltitle .= '&#10;verändert: ' . $moddat . ' ' . $modago;
-			$erstelltitle .= '&#10;verändert nach: ' . human_time_diff(get_post_time('U', false, $id, true), get_the_modified_time('U', $id));
-		}
-		if ($diffmod > 86400) {
-			$newormod = 'fa fa-calendar-plus-o';
-		} else {
-			$newormod = 'fa fa-calendar-o';
-		}
-		$value = '<span title="' . $erstelltitle . '" class="newlabel white"><i class="fa fa-calendar-o"  style="font-size:1.1em;margin-right:3px"></i>';
-		$value .= get_post_time(get_option('date_format').' '.get_option('time_format'), false, $id, true) . ' ' . $postago;
-		$value .= '</span>&nbsp;<span title="' . $erstelltitle . '" class="newlabel" style="background-color:' . $newcolor . '">';
-		$value .='<i class="fa fa-calendar-plus-o" style="font-size:1.1em;margin-right:3px"></i>';
-		$value .= get_the_modified_time(get_option('date_format').' '.get_option('time_format'), $id) . ' ' . $modago;
-		$value .= '</span>';
-		$string = str_replace( '%date%', $value, $string );
- 	}
-	// shortdate
- 	if ( strpos( $string, '%shortdate%' ) !== false ) {
-		$diff = time() - get_the_modified_time('U', $id);
-		if (round((intval($diff) / 86400), 0) < 30) {
-			$newcolor = "#fd08";
-		} else {
-			$newcolor = "#fff";
-		}
-		$erstelldat = get_post_time('l, d. M Y H:i:s', false, $id, true);
-		$postago = ago(get_post_time('U, d. F Y H:i:s', false, $id, true));
-		$moddat = get_the_modified_time('l, d. M Y H:i:s', $id);
-		$modago = ago(get_the_modified_time('U, d. F Y H:i:s', $id));
-		$diffmod = get_the_modified_time('U', false, $id, true) - get_post_time('U', false, $id, true);
-		$datumlink= '';
-		$erstelltitle = 'erstellt: ' . $erstelldat . ' ' . $postago;
-		if ($diffmod > 0) {
-			$erstelltitle .= '&#10;verändert: ' . $moddat . ' ' . $modago;
-			$erstelltitle .= '&#10;verändert nach: ' . human_time_diff(get_post_time('U', false, $id, true), get_the_modified_time('U', $id));
-		}
-		if ($diffmod > 86400) {
-			$newormod = 'fa fa-calendar-plus-o';
-		} else {
-			$newormod = 'fa fa-calendar-o';
-		}
-		$value = '<span title="' . $erstelltitle . '" class="newlabel" style="background-color:' . $newcolor . '">';
-		$value .= '<i class="' . $newormod . '" style="font-size:1.1em;margin-right:3px"></i>';
-		$value .= get_the_modified_time(get_option('date_format').' '.get_option('time_format'), $id);
-		$value .= '</span>';
-		$string = str_replace( '%shortdate%', $value, $string );
  	}
  	// filesize
  	if ( strpos( $string, '%filesize%' ) !== false ) {
