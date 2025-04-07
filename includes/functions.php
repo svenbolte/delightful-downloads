@@ -43,7 +43,10 @@ function dedo_heatcolor($visithotness) {
 	return $hotcolor;	
 }
 
-// Zeitdifferenz ermitteln und gestern/vorgestern/morgen schreiben: penguin-mod, chartscodes, dedo, foldergallery, timeclock
+// ----------------------------------- Funktionen, die in andere Plugins und themes gespiegelt sind ------------------------------------
+
+// Zeitdifferenz ermitteln und gestern/vorgestern/morgen schreiben
+//   gespiegelt in: chartcodes.php, delightful-downloads/includes/functions.php, foldergallery.php, penguin/functions.php, timeclock/includes/functions.php
 if( !function_exists('ago')) {
 	function ago($timestamp) {
 		if (empty($timestamp)) return;
@@ -78,10 +81,10 @@ if( !function_exists('ago')) {
 	}
 }	
 
-
 // Datumbox farbig mit Wochenende SA gelb und SO rot ausgeben aus createdatum und moddatum. wird nur createdatum gesetzt, wird nur das ausgewertet.
-//   enthalten in foldergallery.php, penguin/functions.php, delightful-downloads/includes/functions.php
-//    test:     echo colordatebox( (time()-86400) ,NULL ,NULL,1);        // soll ago angezeit werden, muss der 4. parameter auf 1 ($datum,NULL,NULL,1)
+//   gespiegelt in: chartcodes.php, delightful-downloads/includes/functions.php, foldergallery.php, penguin/functions.php
+//   Parameter 1: Erstell-Unix-Timestamp | 2: Mod-Timestamp oder NULL=Erstell-Timestamp | 3: NULL=ICON anzeigen, 1=kein Icon | 4: NULL=nur Datum, 1=Datum und AGO, 2=nur AGO
+//     test:     echo colordatebox( (time()-86400), NULL, NULL, 1);
 if( !function_exists('colordatebox')) {
 	function colordatebox($created, $modified = NULL, $noicon = NULL, $showago = NULL) {
 		$modified = $modified ?? $created;
@@ -107,21 +110,25 @@ if( !function_exists('colordatebox')) {
 		$isweekend = ($getweekday == 0) ? '#f00' : (($getweekday == 6) ? '#e60' : '#444'); // angezeigtes create oder mod Datum am Wochenende SA orange SO rote schrift
 		if ($diffmod > 0) {
 			$newormod = 'calendar-plus-o';
-			$anzeigedat = $moddat;
-			if ($showago) $anzeigedat .= ' ' . $modago;
+			if (2 !== $showago) $anzeigedat = $moddat;
+			if (2 === $showago) $anzeigedat = $modago;
+			if (1 === $showago) $anzeigedat .= ' ' . $modago;
 		} else {
 			$newormod = 'calendar-o';
-			$anzeigedat = $erstelldat;
-			if ($showago) $anzeigedat .= ' ' . $postago;
+			if (2 !== $showago) $anzeigedat = $erstelldat;
+			if (2 === $showago) $anzeigedat = $postago;
+			if (1 === $showago) $anzeigedat .= ' ' . $postago;
 		}
 		$colordate = '<span class="newlabel" style="background-color:' . $newcolor . '">';
 		if (!isset($noicon)) {
-			$colordate .= '<i class="fa fa-' . $newormod . '" style="margin-right:3px"></i>';
+			$colordate .= '<i class="fa fa-' . $newormod . '" style="margin-right:4px"></i>';
 		}
 		$colordate .= '<span style="color:' . $isweekend . '" title="' . htmlspecialchars($erstelltitle, ENT_QUOTES) . '">' . $anzeigedat . '</span></span>';
 		return $colordate;
 	}
 }
+
+// ---------------------------------- Spiegelung Ende ------------------------------------------------------------------------
 
 
 // Shortcode Styles
@@ -440,44 +447,9 @@ function download_times($filesize) {
  	}
 	// dateago   - so viele Tage wochen her, sonntags rot, samstags orange
  	if ( strpos( $string, '%dateago%' ) !== false ) {
-		$diff = time() - get_the_modified_time('U', $id);
-		$diffround = round($diff / 86400);
-		if ($diffround < -30 || $diffround > 30) {
-			$newcolor = "#eee";
-		} elseif ($diffround != 0) {
-			$newcolor = "#fe8";
-		} else {
-			$newcolor = "#bfd";
-		}
-		$created = get_post_time('U', false, $id, true) - get_post_time('Z');
-		$modified = get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z');
-		$erstelldat = get_post_time('l, d. M Y H:i:s', false, $id, true);
-		$postago = ago($created);
-		$moddat = get_the_modified_time('l, d. M Y H:i:s', $id);
-		$modago = ago($modified);
-		$diffmod = $modified - $created;
-		$datumlink= '';
-		$erstelltitle = 'erstellt: ' . $erstelldat . ' ' . $postago;
-		$getweekday = wp_date('w', $created);
-		if ($diffmod > 0) {
-			$erstelltitle .= '&#10;verändert: ' . $moddat . ' ' . $modago;
-			$erstelltitle .= '&#10;verändert nach: ' . human_time_diff($created, $modified);
-			$getweekday = wp_date('w', $modified);
-		}
-		if ($diffmod > 86400) {
-			$newormod = 'fa fa-calendar-plus-o';
-		} else {
-			$newormod = 'fa fa-calendar-o';
-		}
-		$isweekend = ($getweekday == 0) ? '#f22d' : (($getweekday == 6) ? '#f80' : '#444');
-		$value = '<span title="' . $erstelltitle . '" class="newlabel" style="background-color:' . $newcolor . '">';
-		$value .= '<i class="' . $newormod . '" style="font-size:1.1em;margin-right:3px"></i>';
-			if ($diffmod > 0) {
-				$value .= '<span style="color:'.$isweekend.'"> ' . $modago . '</span>';
-			} else {
-				$value .=  '<span style="color:'.$isweekend.'"> ' . $postago . '</span>';
-			}
-		$value .= '</span>';
+		$erstelldat = get_post_time('U', false, $id, true) - get_post_time('Z');
+		$moddat = get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z');
+		$value = colordatebox( $erstelldat, $moddat, NULL, 2);
 		$string = str_replace( '%dateago%', $value, $string );
  	}
  	// filesize
