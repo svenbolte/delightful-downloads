@@ -88,17 +88,21 @@ if( !function_exists('ago')) {
 if( !function_exists('colordatebox')) {
 	function colordatebox($created, $modified = NULL, $noicon = NULL, $showago = NULL) {
 		$modified = $modified ?? $created;
+		if ($modified < $created) {
+			list($modified, $created) = [$created, $modified];   // filemdate und filecdate tauschen bei Unix Filesystemen
+			$unixfile = 1 ;
+		} else $unixfile = 0;	
 		$erstelldat = str_replace( ' 00:00', '', wp_date('D d. M Y H:i', $created) );
 		$moddat = str_replace( ' 00:00', '', wp_date('D d. M Y H:i', $modified) );
 		$postago = ago($created);
 		$modago = ago($modified);
-		$diff = time() - $modified;
 		$diffmod = $modified - $created;
+		if ( $unixfile == 1 ) $diff = time() - $created; else $diff = time() - $modified;
 		$diffround = floor($diff / 86400);
 		if ($diffround < -30 || $diffround > 30) $newcolor = "#eee";
 		else if ($diffround != 0) $newcolor = "#fe8";
 		else $newcolor = '#fff';
-		$istoday = date('Y-m-d', $modified) === date('Y-m-d');
+		if ($unixfile == 0) $istoday = date('Y-m-d', $modified) === date('Y-m-d'); else $istoday = date('Y-m-d', $created) === date('Y-m-d');
 		if ($istoday) $newcolor = "#bfd";
 		$getweekday = wp_date('w', $created);
 		$erstelltitle = __("created", "penguin") . ': ' . $erstelldat . ' ' . $postago.' '.$diffround.' Tg';
@@ -108,7 +112,7 @@ if( !function_exists('colordatebox')) {
 			$getweekday = wp_date('w', $modified);
 		}
 		$isweekend = ($getweekday == 0) ? '#f00' : (($getweekday == 6) ? '#e60' : '#444'); // angezeigtes create oder mod Datum am Wochenende SA orange SO rote schrift
-		if ($diffmod > 0) {
+		if ($diffmod > 0 && $unixfile == 0) {
 			$newormod = 'calendar-plus-o';
 			if (2 !== $showago) $anzeigedat = $moddat;
 			if (2 === $showago) $anzeigedat = $modago;
@@ -127,6 +131,7 @@ if( !function_exists('colordatebox')) {
 		return $colordate;
 	}
 }
+
 
 // ---------------------------------- Spiegelung Ende ------------------------------------------------------------------------
 
