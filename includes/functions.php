@@ -86,43 +86,70 @@ if( !function_exists('ago')) {
 //   Parameter 1: Erstell-Unix-Timestamp | 2: Mod-Timestamp oder NULL=Erstell-Timestamp | 3: NULL=ICON anzeigen, 1=kein Icon | 4: NULL=nur Datum, 1=Datum und AGO, 2=nur AGO
 //     test:     echo colordatebox( (time()-86400), NULL, NULL, 1);
 if( !function_exists('colordatebox')) {
-	function colordatebox($created, $modified = NULL, $noicon = NULL, $showago = NULL) {
+	function colordatebox($created, $modified = null, $noicon = null, $showago = null) {
 		$modified = $modified ?? $created;
+		// Tauschen bei Unix Filesystemen (falls modified < created)
+		$unixfile = 0;
 		if ($modified < $created) {
-			list($modified, $created) = [$created, $modified];   // filemdate und filecdate tauschen bei Unix Filesystemen
-			$unixfile = 1 ;
-		} else $unixfile = 0;	
-		$erstelldat = str_replace( ' 00:00', '', wp_date('D d. M Y H:i', $created) );
-		$moddat = str_replace( ' 00:00', '', wp_date('D d. M Y H:i', $modified) );
+			[$created, $modified] = [$modified, $created];
+			$unixfile = 1;
+		}
+		// Datum formatieren
+		$createdDateStr = wp_date('D d. M Y H:i', $created);
+		$modifiedDateStr = wp_date('D d. M Y H:i', $modified);
+		$erstelldat = str_replace(' 00:00', '', $createdDateStr);
+		$moddat = str_replace(' 00:00', '', $modifiedDateStr);
+		// "vor X" Strings
 		$postago = ago($created);
 		$modago = ago($modified);
+		// Zeitdifferenzen berechnen
 		$diffmod = $modified - $created;
-		if ( $unixfile == 1 ) $diff = time() - $created; else $diff = time() - $modified;
+		$relevantTime = $unixfile ? $created : $modified;
+		$diff = time() - $relevantTime;
 		$diffround = floor($diff / 86400);
-		if ($diffround < -30 || $diffround > 30) $newcolor = "#eee";
-		else if ($diffround != 0) $newcolor = "#fe8";
-		else $newcolor = '#fff';
-		if ($unixfile == 0) $istoday = date('Y-m-d', $modified) === date('Y-m-d'); else $istoday = date('Y-m-d', $created) === date('Y-m-d');
-		if ($istoday) $newcolor = "#bfd";
-		$getweekday = wp_date('w', $created);
-		$erstelltitle = __("created", "penguin") . ': ' . $erstelldat . ' ' . $postago.' '.$diffround.' Tg';
-		if ($diffmod != 0) {
+		// Farbe abhängig von Differenz
+		if (abs($diffround) > 30) {
+			$newcolor = "#eee";
+		} elseif ($diffround !== 0) {
+			$newcolor = "#fe8";
+		} else {
+			$newcolor = '#fff';
+		}
+		// Heutiger Tag?
+		$isToday = date('Y-m-d', $relevantTime) === date('Y-m-d');
+		if ($isToday) {
+			$newcolor = "#bfd";
+		}
+		// Wochentag-Farbe
+		$getweekday = wp_date('w', $diffmod !== 0 ? $modified : $created);
+		$isweekend = ($getweekday == 0) ? '#f00' : (($getweekday == 6) ? '#e60' : '#444');
+		// Tooltip-Titel
+		$erstelltitle = __("created", "penguin") . ': ' . $erstelldat . ' ' . $postago . ' ' . $diffround . ' Tg';
+		if ($diffmod !== 0) {
 			$erstelltitle .= "\n" . __("modified", "penguin") . ': ' . $moddat . ' ' . $modago;
 			$erstelltitle .= "\n" . __("modified after", "penguin") . ': ' . human_time_diff($created, $modified);
-			$getweekday = wp_date('w', $modified);
 		}
-		$isweekend = ($getweekday == 0) ? '#f00' : (($getweekday == 6) ? '#e60' : '#444'); // angezeigtes create oder mod Datum am Wochenende SA orange SO rote schrift
-		if ($diffmod > 0 && $unixfile == 0) {
+		// Angezeigtes Datum + Icon
+		if ($diffmod > 0 && !$unixfile) {
 			$newormod = 'calendar-plus-o';
-			if (2 !== $showago) $anzeigedat = $moddat;
-			if (2 === $showago) $anzeigedat = $modago;
-			if (1 === $showago) $anzeigedat .= ' ' . $modago;
+			if ($showago === 2) {
+				$anzeigedat = $modago;
+			} elseif ($showago === 1) {
+				$anzeigedat = $moddat . ' ' . $modago;
+			} else {
+				$anzeigedat = $moddat;
+			}
 		} else {
 			$newormod = 'calendar-o';
-			if (2 !== $showago) $anzeigedat = $erstelldat;
-			if (2 === $showago) $anzeigedat = $postago;
-			if (1 === $showago) $anzeigedat .= ' ' . $postago;
+			if ($showago === 2) {
+				$anzeigedat = $postago;
+			} elseif ($showago === 1) {
+				$anzeigedat = $erstelldat . ' ' . $postago;
+			} else {
+				$anzeigedat = $erstelldat;
+			}
 		}
+		// HTML-Ausgabe
 		$colordate = '<span class="newlabel" style="background-color:' . $newcolor . '">';
 		if (!isset($noicon)) {
 			$colordate .= '<i class="fa fa-' . $newormod . '" style="margin-right:4px"></i>';
