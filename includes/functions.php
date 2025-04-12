@@ -85,6 +85,24 @@ if( !function_exists('ago')) {
 //   gespiegelt in: chartcodes.php, delightful-downloads/includes/functions.php, foldergallery.php, penguin/functions.php
 //   Parameter 1: Erstell-Unix-Timestamp | 2: Mod-Timestamp oder NULL=Erstell-Timestamp | 3: NULL=ICON anzeigen, 1=kein Icon | 4: NULL=nur Datum, 1=Datum und AGO, 2=nur AGO
 //     test:     echo colordatebox( (time()-86400), NULL, NULL, 1);
+
+// SA orange, Sonntag rot, gestern hellgrün, heute cyan, 30T gelb, >30T grau
+if( !function_exists('getColorStyles')) {
+	function getColorStyles($timestamp) {
+		$diff = (strtotime(date('Y-m-d', $timestamp)) - strtotime(date('Y-m-d'))) / 86400;
+		$newcolor = $diff === 0 ? '#bfd' :
+					(abs($diff) === 1 ? '#efe' :
+					(abs($diff) <= 30 ? '#fe8' : '#eee'));
+		$weekday = date('N', $timestamp);
+		$weekendcolor = $weekday == 6 ? '#e60' :
+						($weekday == 7 ? '#f00' : '#222');
+		return [
+			'background' => $newcolor,
+			'color' => $weekendcolor
+		];
+	}
+}	
+
 if( !function_exists('colordatebox')) {
 	function colordatebox($created, $modified = null, $noicon = null, $showago = null) {
 		$modified = $modified ?? $created;
@@ -105,18 +123,6 @@ if( !function_exists('colordatebox')) {
 		$refTime  = $unixfile ? $created : $modified;
 		$diff     = time() - $refTime;
 		$diffdays = floor($diff / 86400);
-		// Hintergrundfarbe bestimmen
-		if (abs($diffdays) > 30) {
-			$newcolor = "#eee";
-		} elseif ($diffdays !== 0) {
-			$newcolor = "#fe8";
-		} else {
-			$newcolor = "#fff";
-		}
-		// Wenn heute → grünlicher Hintergrund
-		if (date('Y-m-d', $refTime) === date('Y-m-d')) {
-			$newcolor = "#bfd";
-		}
 		// Tooltip zusammenbauen
 		$erstelltitle = __("created", "penguin") . ': ' . $erstelldat . ' ' . $postago . ' ' . $diffdays . ' Tg';
 		if ($diffmod !== 0) {
@@ -133,7 +139,7 @@ if( !function_exists('colordatebox')) {
 			} else {
 				$anzeigedat = $moddat;
 			}
-			$weekdayTime = $modified;
+			$cstyles = getColorStyles($modified);
 		} else {
 			$newormod = 'calendar-o';
 			if ($showago === 2) {
@@ -143,17 +149,14 @@ if( !function_exists('colordatebox')) {
 			} else {
 				$anzeigedat = $erstelldat;
 			}
-			$weekdayTime = $created;
+			$cstyles = getColorStyles($created);
 		}
-		// Wochentag für Textfarbe bestimmen (SO rot, SA orange)
-		$getweekday = wp_date('w', $weekdayTime);
-		$textcolor = ($getweekday == 0) ? '#f00' : (($getweekday == 6) ? '#e60' : '#444');
 		// HTML-Ausgabe generieren
-		$colordate = '<span class="newlabel" style="background-color:' . $newcolor . '">';
+		$colordate = '<span class="newlabel" style="background-color:' . $cstyles['background'] . '">';
 		if (!isset($noicon)) {
 			$colordate .= '<i class="fa fa-' . $newormod . '" style="margin-right:4px"></i>';
 		}
-		$colordate .= '<span style="color:' . $textcolor . '" title="' . htmlspecialchars($erstelltitle, ENT_QUOTES) . '">' . $anzeigedat . '</span></span>';
+		$colordate .= '<span style="color:' . $cstyles['color'] . '" title="' . htmlspecialchars($erstelltitle, ENT_QUOTES) . '">' . $anzeigedat . '</span></span>';
 		return $colordate;
 	}
 }
