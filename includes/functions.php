@@ -86,11 +86,6 @@ if( !function_exists('ago')) {
 //   Parameter 1: Erstell-Unix-Timestamp | 2: Mod-Timestamp oder NULL=Erstell-Timestamp | 3: NULL=ICON anzeigen, 1=kein Icon | 4: NULL=nur Datum, 1=Datum und AGO, 2=nur AGO
 //     test:     echo colordatebox( (time()-86400), NULL, NULL, 1);
 if( !function_exists('colordatebox')) {
-// Datumbox farbig mit Wochenende SA gelb und SO rot ausgeben aus createdatum und moddatum. wird nur createdatum gesetzt, wird nur das ausgewertet.
-//   gespiegelt in: chartcodes.php, delightful-downloads/includes/functions.php, foldergallery.php, penguin/functions.php
-//   Parameter 1: Erstell-Unix-Timestamp | 2: Mod-Timestamp oder NULL=Erstell-Timestamp | 3: NULL=ICON anzeigen, 1=kein Icon | 4: NULL=nur Datum, 1=Datum und AGO, 2=nur AGO
-//     test:     echo colordatebox( (time()-86400), NULL, NULL, 1);
-if( !function_exists('colordatebox')) {
 	function colordatebox($created, $modified = null, $noicon = null, $showago = null) {
 		$modified = $modified ?? $created;
 		// Tauschen bei Unix Filesystemen (falls modified < created)
