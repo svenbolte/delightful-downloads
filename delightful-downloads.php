@@ -18,6 +18,9 @@ Requires PHP: 8.2
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) {	exit; }
 
+// doing wrong notices abstellen (WP6.8 meckert im Debugmode
+add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+
 // Load plugin textdomain.
 function dedo_load_textdomain() {
 	load_plugin_textdomain( 'delightful-downloads', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
