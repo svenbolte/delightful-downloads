@@ -180,6 +180,7 @@ function dedo_get_shortcode_styles() {
 					<h6 style="margin-top:6px"><a href="%permalink%" title="'.__( 'download details', 'delightful-downloads' ).'" rel="nofollow">
 					%title%</a></h6>
 					<a class="ddownload-button page-numbers"  href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">'.__( 'download file', 'delightful-downloads' ).'</a>
+					 %filedate%
 					<div>%description%</div></div>%thumb%</div></blockquote>'
 	 	),
 	 	'singlepost'		=> array(
@@ -488,8 +489,11 @@ function download_times($filesize) {
  	}
  	// filesize
  	if ( strpos( $string, '%filesize%' ) !== false ) {
- 		if (!empty( get_post_meta( $id, '_dedo_file_size', true ) )) {
-			$value = '<span class="newlabel white"><i title="filesize" class="fa fa-expand" style="font-size:1.1em;margin-right:3px"></i>'.size_format( get_post_meta( $id, '_dedo_file_size', true ), 0 ).'</span>';
+		$fpath = dedo_get_abs_path(get_post_meta( $id, '_dedo_file_url', true));
+		$fsfrommeta = size_format( get_post_meta( $id, '_dedo_file_size', true ), 0 );
+		$fsfromfile = size_format( filesize( $fpath ) );
+		if (!empty( get_post_meta( $id, '_dedo_file_size', true ) )) {
+			$value = '<span class="newlabel white"><i title="filesize: '.$fsfrommeta.'" class="fa fa-expand" style="font-size:1.1em;margin-right:3px"></i>'.$fsfromfile.'</span>';
 		} else { $value='';  }	
 		$string = str_replace( '%filesize%', $value, $string );
  	}
