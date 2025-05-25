@@ -342,6 +342,7 @@ function download_times($filesize) {
 
 // Replace Wildcards
  function dedo_search_replace_wildcards( $string, $id ) {
+	global $wpdb;
  	//adminedit
  	if ( strpos( $string, '%adminedit%' ) !== false ) {
  		if(current_user_can('administrator')) {
@@ -450,7 +451,6 @@ function download_times($filesize) {
 		$string = str_replace( '%id3tag%', $value, $string );
 	}
 	
-	
 	// beschreibung
  	if ( strpos( $string, '%description%' ) !== false ) {
 		if ( post_password_required( $id) ) {
@@ -472,12 +472,10 @@ function download_times($filesize) {
 			$value = colordatebox( filectime($fpath), filemtime($fpath) ,NULL,1);
 			// Post modified Datum aktualisieren, wenn File - Anhang neuer
 			if (filemtime($fpath) > get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z') ) {
-				$date = current_time('mysql');
-				wp_update_post(array(
-					'ID'                => $id,
-					'post_modified'     => filemtime($fpath),
-					'post_modified_gmt' => get_gmt_from_date(filemtime($fpath)),
-				));
+				$mysql_time_format= "Y-m-d H:i:s";
+				$post_modified = wp_date( $mysql_time_format, filemtime($fpath) );
+				$post_modified_gmt = gmdate( $mysql_time_format, ( filemtime($fpath) + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS )  );
+				$wpdb->query("UPDATE $wpdb->posts SET post_modified = '{$post_modified}', post_modified_gmt = '{$post_modified_gmt}'  WHERE ID = {$id}" );
 			}
 		} else { $value='';  }	
 		$string = str_replace( '%filedate%', $value, $string );
