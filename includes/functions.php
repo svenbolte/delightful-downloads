@@ -465,11 +465,20 @@ function download_times($filesize) {
  		$value = '<div style="float:right;padding-top:0;display:inline-block;max-width:200px;border:1px none"><img class="img-zoom" style="min-height:100px;transform-origin: center right" src="' . get_the_post_thumbnail_url( $id ) . '"></div>';
  		$string = str_replace( '%thumb%', $value, $string );
  	}
- 	// file-date created modified
+ 	// file-date created modified und postdatum ändern, wenn Datei per sftp neuer im Dateisystem
  	if ( strpos( $string, '%filedate%' ) !== false ) {
  		if (!empty( get_post_meta( $id, '_dedo_file_url', true ) )) {
 			$fpath = dedo_get_abs_path(get_post_meta( $id, '_dedo_file_url', true));
 			$value = colordatebox( filectime($fpath), filemtime($fpath) ,NULL,1);
+			// Post modified Datum aktualisieren, wenn File - Anhang neuer
+			if (filemtime($fpath) > get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z') ) {
+				$date = current_time('mysql');
+				wp_update_post(array(
+					'ID'                => $id,
+					'post_modified'     => filemtime($fpath),
+					'post_modified_gmt' => get_gmt_from_date(filemtime($fpath)),
+				));
+			}
 		} else { $value='';  }	
 		$string = str_replace( '%filedate%', $value, $string );
  	}
