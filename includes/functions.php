@@ -23,13 +23,7 @@ add_filter( 'single_template', 'dedo_template' );
 
 // k,M,G T formatieren bei großen Zahlen
 function dedo_number_format_short( $n ) {
-    if ( $n>0 ) {
-		$si_prefix = array( '', 'K', 'M', 'G', 'T', 'E', 'Z', 'Y' );
-		$base = 1024;
-		if ($n < $base) $precis=0; else $precis=1;
-		$class = min((int)log($n , $base) , count($si_prefix) - 1);
-		return sprintf('%1.'.$precis.'f' , $n / pow($base,$class)) . $si_prefix[$class];
-	}	
+    return number_format_short( $n );
 }
 
 // colorize heat after given value and return volor value
@@ -44,6 +38,20 @@ function dedo_heatcolor($visithotness) {
 }
 
 // ----------------------------------- Funktionen, die in andere Plugins und themes gespiegelt sind ------------------------------------
+
+// Converts a number into a short version, eg: 1000 -> 1k
+//  gespiegelt foldergallery.php und delightful downloads/includes/functions.php und wpdoodlez.php  (Aufruf als wpdoo/dedo_number_format_short)
+if( !function_exists('number_format_short')) {
+	function number_format_short( $n ) {
+		if ( $n>0 ) {
+			$si_prefix = array( '', 'K', 'M', 'G', 'T', 'E', 'Z', 'Y' );
+			$base = 1024;
+			if ($n < $base) $precis=0; else $precis=1;
+			$class = min((int)log($n , $base) , count($si_prefix) - 1);
+			return '<span title="'.number_format_i18n($n ?? 0).'">' . sprintf('%1.'.$precis.'f' , $n / pow($base,$class)) . $si_prefix[$class] . '</span>';
+		}	
+	}
+}
 
 // Zeitdifferenz ermitteln und gestern/vorgestern/morgen schreiben
 //   gespiegelt in: chartcodes.php, delightful-downloads/includes/functions.php, foldergallery.php, penguin/functions.php, timeclock/includes/functions.php
