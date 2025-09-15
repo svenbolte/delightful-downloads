@@ -94,22 +94,27 @@ if( !function_exists('ago')) {
 //   Parameter 1: Erstell-Unix-Timestamp | 2: Mod-Timestamp oder NULL=Erstell-Timestamp | 3: NULL=ICON anzeigen, 1=kein Icon | 4: NULL=nur Datum, 1=Datum und AGO, 2=nur AGO
 //     test:     echo colordatebox( (time()-86400), NULL, NULL, 1);
 
-// SA orange, Sonntag rot, gestern hellgrün, heute cyan, 30T gelb, >30T grau
-if( !function_exists('getColorStyles')) {
-	function getColorStyles($timestamp) {
-		$diff = (strtotime(date('Y-m-d', $timestamp)) - strtotime(date('Y-m-d'))) / 86400;
-		$newcolor = $diff === 0 ? '#bfd' :
-					(abs($diff) === 1 ? '#efe' :
-					(abs($diff) <= 30 ? '#fe8' : '#eee'));
-		$weekday = date('N', $timestamp);
-		$weekendcolor = $weekday == 6 ? '#e60' :
-						($weekday == 7 ? '#f00' : '#222');
-		return [
-			'background' => $newcolor,
-			'color' => $weekendcolor
-		];
+	// SA orange, Sonntag rot, gestern hellgrün, heute cyan, 30T gelb, >30T grau
+	if (!function_exists('getColorStyles')) {
+		function getColorStyles($timestamp) {
+			$days = (int)((strtotime(date('Y-m-d', $timestamp)) - strtotime(date('Y-m-d'))) / 86400);
+			$bg = match (true) {
+				$days === 0   => '#bfd', // heute
+				$days === -1  => '#efe', // gestern
+				$days < -30   => '#eee', // vergangen >30T
+				$days < 0     => '#fe8', // vergangen 1–30T
+				$days <= 30   => '#bdf', // zukünftig 1–30T
+				default       => '#cef', // zukünftig >30T
+			};
+			$weekday = (int)date('N', $timestamp);
+			$fg = match ($weekday) {
+				6 => '#e60', // Samstag
+				7 => '#f00', // Sonntag
+				default => '#222',
+			};
+			return ['background' => $bg, 'color' => $fg];
+		}
 	}
-}	
 
 if( !function_exists('colordatebox')) {
 	function colordatebox($created, $modified = null, $noicon = null, $showago = null) {
