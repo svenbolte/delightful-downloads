@@ -543,9 +543,9 @@ function download_times($filesize) {
  	// protected file
  	if ( strpos( $string, '%locked%' ) !== false ) {
  		if (post_password_required($id)) {
-			$value='<span title="Kennwortgeschützt" style="color:#f228">🔒</span>';
+			$value='<span style="font-size:1.1em" title="Kennwortgeschützt">🔒</span>';
 		} else {
-			$value='<span title="öffentlich">🔓</span>';
+			$value='<span style="font-size:1.1em" title="öffentlich">🔓</span>';
 		}
  		$string = str_replace( '%locked%', $value, $string );
  	}

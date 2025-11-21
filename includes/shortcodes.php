@@ -267,8 +267,8 @@ function dedo_shortcode_ddownload_list( $atts ) {
 			$listfilter='';
 			if (!empty($categories)) $listfilter .= '📂 '.$categories;
 			if (!empty($tags)) $listfilter .= ' &nbsp;🔖 '.$tags;
-			if (!empty($exclude_categories)) $listfilter .= ' &nbsp;<i title="excluded cats" style="color:tomato">🔽</i>📂 '.$exclude_categories;
-			if (!empty($exclude_tags)) $listfilter .= ' &nbsp;<i title="excluded tags" style="color:tomato">🔽</i>🔖 '.$exclude_tags;
+			if (!empty($exclude_categories)) $listfilter .= ' &nbsp;<span title="excluded cats">🔽</span>📂 '.$exclude_categories;
+			if (!empty($exclude_tags)) $listfilter .= ' &nbsp;<span title="excluded tags" style="color:tomato">🔽</span>🔖 '.$exclude_tags;
 			if (!empty($listfilter)) echo '<div class="entry-meta-top" style="text-align:center;width:100%;text-transform:uppercase"><strong>'.__('downloads','delightful_downloads').'</strong> &nbsp;'.$listfilter.'</div>';
 			echo '<div class="ddownloads_list' . $tax_class . $style_class . '">';
 			while ( $downloads_list->have_posts() ) {
