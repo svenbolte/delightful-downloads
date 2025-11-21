@@ -40,16 +40,19 @@ function dedo_heatcolor($visithotness) {
 // ----------------------------------- Funktionen, die in andere Plugins und themes gespiegelt sind ------------------------------------
 
 // Converts a number into a short version, eg: 1000 -> 1k
-//  gespiegelt foldergallery.php und delightful downloads/includes/functions.php und wpdoodlez.php  (Aufruf als wpdoo/dedo_number_format_short)
+//  gespiegelt in: delightful-downloads/includes/functions.php und foldergallery.php und wpdoodlez.php   (Aufruf als wpdoo/dedo_number_format_short)
 if( !function_exists('number_format_short')) {
 	function number_format_short( $n ) {
-		if ( $n>0 ) {
-			$si_prefix = array( '', 'K', 'M', 'G', 'T', 'E', 'Z', 'Y' );
-			$base = 1024;
-			if ($n < $base) $precis=0; else $precis=1;
-			$class = min((int)log($n , $base) , count($si_prefix) - 1);
-			return '<span title="'.number_format_i18n($n ?? 0).'">' . sprintf('%1.'.$precis.'f' , $n / pow($base,$class)) . $si_prefix[$class] . '</span>';
-		}	
+		if ( $n <= 0 ) return '<span title="0">0</span>';
+		$si_prefix = array( '', 'K', 'M', 'G', 'T', 'E', 'Z', 'Y' );
+		$base = 1024;
+		$class = min((int)log($n , $base) , count($si_prefix) - 1);
+		$short_value = $n / pow($base,$class);
+		// $precis = 1, wenn Wert < 10 (einstellig) UND es ein Suffix gibt ($class > 0)
+		$precis = ($short_value < 10 && $class > 0) ? 1 : 0;
+		// Fügt das number_format_i18n nur hinzu, wenn es verfügbar ist
+		$title = function_exists('number_format_i18n') ? number_format_i18n($n) : number_format($n, 0, ',', '.');
+		return '<span title="'.$title.'">' . sprintf('%1.'.$precis.'f' , $short_value) . $si_prefix[$class] . '</span>';
 	}
 }
 
@@ -144,7 +147,7 @@ if( !function_exists('colordatebox')) {
 		}
 		// Angezeigtes Datum & Icon bestimmen
 		if ($diffmod > 0 && !$unixfile) {
-			$newormod = '📅';
+			$newormod = '🕰️';
 			if ($showago === 2) {
 				$anzeigedat = $modago;
 			} elseif ($showago === 1) {
@@ -154,7 +157,7 @@ if( !function_exists('colordatebox')) {
 			}
 			$cstyles = getColorStyles($modified);
 		} else {
-			$newormod = '🗓️';
+			$newormod = '📅';
 			if ($showago === 2) {
 				$anzeigedat = $postago;
 			} elseif ($showago === 1) {
@@ -436,7 +439,7 @@ function download_times($filesize) {
 				// Player nur, wenn nicht password protected
 				if ( !post_password_required( $id) ) $phtml .= '<audio class="noprint" controlsList="nodownload" style="width:100%" controls src="'.$musiurl.'" preload="metadata"></audio>';
 				$phtml .='<span style="font-size:.9em;font-style:italic">';
-// Metadata Ausgabe auch für penguin podcasts template und für audio template --------------
+				// Metadata Ausgabe auch für penguin podcasts template und für audio template --------------
 				if (isset($meta['title'])) $phtml .= '🎫 <b>'.$meta['title'].'</b>'; // fa-ticket -> 🎫 (Eintrittskarte)
 				if (isset($meta['artist'])) $phtml .= ' <span style="margin-left:1em">👤</span> '.$meta['artist']; // fa-user -> 👤 (Silhouette/Person)
 				if (isset($meta['album'])) $phtml .= ' <span style="margin-left:1em">💿</span> ' . $meta['album']; // fa-book -> 💿 (CD/Album)
@@ -456,7 +459,6 @@ function download_times($filesize) {
 				if ( !post_password_required( $id) && !empty(@$meta['unsynchronised_lyric'])) $phtml .= ' <span style="margin-left:1em">📜</span> ' . $meta['unsynchronised_lyric']; // fa-text-width -> 📜 (Schriftrolle/Text)
 				$phtml .= '</span></div><div>';
 				if (!empty($meta['image']['data'])) $phtml .= '<img class="img-zoom" style="width:96px" src="data:'.$meta['image']['mime'].';charset=utf-8;base64,'.base64_encode($meta['image']['data']).'">';				$phtml .= '</div></div>';
-
 			} else $phtml = '';		
 			$value = $phtml;
 		} else $value='';	
@@ -543,7 +545,7 @@ function download_times($filesize) {
  	// protected file
  	if ( strpos( $string, '%locked%' ) !== false ) {
  		if (post_password_required($id)) {
-			$value='<span style="font-size:1.1em" title="Kennwortgeschützt">🔒</span>';
+			$value='<span style="font-size:1.1em;color:tomato" title="Kennwortgeschützt">🔐︎</span>';
 		} else {
 			$value='<span style="font-size:1.1em" title="öffentlich">🔓</span>';
 		}
