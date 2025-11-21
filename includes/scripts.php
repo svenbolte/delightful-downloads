@@ -13,17 +13,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Register Frontend Scripts & Styles
+ * Register Frontend Scripts & Styles    - fontawesome icons durch unicode symbold ersetzt
  *
  * @since  1.0
  */
 function dedo_enqueue_scripts( $page ) {
 	global $dedo_options,$post;
-	// load fontawesome 4.7 if not penguin theme
-	$wpxtheme = wp_get_theme(); // gets the current theme
-	if ( 'Penguin' == $wpxtheme->name || 'Penguin' == $wpxtheme->parent_theme ) { $xpenguin = true;} else { $xpenguin=false; }
-	if (!$xpenguin) wp_enqueue_style('font-awesome', DEDO_PLUGIN_URL . 'assets/fontawesomeplus.min.css', true);
-	
 	// Load css sprite for file type icons
 	wp_register_style( 'filetype-style', DEDO_PLUGIN_URL . 'assets/css/filetypes.min.css' );
 	if ( 'dedo_download' == get_post_type() ) wp_enqueue_style( 'filetype-style' );

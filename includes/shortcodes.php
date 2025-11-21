@@ -265,10 +265,10 @@ function dedo_shortcode_ddownload_list( $atts ) {
 			$filecount=0;
 			$tfilesize=0;
 			$listfilter='';
-			if (!empty($categories)) $listfilter .= '<i class="fa fa-folder-open-o"></i> '.$categories;
-			if (!empty($tags)) $listfilter .= ' &nbsp;<i class="fa fa-tags"></i> '.$tags;
-			if (!empty($exclude_categories)) $listfilter .= ' &nbsp;<i title="excluded cats" class="fa fa-filter" style="color:tomato"></i><i class="fa fa-folder-open-o"></i> '.$exclude_categories;
-			if (!empty($exclude_tags)) $listfilter .= ' &nbsp;<i title="excluded tags" class="fa fa-filter" style="color:tomato"></i><i class="fa fa-tags"></i> '.$exclude_tags;
+			if (!empty($categories)) $listfilter .= '📂 '.$categories;
+			if (!empty($tags)) $listfilter .= ' &nbsp;🔖 '.$tags;
+			if (!empty($exclude_categories)) $listfilter .= ' &nbsp;<i title="excluded cats" style="color:tomato">🔽</i>📂 '.$exclude_categories;
+			if (!empty($exclude_tags)) $listfilter .= ' &nbsp;<i title="excluded tags" style="color:tomato">🔽</i>🔖 '.$exclude_tags;
 			if (!empty($listfilter)) echo '<div class="entry-meta-top" style="text-align:center;width:100%;text-transform:uppercase"><strong>'.__('downloads','delightful_downloads').'</strong> &nbsp;'.$listfilter.'</div>';
 			echo '<div class="ddownloads_list' . $tax_class . $style_class . '">';
 			while ( $downloads_list->have_posts() ) {
@@ -292,13 +292,13 @@ function dedo_shortcode_ddownload_list( $atts ) {
 				$total_files = wp_count_posts( 'dedo_download' )->publish;
 				echo '<div class="entry-meta-top" style="text-align:center;margin-bottom:2em">';
 				if ((int) $filecount < (int) $total_files) {
-					echo '<i class="fa fa-list"></i> <b>'.$filecount.'</b> &nbsp;';
-					echo '<i class="fa fa-expand"></i> <b>' . size_format( $tfilesize, 1 ).'</b>';
-					echo ' <i class="fa fa-cloud-download"></i> <b>'. number_format_i18n( $dlcount,0).'</b>';
+					echo '📋 <b>'.$filecount.'</b> &nbsp;';
+					echo '🗃️ <b>' . size_format( $tfilesize, 1 ).'</b> ';
+					echo '📥 <b>'. number_format_i18n( $dlcount,0).'</b>';
 				}	
 				echo ' &nbsp; TOTAL <b>'.$total_files.'</b> &nbsp;'
-					.'<i class="fa fa-expand"></i> <b>'.size_format( dedo_get_filesize(), 1 ).'</b> '
-					.'<i class="fa fa-cloud-download"></i> <b>'.number_format_i18n(dedo_total_downloads());
+					.'🗃️ <b>'.size_format( dedo_get_filesize(), 1 ).'</b> '
+					.'️📥 <b>'.number_format_i18n(dedo_total_downloads());
 				echo '</b></div>';
 			}	
 			$output = ob_get_clean();

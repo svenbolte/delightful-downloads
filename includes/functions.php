@@ -144,7 +144,7 @@ if( !function_exists('colordatebox')) {
 		}
 		// Angezeigtes Datum & Icon bestimmen
 		if ($diffmod > 0 && !$unixfile) {
-			$newormod = 'calendar-plus-o';
+			$newormod = '📅';
 			if ($showago === 2) {
 				$anzeigedat = $modago;
 			} elseif ($showago === 1) {
@@ -154,7 +154,7 @@ if( !function_exists('colordatebox')) {
 			}
 			$cstyles = getColorStyles($modified);
 		} else {
-			$newormod = 'calendar-o';
+			$newormod = '🗓️';
 			if ($showago === 2) {
 				$anzeigedat = $postago;
 			} elseif ($showago === 1) {
@@ -167,7 +167,7 @@ if( !function_exists('colordatebox')) {
 		// HTML-Ausgabe generieren
 		$colordate = '<span class="newlabel" style="background-color:' . $cstyles['background'] . '">';
 		if (!isset($noicon)) {
-			$colordate .= '<i class="fa fa-' . $newormod . '" style="margin-right:4px"></i>';
+			$colordate .= $newormod;
 		}
 		$colordate .= '<span style="color:' . $cstyles['color'] . '" title="' . htmlspecialchars($erstelltitle, ENT_QUOTES) . '">' . $anzeigedat . '</span></span>';
 		return $colordate;
@@ -286,7 +286,7 @@ function dedo_get_shortcode_lists() {
 					<div class="entry-meta-top"><div class="iconleiste noprint">%locked% &nbsp; %adminedit%
 					%dateago%%filesize%%count%</div><div class="greybox">%category% %tags%</div></div>
 					<h6 style="margin-top:4px"><a href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
-					<i class="fa fa-download"></i> %title%</a></h6>
+					📥 %title%</a></h6>
 					</div></div>'
 	 	),
 	 	'infoboxlist'=> array(
@@ -298,7 +298,7 @@ function dedo_get_shortcode_lists() {
 					<div class="entry-meta-top"><div class="iconleiste noprint">%locked% &nbsp; %adminedit% %datesymbol%</div>
 					<div class="greybox">%category% %tags%</div></div>
 					<h6 style="margin-top:4px"><a href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
-					<i class="fa fa-download"></i> %title%</a></h6>
+					📥 %title%</a></h6>
 					<div>%filename%%filedate%%filesize%%count%%downloadtime%<br>%description%</div>
 					</div>%thumb%</div>%id3tag%'
 	 	)
@@ -349,7 +349,7 @@ function download_times($filesize) {
 		$outp[] = ($h>0 ? $h.'h ' :'').($m>0 ? $m.'m ' :'').$s.'s@'.$value.'MBit';
 	}	
 	if ($s > 0) $s=1;
-	$dtime = '<a class="newlabel white" title="'.implode("\n", $outp).'"><i class="fa fa-clock-o"></i> '.$outp[4].'</a>';
+	$dtime = '<a class="newlabel white" title="'.implode("\n", $outp).'">🕐 '.$outp[4].'</a>';
 	return $dtime;
 }
 
@@ -365,7 +365,7 @@ function download_times($filesize) {
 				$oneday = '<input type="text" title="Copy '.$datetime->format('d.m.Y').' Onedaypass für heute&#10;'.$hashwert.'" class="copy-to-clipboard" style="direction:rtl;cursor:pointer;font-size:0.7em;width:80px;height:17px;margin-top:0" value="' . get_site_url() . '?sdownload=' . esc_attr( $id ) .  '&code='. $hashwert . '" readonly> &nbsp;';
 				$oneday .= '<p class="newlabel" style="background-color:#fe8;display:none">' . __( 'One day pass copied to clipboard.', 'delightful-downloads' ) . '</p>';
 			} else $oneday='';
-			$string = str_replace( '%adminedit%', ' <a href="'. get_home_url() . '/wp-admin/post.php?post='.$id.'&action=edit"><i title="'. __( 'edit this download', 'delightful-downloads' ) . '" class="fa fa-pencil"></i></a> &nbsp; '.$oneday, $string );
+			$string = str_replace( '%adminedit%', ' <a href="'. get_home_url() . '/wp-admin/post.php?post='.$id.'&action=edit"><span title="'. __( 'edit this download', 'delightful-downloads' ) . '">✏️</span></a> &nbsp; '.$oneday, $string );
 		} else {
 			$string = str_replace( '%adminedit%', '', $string );
 		}
@@ -387,7 +387,7 @@ function download_times($filesize) {
  	// Kategorie (erste)
  	if ( strpos( $string, '%category%' ) !== false ) {
 		$post_terms = get_the_terms( $id, 'ddownload_category' );
-		if (!empty($post_terms)) $value = '<i title="category" class="fa fa-folder-open"></i> <a href="'.get_term_link($post_terms[0]->slug,'ddownload_category').'">' . $post_terms[0]->name .'</a> &nbsp; '; else $value='';
+		if (!empty($post_terms)) $value = '<span title="category">📂</span> <a href="'.get_term_link($post_terms[0]->slug,'ddownload_category').'">' . $post_terms[0]->name .'</a> &nbsp; '; else $value='';
 		$string = str_replace( '%category%', $value, $string );
  	}
  	// Tags
@@ -395,7 +395,7 @@ function download_times($filesize) {
 		$value = '';
 		$post_terms = get_the_terms( $id, 'ddownload_tag' );
 		if ($post_terms && !is_wp_error($post_terms)) {
-			$value .='<i title="Themen" class="fa fa-tag"></i> ';
+			$value .='<span title="Themen">🏷️</span> ';
 			foreach ($post_terms as $term) {
 				$value .= '<a href="'.esc_attr( get_tag_link( $term->term_id ) ).'">'.$term->name . '</a> ';
 			}
@@ -436,27 +436,26 @@ function download_times($filesize) {
 				// Player nur, wenn nicht password protected
 				if ( !post_password_required( $id) ) $phtml .= '<audio class="noprint" controlsList="nodownload" style="width:100%" controls src="'.$musiurl.'" preload="metadata"></audio>';
 				$phtml .='<span style="font-size:.9em;font-style:italic">';
-				// Metadata Ausgabe auch für penguin podcasts template und für audio template --------------
-				if (isset($meta['title'])) $phtml .= '<i title="title" class="fa fa-ticket"></i> <b>'.$meta['title'].'</b>';
-				if (isset($meta['artist'])) $phtml .= '<i style="margin-left:1em" title="artist" class="fa fa-user"></i> '.$meta['artist'];
-				if (isset($meta['album'])) $phtml .= '<i style="margin-left:1em" title="album" class="fa fa-book"></i> ' . $meta['album'];
-				if (isset($meta['track_number'])) $phtml .= '<i style="margin-left:1em" title="track number" class="fa fa-hashtag"></i> ' . $meta['track_number'];
-				if (isset($meta['year'])) $phtml .= '<i style="margin-left:1em" title="year" class="fa fa-calendar-check-o"></i> '.$meta['year'];
-				if (isset($meta['genre'])) $phtml .= '<i style="margin-left:1em" title="genre" class="fa fa-cubes"></i> ' . $meta['genre'];
-				if (isset($meta['length_formatted'])) $phtml .= '<i style="margin-left:1em" title="length" class="fa fa-clock-o"></i> ' . $meta['length_formatted'];
-				if (isset($meta['composer'])) $phtml .= ' <i style="margin-left:1em" title="composer" class="fa fa-music"></i> ' . $meta['composer'];
-				if (isset($meta['band'])) $phtml .= '<i style="margin-left:1em" title="album artist" class="fa fa-users"></i> ' . $meta['band'];
-				if (isset($meta['filesize'])) $phtml .= '<i style="margin-left:1em" title="filesize" class="fa fa-expand"></i> ' . number_format_short($meta['filesize']);
-				if (isset($meta['part_of_a_set'])) $phtml .= '<i style="margin-left:1em" title="disc number" class="fa fa-circle-thin"></i> ' . $meta['part_of_a_set'];
-				if (isset($meta['encoder_options'])) $phtml .= '<i style="margin-left:1em" title="encoding" class="fa fa-compress"></i> ' . $meta['encoder_options'];
-				if (isset($meta['channelmode'])) $phtml .= '<i style="margin-left:1em" title="channelmode" class="fa fa-microphone"></i> ' . $meta['channelmode'];
-				if (isset($meta['publisher'])) $phtml .= '<i style="margin-left:1em" title="publisher" class="fa fa-newspaper-o"></i> ' . $meta['publisher'];
-				if (isset($meta['comment'])) $phtml .= '<i style="margin-left:1em" class="fa fa-comments"></i> ' . $meta['comment'];
-				// $phtml .= '<i style="margin-left:1em" class="fa fa-file-audio-o"></i> '.basename($filename);
-				if ( !post_password_required( $id) && !empty(@$meta['unsynchronised_lyric'])) $phtml .= '<i style="margin-left:1em" class="fa fa-text-width"></i> ' . $meta['unsynchronised_lyric'];
+// Metadata Ausgabe auch für penguin podcasts template und für audio template --------------
+				if (isset($meta['title'])) $phtml .= '🎫 <b>'.$meta['title'].'</b>'; // fa-ticket -> 🎫 (Eintrittskarte)
+				if (isset($meta['artist'])) $phtml .= ' <span style="margin-left:1em">👤</span> '.$meta['artist']; // fa-user -> 👤 (Silhouette/Person)
+				if (isset($meta['album'])) $phtml .= ' <span style="margin-left:1em">💿</span> ' . $meta['album']; // fa-book -> 💿 (CD/Album)
+				if (isset($meta['track_number'])) $phtml .= ' <span style="margin-left:1em">#️⃣</span> ' . $meta['track_number']; // fa-hashtag -> #️⃣ (Hashtag/Nummer)
+				if (isset($meta['year'])) $phtml .= ' <span style="margin-left:1em">🗓️</span> '.$meta['year']; // fa-calendar-check-o -> 🗓️ (Kalender)
+				if (isset($meta['genre'])) $phtml .= ' <span style="margin-left:1em">🎼</span> ' . $meta['genre']; // fa-cubes -> 🎼 (Musikalische Noten)
+				if (isset($meta['length_formatted'])) $phtml .= ' <span style="margin-left:1em">⏱️</span> ' . $meta['length_formatted']; // fa-clock-o -> ⏱️ (Stoppuhr)
+				if (isset($meta['composer'])) $phtml .= ' <span style="margin-left:1em">🎶</span> ' . $meta['composer']; // fa-music -> 🎶 (Musikanimation)
+				if (isset($meta['band'])) $phtml .= ' <span style="margin-left:1em">👥</span> ' . $meta['band']; // fa-users -> 👥 (Silhouetten/Gruppe)
+				if (isset($meta['filesize'])) $phtml .= ' <span style="margin-left:1em">🗜️</span> ' . number_format_short($meta['filesize']); // fa-expand -> 🗜️ (Klammer/Größe/Dateigröße)
+				if (isset($meta['part_of_a_set'])) $phtml .= ' <span style="margin-left:1em">⏺️</span> ' . $meta['part_of_a_set']; // fa-circle-thin -> ⏺️ (Aufnahme-Taste/Disc)
+				if (isset($meta['encoder_options'])) $phtml .= ' <span style="margin-left:1em">⚙️</span> ' . $meta['encoder_options']; // fa-compress -> ⚙️ (Zahnrad/Einstellungen/Encoding)
+				if (isset($meta['channelmode'])) $phtml .= ' <span style="margin-left:1em">🎙️</span> ' . $meta['channelmode']; // fa-microphone -> 🎙️ (Mikrofon/Audio)
+				if (isset($meta['publisher'])) $phtml .= ' <span style="margin-left:1em">📰</span> ' . $meta['publisher']; // fa-newspaper-o -> 📰 (Zeitung/Herausgeber)
+				if (isset($meta['comment'])) $phtml .= ' <span style="margin-left:1em">💬</span> ' . $meta['comment']; // fa-comments -> 💬 (Sprechblase/Kommentar)
+				// $phtml .= ' <span style="margin-left:1em">🔉</span> '.basename($filename); // Alternativ für fa-file-audio-o
+				if ( !post_password_required( $id) && !empty(@$meta['unsynchronised_lyric'])) $phtml .= ' <span style="margin-left:1em">📜</span> ' . $meta['unsynchronised_lyric']; // fa-text-width -> 📜 (Schriftrolle/Text)
 				$phtml .= '</span></div><div>';
-				if (!empty($meta['image']['data'])) $phtml .= '<img class="img-zoom" style="width:96px" src="data:'.$meta['image']['mime'].';charset=utf-8;base64,'.base64_encode($meta['image']['data']).'">';
-				$phtml .= '</div></div>';
+				if (!empty($meta['image']['data'])) $phtml .= '<img class="img-zoom" style="width:96px" src="data:'.$meta['image']['mime'].';charset=utf-8;base64,'.base64_encode($meta['image']['data']).'">';				$phtml .= '</div></div>';
 
 			} else $phtml = '';		
 			$value = $phtml;
@@ -513,7 +512,7 @@ function download_times($filesize) {
 		$fsfrommeta = size_format( get_post_meta( $id, '_dedo_file_size', true ), 0 );
 		$fsfromfile = size_format( filesize( $fpath ) );
 		if (!empty( get_post_meta( $id, '_dedo_file_size', true ) )) {
-			$value = '<span class="newlabel white"><i title="filesize: '.$fsfrommeta.'" class="fa fa-expand" style="font-size:1.1em;margin-right:3px"></i>'.$fsfromfile.'</span>';
+			$value = '<span class="newlabel white"><span title="filesize: '.$fsfrommeta.'">💾</span>'.$fsfromfile.'</span>';
 		} else { $value='';  }	
 		$string = str_replace( '%filesize%', $value, $string );
  	}
@@ -533,26 +532,26 @@ function download_times($filesize) {
 		} else { $perctotal = 0; $hotcolor = '#fff'; }
 		$fullcounter = number_format_i18n( $filedlc );
 		$shortcounter = dedo_number_format_short($filedlc);
- 		$value = '<span title="DLCounter: '.$fullcounter.' Ranking: '.$perctotal.'%" class="newlabel" style="background-color:'.$hotcolor.'" ><i class="fa fa-cloud-download" style="font-size:1.1em;margin-right:3px"></i>' . $shortcounter .'</span>';
+ 		$value = '<span title="DLCounter: '.$fullcounter.' Ranking: '.$perctotal.'%" class="newlabel" style="background-color:'.$hotcolor.'" >📥 ' . $shortcounter .'</span>';
  		$string = str_replace( '%count%', $value, $string );
  	}
  	// file name
  	if ( strpos( $string, '%filename%' ) !== false ) {
- 		$value = '<span title="Dateiname" class="newlabel white"><i class="fa fa-file-o" style="font-size:1.1em;margin-right:3px"></i> ' . dedo_get_file_name( get_post_meta( $id, '_dedo_file_url', true ) ).'</span>';
+ 		$value = '<span title="Dateiname" class="newlabel white">📃 ' . dedo_get_file_name( get_post_meta( $id, '_dedo_file_url', true ) ).'</span>';
  		$string = str_replace( '%filename%', $value, $string );
  	}
  	// protected file
  	if ( strpos( $string, '%locked%' ) !== false ) {
  		if (post_password_required($id)) {
-			$value='<i title="Kennwortgeschützt" class="fa fa-lock" style="color:tomato"></i>';
+			$value='<span title="Kennwortgeschützt" style="color:#f228">🔒</span>';
 		} else {
-			$value='<i title="öffentlich" class="fa fa-unlock"></i>';
+			$value='<span title="öffentlich">🔓</span>';
 		}
  		$string = str_replace( '%locked%', $value, $string );
  	}
  	// file extension
  	if ( strpos( $string, '%ext%' ) !== false ) {
- 		$value = '<i title="filename" class="fa fa-code-fork"></i> '.strtoupper( dedo_get_file_ext( get_post_meta( $id, '_dedo_file_url', true ) ) );
+ 		$value = '<span title="filename">📑</span> '.strtoupper( dedo_get_file_ext( get_post_meta( $id, '_dedo_file_url', true ) ) );
  		$string = str_replace( '%ext%', $value, $string );
  	}
   	// file icon

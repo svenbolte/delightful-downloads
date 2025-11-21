@@ -189,16 +189,16 @@ display a pencil link next to the downloads for admin use (only displayed if log
 display a filetype icon (from a color png sprite)
 
 %category%
-display the first dedo category assigned to the download (with FA symbol if fontawesome present)
+display the first dedo category assigned to the download 
 
 %tags%
-display a list of all dedo tags assigned to the download (with FA symbol if fontawesome present)
+display a list of all dedo tags assigned to the download 
 
 %count%
-The number of times the download has been downloaded. (with FA symbol if fontawesome present)
+The number of times the download has been downloaded. 
 
 %shortdate%    example: |+| Mo 22. Dez 2022 14:30
-published date and modified date, mod date is shown, stats and other dates on mouseover (with FA symbol if fontawesome present)
+published date and modified date, mod date is shown, stats and other dates on mouseover 
 (takes format date and time from wordpress settings)
 
 %date%     example: | | Mo 11. Apr 2022 14:30 |+| Mo 22. Dez 2022 14:30
@@ -222,16 +222,16 @@ display post thumbnail on right side with img-zoom on hover - Beitragsbild mit i
 
 
 %locked%  
-displays a red lock if Download is password protected (with FA symbol if fontawesome present)
+displays a red lock if Download is password protected 
 
 %ext%
-The file extension. (with FA symbol if fontawesome present)
+The file extension. 
 
 %filename%
-The file name of the download. (with FA symbol if fontawesome present)
+The file name of the download. 
 
 %filesize%
-The file size of the download. (with FA symbol if fontawesome present)
+The file size of the download. 
 
 %downloadtime%
 display a clock symbol of fontawesome and download times for typical intern lines (16,25,50,100,200,500,1000MBit)
