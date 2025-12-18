@@ -8,10 +8,10 @@ Description: A super-awesome downloads manager for WordPress with htacces file l
 Text Domain: delightful-downloads
 Domain Path: /languages
 License: GPL2
-Version: 9.9.100
-Stable tag: 9.9.100
+Version: 9.9.101
+Stable tag: 9.9.101
 Requires at least: 6.0
-Tested up to: 6.8.3
+Tested up to: 6.9
 Requires PHP: 8.2
 */
 
@@ -25,7 +25,7 @@ add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
 function dedo_load_textdomain() {
 	load_plugin_textdomain( 'delightful-downloads', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 }
-add_action( 'plugins_loaded', 'dedo_load_textdomain' );
+add_action( 'init', 'dedo_load_textdomain' );
 
 /**
  * Delightful Downloads
