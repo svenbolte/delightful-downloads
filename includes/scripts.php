@@ -13,9 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Register Frontend Scripts & Styles    - fontawesome icons durch unicode symbold ersetzt
- *
- * @since  1.0
+ * Register Frontend Scripts & Styles - unicode symbole für icons
  */
 function dedo_enqueue_scripts( $page ) {
 	global $dedo_options,$post;

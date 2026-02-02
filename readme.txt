@@ -3,11 +3,12 @@ Contributors: A5hleyRich, Sven Bolte, others (best of forks)
 Tags: download, manager, downloads, monitor, shortcode, delightful downloads, file, counter, tracking, infobox, fixed filetree,ipflag, chartscodes
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 9.9.101
-Stable tag: 9.9.101
+Version: 9.9.111
+Stable tag: 9.9.111
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 8.2
+
 
 A super-awesome downloads manager for WordPress with htacces file limits and file icons and one day passes.
 
@@ -103,11 +104,27 @@ This is caused when the file does not exist at the location specified or is inac
 [[ddownload_list]]
 You can output a list of downloads using the [[ddownload_list]] shortcode. Optional attributes can be supplied to customise the output. To output all published downloads, sorted by title in ascending order: [[ddownload_list]]
 
-Attributes
-The following are optional attributes that will modify the output.
+			'limit' 				=> 0,
+			'orderby'			=> 'title',
+			'order'				=> 'ASC',
+			'categories'		=> '',
+			'tags'				=> '',
+			'exclude_categories'=> '',
+			'exclude_tags'		=> '',
+			'relation'			=> 'AND',
+			'style'				=> $dedo_options['default_list'],
+			'search'			=> '',
+			'show_search'		=> 1,
 
-cache
-Cache the results. The amount of time the results are cached for can be set in the Settings screen under the Advanced tab. Default: true.
+## Attributes in detail - The following are optional attributes that will modify the output.
+
+show_search 
+Standard: [ddownload_list] (Suchfeld sichtbar)
+Ausblenden: [ddownload_list show_search="0"]
+
+search
+[ddownload_list search="katze"]
+URL-Parameter: ?search=excel
 
 categories
 Show only downloads within specified categories. Comma separated list of category slugs. Default: blank.
@@ -136,7 +153,9 @@ The output style that should be used to display the list of downloads. The defau
 tags
 Show only downloads within specified tags. Comma separated list of tag slugs. Default: blank.
 
+
 -----------------------------------------------
+
 [[ddownload]]
 You can easily output a single download using the [[ddownload]] shortcode. You must supply a download ID and optional attributes can be supplied to modify the output. To output a download using the default settings: [[ddownload id="123"]]
 You can find the ID of a download in the All Downloads screen.
@@ -463,6 +482,10 @@ Please refer to the [documentation] in this readme.txt.
 
 
 ==================== Changelog ==========================================================================
+
+= 9.9.111 =
+search on ddownload_list shortcode implemented. search on content and title and filter the list. 
+as short code parameter or url search  - search form can be hidden via shordcode param
 
 = 9.9.87 =
 WP 6.8.1. Tests

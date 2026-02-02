@@ -87,9 +87,15 @@ function dedo_shortcode_ddownload( $atts ) {
 }
 add_shortcode( 'ddownload', 'dedo_shortcode_ddownload' );
 
+
 /**
  * Downloads List Shortcode
  * Displays a list of downloads based on user defined attributes.
+ * Extended:
+ *  - search (Shortcode-Attribut) + ?search=... (URL)
+ *  - show_search=0|1 (Suchfeld aus-/einblenden; Standard: 1)
+ *  - Suche filtert NUR innerhalb dedo_download (Titel, Content, Dateiname/_dedo_file_url)
+ *  - Cache-Code entfernt (auf Wunsch)
  * @since   1.3
  */
 function dedo_shortcode_ddownload_list( $atts ) {
@@ -102,17 +108,26 @@ function dedo_shortcode_ddownload_list( $atts ) {
 	extract( shortcode_atts(
 		array(
 			'limit' 				=> 0,
-			'orderby'				=> 'title',
-			'order'					=> 'ASC',
-			'categories'			=> '',
-			'tags'					=> '',
-			'exclude_categories'	=> '',
-			'exclude_tags'			=> '',
-			'relation'				=> 'AND',
-			'style'					=> $dedo_options['default_list'],
-			'cache'					=> true,
-		), $atts, 'ddownload_list' ) 
+			'orderby'			=> 'title',
+			'order'				=> 'ASC',
+			'categories'		=> '',
+			'tags'				=> '',
+			'exclude_categories'=> '',
+			'exclude_tags'		=> '',
+			'relation'			=> 'AND',
+			'style'				=> $dedo_options['default_list'],
+			'search'			=> '',
+			'show_search'		=> 1,
+		), $atts, 'ddownload_list' )
 	);
+
+	// --- Suchbegriff ermitteln (URL/Formular hat Priorität) ---
+	$search_term = '';
+	if ( isset( $_REQUEST['search'] ) && $_REQUEST['search'] !== '' ) {
+		$search_term = sanitize_text_field( wp_unslash( $_REQUEST['search'] ) );
+	} elseif ( ! empty( $search ) ) {
+		$search_term = sanitize_text_field( $search );
+	}
 
 	// Default query args
 	$query_args = array(
@@ -126,7 +141,6 @@ function dedo_shortcode_ddownload_list( $atts ) {
 
 	// Validate and set orderby
 	if ( !in_array( strtolower( $orderby ), array( 'title', 'date', 'modified', 'count', 'filesize', 'random' ) ) ) {
-		
 		return __( 'Invalid orderby attribute.', 'delightful-downloads' );
 	}
 	else {
@@ -243,79 +257,153 @@ function dedo_shortcode_ddownload_list( $atts ) {
 		return __( $style. 'Invalid style attribute.', 'delightful-downloads' );
 	}
 
-	// Supply correct boolean for cache
-	$cache = ( in_array( $cache, array( 'true', 'yes' ) ) ) ? true : false;
+	// --- Suche nur innerhalb dedo_download: Titel/Content ODER Datei-URL (Meta) ---
+	if ( $search_term !== '' ) {
+		// 1) Titel + Content (WP-Suche)
+		$args_s = $query_args;
+		$args_s['fields'] = 'ids';
+		$args_s['posts_per_page'] = -1;
+		$args_s['s'] = $search_term;
+		$q_s = new WP_Query( $args_s );
+		$ids_s = ( ! empty( $q_s->posts ) ) ? $q_s->posts : array();
 
-	// First check for cached data
-	$key = md5( $limit . $orderby . $order . $categories . $tags . $exclude_categories . $exclude_tags . $relation . $style );
-	$key = substr( 'dedo_shortcode_list_' . $key, 0, 45 );
-	$dedo_cache = new DEDO_Cache( $key );
+		// 2) Datei-URL / Dateiname (Meta)
+		$args_m = $query_args;
+		$args_m['fields'] = 'ids';
+		$args_m['posts_per_page'] = -1;
+		$args_m['meta_query'] = array(
+			array(
+				'key'		=> '_dedo_file_url',
+				'value'		=> $search_term,
+				'compare'	=> 'LIKE',
+			),
+		);
+		$q_m = new WP_Query( $args_m );
+		$ids_m = ( ! empty( $q_m->posts ) ) ? $q_m->posts : array();
 
-	if ( true == $cache && false !== ( $cached_data = $dedo_cache->get() ) ) {
-		$output = $cached_data;
-	} else {
+		$ids = array_values( array_unique( array_merge( $ids_s, $ids_m ) ) );
 
-		// Run query
-		$downloads_list = new WP_Query( $query_args );
-
-		// Begin output
-		if ( $downloads_list->have_posts() ) {
+		// Wenn nichts gefunden: direkt "No downloads found"
+		if ( empty( $ids ) ) {
+			// Suchfeld trotzdem rendern (falls show_search=1)
 			ob_start();
-			$dlcount=0;
-			$filecount=0;
-			$tfilesize=0;
-			$listfilter='';
-			if (!empty($categories)) $listfilter .= '📂 '.$categories;
-			if (!empty($tags)) $listfilter .= ' &nbsp;🔖 '.$tags;
-			if (!empty($exclude_categories)) $listfilter .= ' &nbsp;<span title="excluded cats">🔽</span>📂 '.$exclude_categories;
-			if (!empty($exclude_tags)) $listfilter .= ' &nbsp;<span title="excluded tags" style="color:tomato">🔽</span>🔖 '.$exclude_tags;
-			if (!empty($listfilter)) echo '<div class="entry-meta-top" style="text-align:center;width:100%;text-transform:uppercase"><strong>'.__('downloads','delightful_downloads').'</strong> &nbsp;'.$listfilter.'</div>';
-			echo '<div class="ddownloads_list' . $tax_class . $style_class . '">';
-			while ( $downloads_list->have_posts() ) {
-				$downloads_list->the_post();
-				// Add classes
-				$classes = 'id-' . get_the_ID(); // Download id
-				$classes .= ' ext-' . dedo_get_file_ext( get_post_meta( get_the_ID(), '_dedo_file_url', true ) ); // File extension
-				$new_style_format = str_replace( '%class%', $classes, $style_format );
-				$filecount++;
-				$dlcount += get_post_meta( get_the_ID(), '_dedo_file_count', true );
-				$tfilesize += (int) get_post_meta( get_the_ID(), '_dedo_file_size', true );
-				echo '<div style="margin-bottom:.3em;border:1px solid var(--pengcolor)"><div style="position:relative"><div style="background-color:#fffb;color:#000;font-size:1.2em;font-weight:700;position:absolute;left:8px;top:6px;z-index:99999;line-height:1em">'. $filecount.'</div></div>' . dedo_search_replace_wildcards( $new_style_format, get_the_ID() ) . '</div>';
-				// Reset classes for next iteration
-				unset( $classes );
-				unset( $new_style_format );
+			if ( (int) $show_search === 1 ) {
+				echo '<form method="get" class="ddownload-search-form">';
+				foreach ( $_GET as $key => $value ) {
+					if ( $key !== 'search' ) {
+						echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '">';
+					}
+				}
+				echo '<div class="ddownload-search-field">';
+				echo '<span class="ddownload-search-icon">🔍</span>';
+				echo '<input type="search" name="search" class="search" value="' . esc_attr( $search_term ) . '" placeholder="Downloads durchsuchen …">';
+				echo '</div>';
+				echo '</form>';
 			}
-			echo '</div>';
-			
-			// File Statistiken, wenn limit nicht gesetzt
-			if ($limit == 0) {
-				$total_files = wp_count_posts( 'dedo_download' )->publish;
-				echo '<div class="entry-meta-top" style="text-align:center;margin-bottom:2em">';
-				if ((int) $filecount < (int) $total_files) {
-					echo '📋 <b>'.$filecount.'</b> &nbsp;';
-					echo '🗃️ <b>' . size_format( $tfilesize, 1 ).'</b> ';
-					echo '📥 <b>'. number_format_i18n( $dlcount,0).'</b>';
-				}	
-				echo ' &nbsp; TOTAL <b>'.$total_files.'</b> &nbsp;'
-					.'🗃️ <b>'.size_format( dedo_get_filesize(), 1 ).'</b> '
-					.'️📥 <b>'.number_format_i18n(dedo_total_downloads());
-				echo '</b></div>';
-			}	
 			$output = ob_get_clean();
-			wp_reset_postdata();
+			return $output . '<p>' . __( 'No downloads found.', 'delightful-downloads' ) . '</p>';
+		}
 
-			// Save to cache
-			if ( true == $cache ) {
-				$dedo_cache->set( $output );
-			}
-		}
-		else {
-			return '<p>' . __( 'No downloads found.', 'delightful-downloads' ) . '</p>';
-		}
+		// Hauptquery auf gefundene IDs einschränken
+		$query_args['post__in'] = $ids;
+		// kein 's' und keine meta_query mehr im Hauptquery nötig
 	}
+
+	// Run query
+	$downloads_list = new WP_Query( $query_args );
+
+	// Begin output
+	if ( $downloads_list->have_posts() ) {
+		ob_start();
+		$dlcount=0;
+		$filecount=0;
+		$tfilesize=0;
+		$listfilter='';
+
+		if (!empty($categories)) $listfilter .= '📂 '.$categories;
+		if (!empty($tags)) $listfilter .= ' &nbsp;🔖 '.$tags;
+		if (!empty($exclude_categories)) $listfilter .= ' &nbsp;<span title="excluded cats">🔽</span>📂 '.$exclude_categories;
+		if (!empty($exclude_tags)) $listfilter .= ' &nbsp;<span title="excluded tags" style="color:tomato">🔽</span>🔖 '.$exclude_tags;
+		if (!empty($search_term)) $listfilter .= ' &nbsp;🔎 <span class="ddownload-search-term">'.esc_html($search_term).'</span>';
+
+
+		echo '<div class="entry-meta-top" style="text-align:center;width:100%;text-transform:uppercase">';
+
+		// Suchfeld (immer anzeigen, außer show_search=0)
+		if ( (int) $show_search === 1 ) {
+			echo '<form method="get" style="display:inline-block;padding-right:2em">';
+			// vorhandene GET-Parameter erhalten (page_id etc.)
+			foreach ( $_GET as $key => $value ) {
+				if ( $key !== 'search' ) {
+					echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '">';
+				}
+			}
+			echo '🔍 <input type="search" name="search" class="search" value="' . esc_attr( $search_term ) . '" placeholder="Suchbegriff">';
+			echo '</form>';
+		}
+
+		if (!empty($listfilter)) echo '<strong>'.__('downloads','delightful_downloads').'</strong> &nbsp;'.$listfilter;
+		echo '</div>';
+
+		echo '<div class="ddownloads_list' . $tax_class . $style_class . '">';
+		while ( $downloads_list->have_posts() ) {
+			$downloads_list->the_post();
+			// Add classes
+			$classes = 'id-' . get_the_ID(); // Download id
+			$classes .= ' ext-' . dedo_get_file_ext( get_post_meta( get_the_ID(), '_dedo_file_url', true ) ); // File extension
+			$new_style_format = str_replace( '%class%', $classes, $style_format );
+			$filecount++;
+			$dlcount += get_post_meta( get_the_ID(), '_dedo_file_count', true );
+			$tfilesize += (int) get_post_meta( get_the_ID(), '_dedo_file_size', true );
+			echo '<div style="margin-bottom:.3em;border:1px solid var(--pengcolor)"><div style="position:relative"><div style="background-color:#fffb;color:#000;font-size:1.2em;font-weight:700;position:absolute;left:8px;top:6px;z-index:99999;line-height:1em">'. $filecount.'</div></div>' . dedo_search_replace_wildcards( $new_style_format, get_the_ID() ) . '</div>';
+			// Reset classes for next iteration
+			unset( $classes );
+			unset( $new_style_format );
+		}
+		echo '</div>';
+
+		// File Statistiken, wenn limit nicht gesetzt
+		if ($limit == 0 && $search_term === '') {
+			$total_files = wp_count_posts( 'dedo_download' )->publish;
+			echo '<div class="entry-meta-top" style="text-align:center;margin-bottom:2em">';
+			if ((int) $filecount < (int) $total_files) {
+				echo '📋 <b>'.$filecount.'</b> &nbsp;';
+				echo '🗃️ <b>' . size_format( $tfilesize, 1 ).'</b> ';
+				echo '📥 <b>'. number_format_i18n( $dlcount,0).'</b>';
+			}	
+			echo ' &nbsp; TOTAL <b>'.$total_files.'</b> &nbsp;'
+				.'🗃️ <b>'.size_format( dedo_get_filesize(), 1 ).'</b> '
+				.'️📥 <b>'.number_format_i18n(dedo_total_downloads());
+			echo '</b></div>';
+		}
+
+		$output = ob_get_clean();
+		wp_reset_postdata();
+	}
+	else {
+		// Suchfeld trotzdem anzeigen (falls aktiv)
+		ob_start();
+		if ( (int) $show_search === 1 ) {
+			echo '<form method="get" class="ddownload-search-form">';
+			foreach ( $_GET as $key => $value ) {
+				if ( $key !== 'search' ) {
+					echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '">';
+				}
+			}
+			echo '<div class="ddownload-search-field">';
+			echo '<span class="ddownload-search-icon">🔍</span>';
+			echo '<input type="search" name="search" class="search" value="' . esc_attr( $search_term ) . '" placeholder="Downloads durchsuchen …">';
+			echo '</div>';
+			echo '</form>';
+		}
+		$output = ob_get_clean();
+		return $output . '<p>' . __( 'No downloads found.', 'delightful-downloads' ) . '</p>';
+	}
+
 	return apply_filters( 'dedo_shortcode_ddownload_list', $output );
 }
 add_shortcode( 'ddownload_list', 'dedo_shortcode_ddownload_list' );
+
 
 /**
  * Allow shortcodes in widgets
