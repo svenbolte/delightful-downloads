@@ -68,6 +68,7 @@ function dedo_download_column_headings( $columns ) {
 		'members_only' => '<span class="dashicons dashicons-businessperson" title="' . __( 'Members Only', 'delightful-downloads' ) . '"></span>',
 		'open_browser' => '<span class="dashicons dashicons-portfolio" title="' . __( 'Open in Browser', 'delightful-downloads' ) . '"></span>',
 		'date'         => __( 'Date', 'delightful-downloads' ),
+		'modified'         => __( 'modified', 'delightful-downloads' ),
 	);
 
 	// If Quicklinks is enabled add to columns array
@@ -127,8 +128,12 @@ function dedo_download_column_contents( $column_name, $post_id ) {
 		$file_size = get_post_meta( $post_id, '_dedo_file_size', true );
 		$file_size = ( ! $file_size ) ? 0 : size_format( $file_size, 1 );
 		echo ( ! $file_size ) ? '<span class="blank">--</span>' : esc_attr( $file_size );
+	}
+
+	// Modified date column
+	if ( $column_name == 'modified' ) {
 		$file_datum = get_the_modified_date(get_option('date_format').' '.get_option('time_format'),$post_id);
-		echo '<br><br><i title="modified">'.$file_datum.' '.ago(get_the_modified_date('U')).'</i>';
+		echo '<i title="modified">'.$file_datum.' '.ago(get_the_modified_date('U')).'</i>';
 	}
 
 	// Shortcode column
