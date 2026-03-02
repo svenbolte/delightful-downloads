@@ -342,7 +342,7 @@ function dedo_shortcode_ddownload_list( $atts ) {
 			echo '</form>';
 		}
 
-		if (!empty($listfilter)) echo '<strong>'.__('downloads','delightful_downloads').'</strong> &nbsp;'.$listfilter;
+		if (!empty($listfilter)) echo '<strong>'.__('downloads','delightful-downloads').'</strong> &nbsp;'.$listfilter;
 		echo '</div>';
 
 		echo '<div class="ddownloads_list' . $tax_class . $style_class . '">';

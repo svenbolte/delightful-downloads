@@ -8,8 +8,8 @@ Description: A super-awesome downloads manager for WordPress with htacces file l
 Text Domain: delightful-downloads
 Domain Path: /languages
 License: GPL2
-Version: 9.9.112
-Stable tag: 9.9.112
+Version: 9.9.113
+Stable tag: 9.9.113
 Requires at least: 6.0
 Tested up to: 6.9.1
 Requires PHP: 8.2
@@ -18,14 +18,10 @@ Requires PHP: 8.2
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) {	exit; }
 
-// doing wrong notices abstellen (WP6.8 meckert im Debugmode
-add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
-
 // Load plugin textdomain.
-function dedo_load_textdomain() {
-	load_plugin_textdomain(	'delightful-downloads',	false,	dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-}
-add_action( 'plugins_loaded', 'dedo_load_textdomain' );
+add_action('init', function () {
+    load_plugin_textdomain( 'delightful-downloads', false, dirname(plugin_basename(__FILE__)) . '/languages' );
+});
 
 //  Delightful Downloads class @package  Delightful Downloads
 class Delightful_Downloads {
@@ -61,14 +57,23 @@ class Delightful_Downloads {
 		$this->path    = $path;
 		$this->version = $version;
 		self::$instance->constants();
-		self::$instance->options();
 		self::$instance->includes();
+
+		// Defer options (uses translations) until init to avoid WP 6.7+ JIT warnings
+		add_action( 'init', array( $this, 'late_init' ), 1 );
 
 		// Register activation/deactivation hooks
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
 		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
 		// Plugin row links
 		add_filter( 'plugin_action_links', array( $this, 'plugin_links' ), 10, 2 );
+	}
+
+	/**
+	 * Late initialization: run after init so translations can load safely.
+	 */
+	public function late_init() {
+		$this->options();
 	}
 
 	/**
@@ -184,7 +189,7 @@ class Delightful_Downloads {
  * @return Delightful_Downloads
  */
 function Delightful_Downloads() {
-	$version = '9.9.32';
+	$version = '9.9.112';
 	return Delightful_Downloads::get_instance( __FILE__, $version );
 }
 Delightful_Downloads();
