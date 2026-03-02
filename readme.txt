@@ -3,10 +3,10 @@ Contributors: A5hleyRich, Sven Bolte, others (best of forks)
 Tags: download, manager, downloads, monitor, shortcode, delightful downloads, file, counter, tracking, infobox, fixed filetree,ipflag, chartscodes
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 9.9.111
-Stable tag: 9.9.111
+Version: 9.9.112
+Stable tag: 9.9.112
 Requires at least: 6.0
-Tested up to: 6.9
+Tested up to: 6.9.1
 Requires PHP: 8.2
 
 
@@ -66,23 +66,13 @@ Usage
 How do I output a single download link?
 Use the shortcode [[ddownload id="123"]]. Replace the ID with the desired download ID, which can be found in the All Downloads screen.
 
-How do I output a single download file size?
-Use the shortcode [[ddownload_size id="123"]]. Replace the ID with the desired download ID, which can be found in the All Downloads screen.
-
-How do I output the number of times a single file has been downloaded?
-Use the shortcode [[ddownload_count id="123"]]. Replace the ID with the desired download ID, which can be found in the All Downloads screen.
-
 How do I output a list of download links?
 Use the shortcode [[ddownload_list]].
 
-How do I output the number of times all of my files have been download?
-Use the shortcode [[ddownload_total_count]].
 
 Troubleshooting
 Why when I click a download link does the download count not update?
 This is usually caused by being logged in as an admin. Downloads by admin users are not automatically logged, however you can change this behaviour in the Settings screen under the Statistics tab.
-
-If using the [[ddownload_total_count]] shortcode, the count is also cached by default and will only update every few minutes based on the Cache Duration, which is set in the Settings screen under the Advanced tab.
 
 Why do I receive a 403 Forbidden error when I try to access a file directly?
 Delightful Downloads automatically blocks direct access to files stored within the wp-content/uploads/delightful-downloads/ directory. To access the file you must use the [[ddownload id="123"]] shortcode.
@@ -482,6 +472,9 @@ Please refer to the [documentation] in this readme.txt.
 
 
 ==================== Changelog ==========================================================================
+
+= 9.9.112 =
+* Removed Shortcode [ddownload_total_count] because the values are in admin dashboard nuggets, so no need to display the total count in frontend.
 
 = 9.9.111 =
 search on ddownload_list shortcode implemented. search on content and title and filter the list. 
