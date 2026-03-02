@@ -131,9 +131,9 @@ function dedo_get_options() {
 			'name'       => __( 'Cache', 'delightful-downloads' ),
 			'tab'        => 'advanced',
 			'type'       => 'text',
-			'default'    => 1,
+			'default'    => 0,
 			'sub_option' => array(
-				'duration' => 15,
+				'duration' => 5,
 			),
 		),
 		'download_url'        => array(

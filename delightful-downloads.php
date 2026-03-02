@@ -23,49 +23,22 @@ add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
 
 // Load plugin textdomain.
 function dedo_load_textdomain() {
-	load_plugin_textdomain( 'delightful-downloads', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+	load_plugin_textdomain(	'delightful-downloads',	false,	dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 }
-add_action( 'init', 'dedo_load_textdomain' );
+add_action( 'plugins_loaded', 'dedo_load_textdomain' );
 
-/**
- * Delightful Downloads
- * @package  Delightful Downloads
- */
+//  Delightful Downloads class @package  Delightful Downloads
 class Delightful_Downloads {
-
-	/**
-	 * Instance of this class.
-	 */
+	// Instance of this class.
 	private static $instance;
-
-	/**
-	 * @var string
-	 */
 	public $path;
-
-	/**
-	 * @var string
-	 */
 	public $version;
-
-	/**
-	 * Protected constructor to prevent creating a new instance of the
-	 * class via the `new` operator from outside of this class.
-	 */
-	protected function __construct() {
-	}
-
-	/**
-	 * As this class is a singleton it should not be clone-able
-	 */
-	protected function __clone() {
-	}
-
-	/**
-	 * As this class is a singleton it should not be able to be unserialized
-	 */
-	public function __wakeup() {
-	}
+	// Protected constructor to prevent creating a new instance of the class via the `new` operator from outside of this class.
+	protected function __construct() {}
+	// As this class is a singleton it should not be clone-able
+	protected function __clone() {}
+	// As this class is a singleton it should not be able to be unserialized
+	public function __wakeup() {}
 
 	/**
 	 * Return an instance of this class.
@@ -73,11 +46,9 @@ class Delightful_Downloads {
 	public static function get_instance( $path, $version ) {
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new Delightful_Downloads();
-
 			// Initialize the class
 			self::$instance->init( $path, $version );
 		}
-
 		return self::$instance;
 	}
 
@@ -96,11 +67,9 @@ class Delightful_Downloads {
 		// Register activation/deactivation hooks
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
 		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
-
 		// Plugin row links
 		add_filter( 'plugin_action_links', array( $this, 'plugin_links' ), 10, 2 );
 	}
-
 
 	/**
 	 * Include all the classes used by the plugin

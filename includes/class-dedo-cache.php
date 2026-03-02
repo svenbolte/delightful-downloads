@@ -5,7 +5,6 @@
  * @package  	Delightful Downloads
  * @author   	Ashley Rich
  * @copyright   Copyright (c) 2014, Ashley Rich
- * @since    	1.4
 */
 
 // Exit if accessed directly
@@ -15,53 +14,38 @@ class DEDO_Cache {
 
 	/**
 	 * Cache Enabled
-	 *
 	 * Is caching enabled on the settings screen?
-	 *
 	 * @var boolean
 	 * @access private
-	 * @since 1.4
 	 */
 	private $cache_enabled;
 
 	/**
 	 * Cache Duration
-	 *
 	 * How long are we caching data for?
-	 *
 	 * @var boolean
 	 * @access private
-	 * @since 1.4
 	 */
 	private $cache_duration;
 
 	/**
 	 * Cache Key
-	 *
 	 * Unique key for data.
-	 *
 	 * @var string
 	 * @access private
-	 * @since 1.4
 	 */
 	private $key;
 
 	/**
 	 * Cached
-	 *
 	 * Cached flag for data.
-	 *
 	 * @var boolean
 	 * @access private
-	 * @since 1.4
 	 */
 	private $cached = false;
 
 	/**
 	 * Init
-	 *
-	 * @since   1.4
-	 *
 	 * @return void
 	 */
 	public function __construct( $key ) {
@@ -76,11 +60,7 @@ class DEDO_Cache {
 	}
 	/**
 	 * Get Cache
-	 *
 	 * Check for cached data in transients.
-	 *
-	 * @since   1.4
-	 *
 	 * @param string $sql Prepared SQL statement.
 	 * @return mixed Mixed result or false on failure.
 	 */
@@ -98,11 +78,7 @@ class DEDO_Cache {
 
 	/**
 	 * Set Cache
-	 *
 	 * Cache data in transients.
-	 *
-	 * @since   1.4
-	 *
 	 * @param string $sql Prepared SQL statement.
 	 * @return void
 	 */
