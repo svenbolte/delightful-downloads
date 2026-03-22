@@ -852,3 +852,52 @@ border-color:#04a4cc
 .admin-color-fresh #dedo-upload-modal #dedo-drag-drop-area.uploading #dedo-progress-percent,.admin-color-light #dedo-upload-modal #dedo-drag-drop-area.uploading #dedo-progress-percent {
 background:#04a4cc
 }
+
+#dedo-shortcode-modal select.dedo-native-select {
+	width: 100%;
+	max-width: 100%;
+}
+
+#dedo-select-modal .dedo-file-browser-breadcrumbs {
+	margin: 0 0 10px;
+	font-size: 13px;
+}
+
+#dedo-select-modal .dedo-file-browser-breadcrumbs .separator {
+	color: #777;
+	margin: 0 4px;
+}
+
+#dedo-select-modal #dedo-file-browser {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+#dedo-select-modal #dedo-file-browser .dedo-file-browser-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 6px 8px;
+	border: 0;
+	background: transparent;
+	text-align: left;
+	cursor: pointer;
+	text-decoration: none;
+	color: #1d2327;
+}
+
+#dedo-select-modal #dedo-file-browser .dedo-file-browser-item:hover,
+#dedo-select-modal #dedo-file-browser .dedo-file-browser-item:focus {
+	background: #f0f6fc;
+	outline: none;
+}
+
+#dedo-select-modal #dedo-file-browser .dedo-file-browser-item.active {
+	background: #dcdcde;
+}
+
+#dedo-select-modal #dedo-file-browser .dedo-file-browser-item .dashicons {
+	color: #646970;
+}

@@ -146,9 +146,11 @@ function dedo_meta_box_download( $post ) {
 
 	// File browser args
 	$file_browser_args = array(
-		'root'			=> dedo_get_upload_dir( 'basedir' ) . '/',
-		'url'			=> dedo_get_upload_dir( 'baseurl' ) . '/',
-		'script'		=> DEDO_PLUGIN_URL . 'assets/vendor/jqueryFileTree/connectors/jqueryFileTree.php'
+		'ajaxURL'		=> admin_url( 'admin-ajax.php', is_ssl() ? 'https' : 'http' ),
+		'nonce'		=> wp_create_nonce( 'dedo_file_browser' ),
+		'action'		=> 'dedo_file_browser',
+		'baseUrl'		=> trailingslashit( dedo_get_upload_dir( 'baseurl' ) ),
+		'rootLabel'	=> __( 'Uploads', 'delightful-downloads' )
 	);
 
 	?>
