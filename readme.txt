@@ -3,8 +3,8 @@ Contributors: A5hleyRich, Sven Bolte, others (best of forks)
 Tags: download, manager, downloads, monitor, shortcode, delightful downloads, file, counter, tracking, infobox, fixed filetree,ipflag, chartscodes
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 9.10.200
-Stable tag: 9.10.200
+Version: 9.11.300
+Stable tag: 9.10.300
 Requires at least: 6.0
 Tested up to: 6.9.4
 Requires PHP: 8.2
@@ -472,6 +472,9 @@ Please refer to the [documentation] in this readme.txt.
 
 
 ==================== Changelog ==========================================================================
+
+= 9.11.300 =
+complete refactoriing, php 8.5 compatibility, number of php files and css reduced.
 
 = 9.10.200 =
 * complete refactoring and jquery file selector, vue and other vendors remove. delete vendor folder with contents. or delete and reinstall ddl please.
