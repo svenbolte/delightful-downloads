@@ -1,0 +1,955 @@
+<?php
+/**
+ * Delightful Downloads Functions
+ * @package     Delightful Downloads
+*/
+
+// Exit if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
+// Register own template for downloads
+function dedo_template( $single_template ) {
+    global $post;
+	$wpxtheme = wp_get_theme(); // gets the current theme
+	if ( 'Penguin' == $wpxtheme->name || 'Penguin' == $wpxtheme->parent_theme ) { $xpenguin = true;} else { $xpenguin=false; }
+    if ( $post->post_type == 'dedo_download' ) {
+        if ($xpenguin) { $single_template = dirname( __FILE__ ) . '/dedo-template-penguin.php';	} else {
+			$single_template = dirname( __FILE__ ) . '/dedo-template.php';
+		}
+    }
+    return $single_template;
+}
+add_filter( 'single_template', 'dedo_template' );
+
+// k,M,G T formatieren bei großen Zahlen
+function dedo_number_format_short( $n ) {
+    return number_format_short( $n );
+}
+
+// colorize heat after given value and return volor value
+function dedo_heatcolor($visithotness) {
+	$heatmapcols = array('#A9D0F5','#A9e2f3','#a9f5f2','#b2ff99','#ccff99','#e5ff99','#ffff99','#ffe599','#ffee99','#ffcc99','#ffb299aa','#ff9999aa','#D0A9F5aa','#F5A9F2aa');
+	if ( $visithotness <=3 ) $hotcolor = $heatmapcols[0];
+	else if ( $visithotness <=100 ) $hotcolor = $heatmapcols[floor(floor($visithotness) / 10)];
+	else if ( $visithotness <=150 ) $hotcolor = $heatmapcols[11];
+	else if ( $visithotness <=200 ) $hotcolor = $heatmapcols[12];
+	else if ( $visithotness >200 ) $hotcolor = $heatmapcols[13];
+	return $hotcolor;	
+}
+
+// ----------------------------------- Funktionen, die in andere Plugins und themes gespiegelt sind ------------------------------------
+
+// Converts a number into a short version, eg: 1000 -> 1k
+//  gespiegelt in: delightful-downloads/includes/functions.php und foldergallery.php und wpdoodlez.php   (Aufruf als wpdoo/dedo_number_format_short)
+if( !function_exists('number_format_short')) {
+	function number_format_short( $n ) {
+		if ( $n <= 0 ) return '<span title="0">0</span>';
+		$si_prefix = array( '', 'K', 'M', 'G', 'T', 'E', 'Z', 'Y' );
+		$base = 1024;
+		$class = min((int)log($n , $base) , count($si_prefix) - 1);
+		$short_value = $n / pow($base,$class);
+		// $precis = 1, wenn Wert < 10 (einstellig) UND es ein Suffix gibt ($class > 0)
+		$precis = ($short_value < 10 && $class > 0) ? 1 : 0;
+		// Fügt das number_format_i18n nur hinzu, wenn es verfügbar ist
+		$title = function_exists('number_format_i18n') ? number_format_i18n($n) : number_format($n, 0, ',', '.');
+		return '<span title="'.$title.'">' . sprintf('%1.'.$precis.'f' , $short_value) . $si_prefix[$class] . '</span>';
+	}
+}
+
+// Zeitdifferenz ermitteln und gestern/vorgestern/morgen schreiben
+//   gespiegelt in: chartcodes.php, delightful-downloads/includes/functions.php, foldergallery.php, penguin/functions.php, timeclock/includes/functions.php
+if( !function_exists('ago')) {
+	function ago($timestamp) {
+		if (empty($timestamp)) return;
+		$xlang = get_bloginfo("language");
+		date_default_timezone_set('Europe/Berlin');
+		$now = time();
+		if ($timestamp > $now) {
+			$prepo = __('in', 'penguin');
+			$postpo = '';
+		} else {
+			if ($xlang == 'de') {
+				$prepo = 'vor';
+				$postpo = '';
+			} else {
+				$prepo = '';
+				$postpo = ' ' . __('ago', 'penguin');
+			}
+		}
+		$her = date( 'd.m.Y', intval($timestamp) );
+		if ($her == date('d.m.Y',$now - (24 * 3600))) {
+			$hdate = __('yesterday', 'penguin');
+		} else if ($her == date('d.m.Y',$now - (48 * 3600))) {
+			$hdate = __('1 day before yesterday', 'penguin');
+		} else if ($her == date('d.m.Y',$now + (24 * 3600))) {
+			$hdate = __('tomorrow', 'penguin');
+		} else if ($her == date('d.m.Y',$now + (48 * 3600))) {
+			$hdate = __('1 day after tomorrow', 'penguin');
+		} else {
+			$hdate = $prepo . ' ' . human_time_diff(intval($timestamp), $now) . $postpo;
+		}
+		return $hdate;
+	}
+}	
+
+// Datumbox farbig mit Wochenende SA gelb und SO rot ausgeben aus createdatum und moddatum. wird nur createdatum gesetzt, wird nur das ausgewertet.
+//   gespiegelt in: chartcodes.php, delightful-downloads/includes/functions.php, foldergallery.php, penguin/functions.php
+//   Parameter 1: Erstell-Unix-Timestamp | 2: Mod-Timestamp oder NULL=Erstell-Timestamp | 3: NULL=ICON anzeigen, 1=kein Icon | 4: NULL=nur Datum, 1=Datum und AGO, 2=nur AGO
+//     test:     echo colordatebox( (time()-86400), NULL, NULL, 1);
+
+	// SA orange, Sonntag rot, gestern hellgrün, heute cyan, 30T gelb, >30T grau
+	if (!function_exists('getColorStyles')) {
+		function getColorStyles($timestamp) {
+			$days = (int)((strtotime(date('Y-m-d', $timestamp)) - strtotime(date('Y-m-d'))) / 86400);
+			$bg = match (true) {
+				$days === 0   => '#bfd', // heute
+				$days === -1  => '#efe', // gestern
+				$days < -30   => '#eee', // vergangen >30T
+				$days < 0     => '#fe8', // vergangen 1–30T
+				$days <= 30   => '#bdf', // zukünftig 1–30T
+				default       => '#cef', // zukünftig >30T
+			};
+			$weekday = (int)date('N', $timestamp);
+			$fg = match ($weekday) {
+				6 => '#e60', // Samstag
+				7 => '#f00', // Sonntag
+				default => '#222',
+			};
+			return ['background' => $bg, 'color' => $fg];
+		}
+	}
+
+if( !function_exists('colordatebox')) {
+	function colordatebox($created, $modified = null, $noicon = null, $showago = null) {
+		$modified = $modified ?? $created;
+		// Tauschen bei Unix Filesystemen (falls modified < created)
+		$unixfile = 0;
+		if ($modified < $created) {
+			[$created, $modified] = [$modified, $created];
+			$unixfile = 1;
+		}
+		// Datum formatieren
+		$erstelldat = str_replace(' 00:00', '', wp_date('D d. M Y H:i', $created));
+		$moddat    = str_replace(' 00:00', '', wp_date('D d. M Y H:i', $modified));
+		// "vor X" Strings
+		$postago = ago($created);
+		$modago  = ago($modified);
+		// Zeitdifferenzen berechnen
+		$diffmod  = $modified - $created;
+		$refTime  = $unixfile ? $created : $modified;
+		$diff     = time() - $refTime;
+		$diffdays = floor($diff / 86400);
+		// Tooltip zusammenbauen
+		$erstelltitle = __("created", "penguin") . ': ' . $erstelldat . ' ' . $postago . ' ' . $diffdays . ' Tg';
+		if ($diffmod !== 0) {
+			$erstelltitle .= "\n" . __("modified", "penguin") . ': ' . $moddat . ' ' . $modago;
+			$erstelltitle .= "\n" . __("modified after", "penguin") . ': ' . human_time_diff($created, $modified);
+		}
+		// Angezeigtes Datum & Icon bestimmen
+		if ($diffmod > 0 && !$unixfile) {
+			$newormod = '🕰️';
+			if ($showago === 2) {
+				$anzeigedat = $modago;
+			} elseif ($showago === 1) {
+				$anzeigedat = $moddat . ' ' . $modago;
+			} else {
+				$anzeigedat = $moddat;
+			}
+			$cstyles = getColorStyles($modified);
+		} else {
+			$newormod = '📅';
+			if ($showago === 2) {
+				$anzeigedat = $postago;
+			} elseif ($showago === 1) {
+				$anzeigedat = $erstelldat . ' ' . $postago;
+			} else {
+				$anzeigedat = $erstelldat;
+			}
+			$cstyles = getColorStyles($created);
+		}
+		// HTML-Ausgabe generieren
+		$colordate = '<span class="newlabel" style="background-color:' . $cstyles['background'] . '">';
+		if (!isset($noicon)) {
+			$colordate .= $newormod;
+		}
+		$colordate .= '<span style="color:' . $cstyles['color'] . '" title="' . htmlspecialchars($erstelltitle, ENT_QUOTES) . '">' . $anzeigedat . '</span></span>';
+		return $colordate;
+	}
+}
+
+
+// ---------------------------------- Spiegelung Ende ------------------------------------------------------------------------
+
+
+// Shortcode Styles
+function dedo_get_shortcode_styles() {
+	$styles = array(
+	 	'infobox'		=> array(
+	 		'name'			=> __( 'Infobox mit Icon, Rahmen und Details', 'delightful-downloads' ),
+	 		'format'		=> '<blockquote class="%class% blockleer" style="font-size:inherit;display:flex;width:100%;padding:4px;border-radius:3px">
+					<div style="display:flex;width:100%">
+					<div style="display:inline-block;min-width:60px;width:60px">%icon%</div>
+					<div style="display:inline-block;width:100%;min-width:70%">
+					<div class="entry-meta-top">
+					<div class="iconleiste noprint"> %locked% &nbsp; %adminedit%%datesymbol%%filesize%%downloadtime%%count%</div> 
+					<div class="greybox">%category% %tags%</div></div>
+					<h6 style="margin-top:6px"><a href="%permalink%" title="'.__( 'download details', 'delightful-downloads' ).'" rel="nofollow">
+					%title%</a></h6>
+					<a class="ddownload-button page-numbers"  href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">'.__( 'download file', 'delightful-downloads' ).'</a>
+					 %filedate%
+					<div>%description%</div></div>%thumb%</div></blockquote>'
+	 	),
+	 	'singlepost'		=> array(
+	 		'name'			=> __( 'Infobox mit Icon, Rahmen für Post Archive', 'delightful-downloads' ),
+	 		'format'		=> '<blockquote class="%class% blockleer" style="font-size:inherit;display:flex;width:100%;padding:4px;border-radius:3px">
+					<div style="display:inline-block;min-width:60px;width:60px">%icon%</div>
+					<div style="display:inline-block;width:100%;min-width:70%">
+					<a class="ddownload-button page-numbers"  href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
+					'.__( 'download file', 'delightful-downloads' ).'</a>
+					<table>
+					<tr><td style="width:25%">'.__( 'Locked admin Onedaypass', 'delightful-downloads' ).'</td><td>%locked% &nbsp; %adminedit%</td></tr>
+					<tr><td>'.__( 'filename', 'delightful-downloads' ).'</td><td>%filename%</td></tr>
+					<tr><td>'.__( 'file size', 'delightful-downloads' ).'</td><td>%filesize%</td></tr>
+					<tr><td>'.__( 'file date', 'delightful-downloads' ).'</td><td>%filedate%</td></tr>
+					<tr><td>'.__( 'download time', 'delightful-downloads' ).'</td><td>%downloadtime%</td></tr>
+					<tr><td>'.__( 'download count', 'delightful-downloads' ).'</td><td>%count%</td></tr>
+					<tr><td colspan=2>%id3tag%</td></tr>
+					</table>
+					%manexcerpt%
+					</div></blockquote>'
+	 	),
+	 	'button'		=> array(
+	 		'name'			=> __( 'Button', 'delightful-downloads' ),
+	 		'format'		=> '<a href="%url%" title="%text%" rel="nofollow" class="%class%">%text%</a>'
+	 	),
+	 	'link'			=> array(
+	 		'name'			=> __( 'Link', 'delightful-downloads' ),
+	 		'format'		=> '<a href="%url%" title="%text%" rel="nofollow" class="%class%">%text%</a>'
+	 	),
+	 	'iconlink'			=> array(
+	 		'name'			=> __( 'Icon und Link', 'delightful-downloads' ),
+	 		'format'		=> '%icon% &nbsp; <a href="%url%" title="%text%" rel="nofollow" class="%class%">%text%</a>'
+	 	),
+	 	'plain_text'	=> array(
+	 		'name'			=> __( 'Plain Text', 'delightful-downloads' ),
+	 		'format'		=> '%url%'
+	 	)
+	);
+	return apply_filters( 'dedo_get_styles', $styles );
+}
+
+/**
+ * Returns List Styles
+ */
+function dedo_get_shortcode_lists() {
+	$lists = array(
+	 	'title'				=> array(
+	 		'name'				=> __( 'Title', 'delightful-downloads' ),
+	 		'format'			=> '<a href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a>'
+	 	),
+	 	'title_date'		=> array(
+	 		'name'				=> __( 'Title/Date)', 'delightful-downloads' ),
+	 		'format'			=> '<a href="%url%" title="%title%" rel="nofollow" class="%class%">%title% (%datesymbol%)</a>'
+	 	),
+	 	'title_count'		=> array(
+	 		'name'				=> __( 'Title/Count', 'delightful-downloads' ),
+	 		'format'			=> '<a style="margin-left:30px" href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a> &nbsp; %count%'
+	 	),
+	 	'title_filesize'	=> array(
+	 		'name'				=> __( 'Title/Filesize', 'delightful-downloads' ),
+	 		'format'			=> '<a style="margin-left:30px" href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a> &nbsp; %filesize%'
+	 	),
+	 	'title_ext_filesize'=> array(
+	 		'name'				=> __( 'Title/Extension/Filesize', 'delightful-downloads' ),
+	 		'format'			=> '<a style="margin-left:30px" href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a> &nbsp; %ext% &nbsp; %filesize%'
+	 	),
+	 	'title_date_ext_filesize'=> array(
+	 		'name'				=> __( 'Title/Date/Extension/Filesize', 'delightful-downloads' ),
+	 		'format'			=> '<a style="margin-left:30px" href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a> &nbsp; %datesymbol% &nbsp; %ext% &nbsp; %filesize%'
+	 	),
+	 	'title_ext_filesize_count'=> array(
+	 		'name'				=> __( 'Title/Date/Extension/Filesize/count', 'delightful-downloads' ),
+	 		'format'			=> '<a style="margin-left:30px" href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a> &nbsp; %datesymbol% &nbsp; %ext% &nbsp; %filesize% &nbsp; %count%'
+	 	),
+	 	'icon_title_ext_filesize'=> array(
+	 		'name'				=> __( 'Title/Icon/Category/File size', 'delightful-downloads' ),
+	 		'format'			=> '<div style="display:flex;width:100%">
+					<div style="display:inline-block;min-width:60px;width:60px">%icon%</div>
+					<div style="display:inline-block;width:100%;min-width:70%">
+					<a class="headline" href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
+					 %title%</a><br>%adminedit%
+					 &nbsp;%locked% &nbsp;%category% %tags% &nbsp;
+					%filesize%</div></div>'
+	 	),
+	 	'icon_title_ext_filesize_count_datesymbol'=> array(
+	 		'name'				=> __( 'Title/Icon/Category/File size/Count/Dateago)', 'delightful-downloads' ),
+	 		'format'			=> '<div style="display:flex;width:100%">
+					<div style="display:inline-block;min-width:55px;width:55px">%icon%</div>
+					<div style="display:inline-block;width:100%;min-width:70%;vertical-align:top;line-height:1.35em">
+					<div class="entry-meta-top"><div class="iconleiste noprint">%locked% &nbsp; %adminedit%
+					%dateago%%filesize%%count%</div><div class="greybox">%category% %tags%</div></div>
+					<h6 style="margin-top:4px"><a href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
+					📥 %title%</a></h6>
+					</div></div>'
+	 	),
+	 	'infoboxlist'=> array(
+	 		'name'				=> __( 'Infoboxliste (Icon/Date/Extension/Filesize/count/Thumb/descript)', 'delightful-downloads' ),
+	 		'format'			=> '
+					<div style="display:flex;width:100%">
+					<div style="display:inline-block;min-width:55px;width:55px">%icon%</div>
+					<div style="display:inline-block;width:100%;min-width:70%">
+					<div class="entry-meta-top"><div class="iconleiste noprint">%locked% &nbsp; %adminedit% %datesymbol%</div>
+					<div class="greybox">%category% %tags%</div></div>
+					<h6 style="margin-top:4px"><a href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
+					📥 %title%</a></h6>
+					<div>%filename%%filedate%%filesize%%count%%downloadtime%<br>%description%</div>
+					</div>%thumb%</div>%id3tag%'
+	 	)
+	);
+	return apply_filters( 'dedo_get_lists', $lists );
+}
+
+/**
+ * Shortcode Buttons
+ */
+function dedo_get_shortcode_buttons() {
+	
+	$buttons =  array(
+		'accent'		=> array(
+			'name'		=> __( 'theme accent', 'delightful-downloads' ),
+			'class'		=> 'page-numbers'
+		),
+		'black'		=> array(
+			'name'		=> __( 'Black', 'delightful-downloads' ),
+			'class'		=> 'button-black'
+		),
+		'grey'		=> array(
+			'name'		=> __( 'Grey', 'delightful-downloads' ),
+			'class'		=> 'button-grey'
+		),
+		'green'		=> array(
+			'name'		=> __( 'Green', 'delightful-downloads' ),
+			'class'		=> 'button-green'
+		),
+		'red'		=> array(
+			'name'		=> __( 'Red', 'delightful-downloads' ),
+			'class'		=> 'button-red'
+		),
+	);
+	return apply_filters( 'dedo_get_buttons', $buttons );
+}
+
+
+// Get download-time for typical internet lines
+function download_times($filesize) {
+	$bbreite = array (25,50,100,200,300,500,1000,16);
+	$outp = array();
+	foreach ($bbreite as $value) {
+		$time16 = floor($filesize * 8 / ($value*1024*1024));
+		$s = floor($time16%60);
+		$m = floor(($time16%3600)/60);
+		$h = floor(($time16%86400)/3600);
+		$outp[] = ($h>0 ? $h.'h ' :'').($m>0 ? $m.'m ' :'').$s.'s@'.$value.'MBit';
+	}	
+	if ($s > 0) $s=1;
+	$dtime = '<a class="newlabel white" title="'.implode("\n", $outp).'">🕐 '.$outp[4].'</a>';
+	return $dtime;
+}
+
+// Replace Wildcards
+ function dedo_search_replace_wildcards( $string, $id ) {
+	global $wpdb;
+ 	//adminedit
+ 	if ( strpos( $string, '%adminedit%' ) !== false ) {
+ 		if(current_user_can('administrator')) {
+			$datetime = new DateTime('now');
+			$hashwert = md5( intval($id) + intval($datetime->format('Ymd')) );
+			if (is_singular() && in_the_loop() ) {
+				$oneday = '<input type="text" title="Copy '.$datetime->format('d.m.Y').' Onedaypass für heute&#10;'.$hashwert.'" class="copy-to-clipboard" style="direction:rtl;cursor:pointer;font-size:0.7em;width:80px;height:17px;margin-top:0" value="' . get_site_url() . '?sdownload=' . esc_attr( $id ) .  '&code='. $hashwert . '" readonly> &nbsp;';
+				$oneday .= '<p class="newlabel" style="background-color:#fe8;display:none">' . __( 'One day pass copied to clipboard.', 'delightful-downloads' ) . '</p>';
+			} else $oneday='';
+			$string = str_replace( '%adminedit%', ' <a href="'. get_home_url() . '/wp-admin/post.php?post='.$id.'&action=edit"><span title="'. __( 'edit this download', 'delightful-downloads' ) . '">✏️</span></a> &nbsp; '.$oneday, $string );
+		} else {
+			$string = str_replace( '%adminedit%', '', $string );
+		}
+ 	}
+	// id
+ 	if ( strpos( $string, '%id%' ) !== false ) {
+ 		$string = str_replace( '%id%', $id, $string );
+ 	}
+ 	// url
+ 	if ( strpos( $string, '%url%' ) !== false ) {
+ 		$value = dedo_download_link( $id );
+ 		$string = str_replace( '%url%', $value, $string );
+ 	}
+ 	// title
+ 	if ( strpos( $string, '%title%' ) !== false ) {
+ 		$value = get_the_title( $id );
+ 		$string = str_replace( '%title%', $value, $string );
+ 	}
+ 	// Kategorie (erste)
+ 	if ( strpos( $string, '%category%' ) !== false ) {
+		$post_terms = get_the_terms( $id, 'ddownload_category' );
+		if (!empty($post_terms)) $value = '<span title="category">📂</span> <a href="'.get_term_link($post_terms[0]->slug,'ddownload_category').'">' . $post_terms[0]->name .'</a> &nbsp; '; else $value='';
+		$string = str_replace( '%category%', $value, $string );
+ 	}
+ 	// Tags
+ 	if ( strpos( $string, '%tags%' ) !== false ) {
+		$value = '';
+		$post_terms = get_the_terms( $id, 'ddownload_tag' );
+		if ($post_terms && !is_wp_error($post_terms)) {
+			$value .='<span title="Themen">🏷️</span> ';
+			foreach ($post_terms as $term) {
+				$value .= '<a href="'.esc_attr( get_tag_link( $term->term_id ) ).'">'.$term->name . '</a> ';
+			}
+		}
+		$string = str_replace( '%tags%', $value, $string );
+ 	}
+ 	// permalink single cpost
+ 	if ( strpos( $string, '%permalink%' ) !== false ) {
+		$value = get_the_permalink($id);
+ 		$string = str_replace( '%permalink%', $value, $string );
+ 	}
+ 	// manual excerpt
+ 	if ( strpos( $string, '%manexcerpt%' ) !== false ) {
+		if ( post_password_required( $id) ) {
+			global $post;
+			$post = get_post ( $id );
+			$value = $post->post_excerpt;
+		} else if (has_excerpt( $id )) $value = get_the_excerpt( $id );   // if manual excerpt exists
+		else $value='';
+ 		$string = str_replace( '%manexcerpt%', $value, $string );
+ 	}
+	 
+	// Wenn MP3, dann ID3-Infos ausgeben
+ 	if ( strpos( $string, '%id3tag%' ) !== false ) {
+		$mime_type = dedo_get_file_mime( get_post_meta( $id, '_dedo_file_url', true ) );
+		if ($mime_type == 'audio/mpeg') {
+			$mp3url = get_post_meta( $id, '_dedo_file_url', true );
+			$mp3path = dedo_get_abs_path( $mp3url );
+			$mp3filename = dedo_get_file_name( get_post_meta( $id, '_dedo_file_url', true ) );
+			// Musicplayer
+			$musifile = $mp3path;
+			if (file_exists($musifile)) {
+				require_once( ABSPATH . 'wp-admin/includes/media.php' );
+				$musiurl = $mp3url;
+				$filename = basename($musiurl);
+				$meta = wp_read_audio_metadata( $musifile );
+				$phtml = '<div class="timeline" style="border:1px dashed #ccc;display:grid;grid-template-columns:5fr 96px"><div>';
+				// Player nur, wenn nicht password protected
+				if ( !post_password_required( $id) ) $phtml .= '<audio class="noprint" controlsList="nodownload" style="width:100%" controls src="'.$musiurl.'" preload="metadata"></audio>';
+				$phtml .='<span style="font-size:.9em;font-style:italic">';
+				// Metadata Ausgabe auch für penguin podcasts template und für audio template --------------
+				if (isset($meta['title'])) $phtml .= '🎫 <b>'.$meta['title'].'</b>'; // fa-ticket -> 🎫 (Eintrittskarte)
+				if (isset($meta['artist'])) $phtml .= ' <span style="margin-left:1em">👤</span> '.$meta['artist']; // fa-user -> 👤 (Silhouette/Person)
+				if (isset($meta['album'])) $phtml .= ' <span style="margin-left:1em">💿</span> ' . $meta['album']; // fa-book -> 💿 (CD/Album)
+				if (isset($meta['track_number'])) $phtml .= ' <span style="margin-left:1em">#️⃣</span> ' . $meta['track_number']; // fa-hashtag -> #️⃣ (Hashtag/Nummer)
+				if (isset($meta['year'])) $phtml .= ' <span style="margin-left:1em">🗓️</span> '.$meta['year']; // fa-calendar-check-o -> 🗓️ (Kalender)
+				if (isset($meta['genre'])) $phtml .= ' <span style="margin-left:1em">🎼</span> ' . $meta['genre']; // fa-cubes -> 🎼 (Musikalische Noten)
+				if (isset($meta['length_formatted'])) $phtml .= ' <span style="margin-left:1em">⏱️</span> ' . $meta['length_formatted']; // fa-clock-o -> ⏱️ (Stoppuhr)
+				if (isset($meta['composer'])) $phtml .= ' <span style="margin-left:1em">🎶</span> ' . $meta['composer']; // fa-music -> 🎶 (Musikanimation)
+				if (isset($meta['band'])) $phtml .= ' <span style="margin-left:1em">👥</span> ' . $meta['band']; // fa-users -> 👥 (Silhouetten/Gruppe)
+				if (isset($meta['filesize'])) $phtml .= ' <span style="margin-left:1em">🗜️</span> ' . number_format_short($meta['filesize']); // fa-expand -> 🗜️ (Klammer/Größe/Dateigröße)
+				if (isset($meta['part_of_a_set'])) $phtml .= ' <span style="margin-left:1em">⏺️</span> ' . $meta['part_of_a_set']; // fa-circle-thin -> ⏺️ (Aufnahme-Taste/Disc)
+				if (isset($meta['encoder_options'])) $phtml .= ' <span style="margin-left:1em">⚙️</span> ' . $meta['encoder_options']; // fa-compress -> ⚙️ (Zahnrad/Einstellungen/Encoding)
+				if (isset($meta['channelmode'])) $phtml .= ' <span style="margin-left:1em">🎙️</span> ' . $meta['channelmode']; // fa-microphone -> 🎙️ (Mikrofon/Audio)
+				if (isset($meta['publisher'])) $phtml .= ' <span style="margin-left:1em">📰</span> ' . $meta['publisher']; // fa-newspaper-o -> 📰 (Zeitung/Herausgeber)
+				if (isset($meta['comment'])) $phtml .= ' <span style="margin-left:1em">💬</span> ' . $meta['comment']; // fa-comments -> 💬 (Sprechblase/Kommentar)
+				// $phtml .= ' <span style="margin-left:1em">🔉</span> '.basename($filename); // Alternativ für fa-file-audio-o
+				if ( !post_password_required( $id) && !empty(@$meta['unsynchronised_lyric'])) $phtml .= ' <span style="margin-left:1em">📜</span> ' . $meta['unsynchronised_lyric']; // fa-text-width -> 📜 (Schriftrolle/Text)
+				$phtml .= '</span></div><div>';
+				if (!empty($meta['image']['data'])) $phtml .= '<img class="img-zoom" style="width:96px" src="data:'.$meta['image']['mime'].';charset=utf-8;base64,'.base64_encode($meta['image']['data']).'">';				$phtml .= '</div></div>';
+			} else $phtml = '';		
+			$value = $phtml;
+		} else $value='';	
+		$string = str_replace( '%id3tag%', $value, $string );
+	}
+	
+	// beschreibung
+ 	if ( strpos( $string, '%description%' ) !== false ) {
+		if ( post_password_required( $id) ) {
+			global $post;
+			$post = get_post ( $id );
+			$value = $post->post_excerpt;
+		} else $value = get_the_excerpt( $id );
+ 		$string = str_replace( '%description%', $value, $string );
+ 	}
+	// post thumbnail - Beitragsbild mit img-zoom on hover
+ 	if ( strpos( $string, '%thumb%' ) !== false ) {
+ 		$value = '<div style="float:right;padding-top:0;display:inline-block;max-width:200px;border:1px none"><img class="img-zoom" style="min-height:100px;transform-origin: center right" src="' . get_the_post_thumbnail_url( $id ) . '"></div>';
+ 		$string = str_replace( '%thumb%', $value, $string );
+ 	}
+ 	// file-date created modified und postdatum ändern, wenn Datei per sftp neuer im Dateisystem
+ 	if ( strpos( $string, '%filedate%' ) !== false ) {
+ 		if (!empty( get_post_meta( $id, '_dedo_file_url', true ) )) {
+			$fpath = dedo_get_abs_path(get_post_meta( $id, '_dedo_file_url', true));
+			$value = colordatebox( filectime($fpath), filemtime($fpath) ,NULL,1);
+			// Post modified Datum aktualisieren, wenn File - Anhang neuer
+			if (filemtime($fpath) > get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z') ) {
+				$mysql_time_format= "Y-m-d H:i:s";
+				$post_modified = wp_date( $mysql_time_format, filemtime($fpath) );
+				$post_modified_gmt = gmdate( $mysql_time_format, ( filemtime($fpath) + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS )  );
+				$wpdb->query("UPDATE $wpdb->posts SET post_modified = '{$post_modified}', post_modified_gmt = '{$post_modified_gmt}'  WHERE ID = {$id}" );
+			}
+		} else { $value='';  }	
+		$string = str_replace( '%filedate%', $value, $string );
+ 	}
+	// datesymbol Datum, farbig mit symbol und allen created und mod date.
+ 	if ( strpos( $string, '%datesymbol%' ) !== false ) {
+		$erstelldat = get_post_time('U', false, $id, true) - get_post_time('Z');
+		$moddat = get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z');
+		$value = colordatebox( $erstelldat, $moddat, NULL, 1);
+		$string = str_replace( '%datesymbol%', $value, $string );
+ 	}
+	// dateago   - so viele Tage wochen her, sonntags rot, samstags orange
+ 	if ( strpos( $string, '%dateago%' ) !== false ) {
+		$erstelldat = get_post_time('U', false, $id, true) - get_post_time('Z');
+		$moddat = get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z');
+		$value = colordatebox( $erstelldat, $moddat, NULL, 2);
+		$string = str_replace( '%dateago%', $value, $string );
+ 	}
+ 	// filesize
+ 	if ( strpos( $string, '%filesize%' ) !== false ) {
+		$fpath = dedo_get_abs_path(get_post_meta( $id, '_dedo_file_url', true));
+		$fsfrommeta = size_format( get_post_meta( $id, '_dedo_file_size', true ), 0 );
+		$fsfromfile = size_format( filesize( $fpath ) );
+		if (!empty( get_post_meta( $id, '_dedo_file_size', true ) )) {
+			$value = '<span class="newlabel white"><span title="filesize: '.$fsfrommeta.'">💾</span>'.$fsfromfile.'</span>';
+		} else { $value='';  }	
+		$string = str_replace( '%filesize%', $value, $string );
+ 	}
+ 	// downloadtime
+ 	if ( strpos( $string, '%downloadtime%' ) !== false ) {
+ 		$value = download_times(intval(get_post_meta( $id, '_dedo_file_size', true )));
+ 		$string = str_replace( '%downloadtime%', $value, $string );
+ 	}
+ 	// downloads (count)
+ 	if ( strpos( $string, '%count%' ) !== false ) {
+		$filedlc = get_post_meta( $id, '_dedo_file_count', true );
+		$totaldownloads = dedo_total_downloads();
+		if ($totaldownloads > 0) {
+			$perctotal = round( (int) $filedlc / $totaldownloads * 100) ;
+			// Wenn heatcolor aus penguin_mod vorhanden
+			$hotcolor = dedo_heatcolor($perctotal);
+		} else { $perctotal = 0; $hotcolor = '#fff'; }
+		$fullcounter = number_format_i18n( $filedlc );
+		$shortcounter = dedo_number_format_short($filedlc);
+ 		$value = '<span title="DLCounter: '.$fullcounter.' Ranking: '.$perctotal.'%" class="newlabel" style="background-color:'.$hotcolor.'" >📥 ' . $shortcounter .'</span>';
+ 		$string = str_replace( '%count%', $value, $string );
+ 	}
+ 	// file name
+ 	if ( strpos( $string, '%filename%' ) !== false ) {
+ 		$value = '<span title="Dateiname" class="newlabel white">📃 ' . dedo_get_file_name( get_post_meta( $id, '_dedo_file_url', true ) ).'</span>';
+ 		$string = str_replace( '%filename%', $value, $string );
+ 	}
+ 	// protected file
+ 	if ( strpos( $string, '%locked%' ) !== false ) {
+ 		if (post_password_required($id)) {
+			$value='<span style="font-size:1.1em;color:tomato" title="Kennwortgeschützt">🔐︎</span>';
+		} else {
+			$value='<span style="font-size:1.1em" title="öffentlich">🔓</span>';
+		}
+ 		$string = str_replace( '%locked%', $value, $string );
+ 	}
+ 	// file extension
+ 	if ( strpos( $string, '%ext%' ) !== false ) {
+ 		$value = '<span title="filename">📑</span> '.strtoupper( dedo_get_file_ext( get_post_meta( $id, '_dedo_file_url', true ) ) );
+ 		$string = str_replace( '%ext%', $value, $string );
+ 	}
+  	// file icon
+ 	if ( strpos( $string, '%icon%' ) !== false ) {
+ 		$ffile = ( get_post_meta( $id, '_dedo_file_url', true ) );
+		$value = ' <a href="'.get_the_permalink($id).'">'.dedo_get_file_icon( $ffile ).'</a>';
+ 		$string = str_replace( '%icon%', $value, $string );
+ 	}
+ 	// file mime
+ 	if ( strpos( $string, '%mime%' ) !== false ) {
+ 		$value = dedo_get_file_mime( get_post_meta( $id, '_dedo_file_url', true ) );
+ 		$string = str_replace( '%mime%', $value, $string );
+ 	}
+ 	return apply_filters( 'dedo_search_replace_wildcards', $string, $id );
+ }
+
+/**
+ * Download Link * Generate download link based on provided id.
+ */
+function dedo_download_link( $id ) {
+	global $dedo_options;
+	$output = esc_html( home_url( '?' . $dedo_options['download_url'] . '=' . $id ) );
+	return apply_filters( 'dedo_download_link', $output );
+}
+
+// Check for valid download
+function dedo_download_valid( $download_id ) {
+	$download_id = absint( $download_id );
+
+	if ( $download = get_post( $download_id, ARRAY_A ) ) {
+		
+		if ( $download['post_type'] == 'dedo_download' && $download['post_status'] == 'publish' ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Check user has permission to download file
+ */
+function dedo_download_permission( $options ) {
+	global $dedo_options;
+	// First check per-download settings, else revert to global setting
+	$members_only = ( isset( $options['members_only'] ) ) ? $options['members_only'] : $dedo_options['members_only'];
+	if ( $members_only ) {
+		// Check user is logged in
+		if ( is_user_logged_in() ) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	return true;
+}
+
+/**
+ * Check if user is blocked
+ */
+function dedo_download_blocked( $current_agent ) {
+	// Retrieve user agents
+	$user_agents = dedo_get_agents();
+	if ( ! $user_agents ) {
+		return true;
+	}
+	foreach ( $user_agents as $user_agent ) {
+		$current_agent = trim( strtolower( $current_agent ) );
+		$user_agent    = trim( strtolower( $user_agent ) );
+
+		if ( empty( $current_agent ) || empty( $user_agent ) ) {
+			return true;
+		}
+
+		if ( false !== strpos( $current_agent, $user_agent ) ) {
+			return false;
+		}	
+	}
+	return true;
+}
+
+/**
+ * Get blocked user agents
+ */
+function dedo_get_agents() {
+	global $dedo_options;
+	$crawlers = $dedo_options['block_agents'];
+	if ( empty( $crawlers ) ) {
+		return array();
+	}
+	$crawlers = explode( "\n", $crawlers );
+	return $crawlers;
+}
+
+/**
+ * Get users IP Address
+ */
+function dedo_download_ip() {
+	if ( !empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
+		$ip_address = sanitize_text_field( $_SERVER['HTTP_CLIENT_IP'] );
+	} 
+	elseif ( !empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+		$ip_address = sanitize_text_field( $_SERVER['HTTP_X_FORWARDED_FOR'] );
+	} 
+	else {
+		$ip_address = sanitize_text_field( $_SERVER['REMOTE_ADDR'] );
+	}
+	// letzte Stelle der IP anonymisieren (0 setzen)	
+	// $ip_address = long2ip(ip2long($ip_address) & 0xFFFFFF00);
+	return $ip_address;
+}
+
+/**
+ * Get file mime type based on file extension
+ */
+function dedo_download_mime( $path ) {
+	// Strip path, leave filename and extension
+	$file = explode( '/', $path );
+	$file = strtolower( end( $file ) );
+	$filetype = wp_check_filetype( $file );	
+	return $filetype['type'];
+}
+
+/**
+ * Return various upload dirs/urls for Delightful Downloads.
+ * @param string $return
+ * @param string $upload_dir
+ * @return string
+ */
+function dedo_get_upload_dir( $return = '', $upload_dir = '' ) {
+	global $dedo_options;
+	$upload_dir = ( $upload_dir === '' ? wp_upload_dir() : $upload_dir );
+	$directory  = $dedo_options['upload_directory'];
+	$upload_dir['path']         = trailingslashit( $upload_dir['basedir'] ) . $directory . $upload_dir['subdir'];
+	$upload_dir['url']          = trailingslashit( $upload_dir['baseurl'] ) . $directory . $upload_dir['subdir'];
+	$upload_dir['dedo_basedir'] = trailingslashit( $upload_dir['basedir'] ) . $directory;
+	$upload_dir['dedo_baseurl'] = trailingslashit( $upload_dir['baseurl'] ) . $directory;
+	switch ( $return ) {
+		default:
+			return $upload_dir;
+			break;
+		case 'path':
+			return $upload_dir['path'];
+			break;
+		case 'url':
+			return $upload_dir['url'];
+			break;
+		case 'subdir':
+			return $upload_dir['subdir'];
+			break;
+		case 'basedir':
+			return $upload_dir['basedir'];
+			break;
+		case 'baseurl':
+			return $upload_dir['baseurl'];
+			break;
+		case 'dedo_basedir':
+			return $upload_dir['dedo_basedir'];
+			break;
+		case 'dedo_baseurl':
+			return $upload_dir['dedo_baseurl'];
+			break;
+	}
+}
+
+/**
+ * Set the upload dir for Delightful Downloads.
+ */
+function dedo_set_upload_dir( $upload_dir ) {
+    return dedo_get_upload_dir( '', $upload_dir );
+}
+
+/**
+ * Protect uploads dir from direct access
+ */
+function dedo_folder_protection( $folder_protection = '' ) {
+	global $dedo_options;
+	// Allow custom options to be passed, set to save options if not
+	$folder_protection = ( '' === $folder_protection ) ? $dedo_options['folder_protection'] : $folder_protection;
+	// Get delightful downloads upload base path
+	$upload_dir = dedo_get_upload_dir( 'dedo_basedir' );
+	// Create upload dir if needed, return on fail. Causes fatal error on activation otherwise
+	if ( !wp_mkdir_p( $upload_dir ) ) {
+		return;
+	}
+	// Add htaccess protection if enabled, else delete it
+	if ( 1 == $folder_protection ) {
+		if ( !file_exists( $upload_dir . '/.htaccess' ) && wp_is_writable( $upload_dir ) ) {
+			$content = "Options -Indexes\n";
+			$content .= "deny from all";
+
+			@file_put_contents( $upload_dir . '/.htaccess', $content );
+		}
+	}
+	else {
+		if ( file_exists( $upload_dir . '/.htaccess' ) && wp_is_writable( $upload_dir ) ) {
+			@unlink( $upload_dir . '/.htaccess' );
+		}
+	}
+	// Check for root index.php
+	if ( !file_exists( $upload_dir . '/index.php' ) && wp_is_writable( $upload_dir ) ) {
+		@file_put_contents( $upload_dir . '/index.php', '<?php' . PHP_EOL . '// You shall not pass!' );
+	}
+	// Check subdirs for index.php
+	$subdirs = dedo_folder_scan( $upload_dir );
+
+	foreach ( $subdirs as $subdir ) {
+		if ( !file_exists( $subdir . '/index.php' ) && wp_is_writable( $subdir ) ) {
+			@file_put_contents( $subdir . '/index.php', '<?php' . PHP_EOL . '// You shall not pass!' );
+		}
+	}
+}
+
+/**
+ * Scan dir and return subdirs
+ */
+function dedo_folder_scan( $dir ) {
+	// Check class exists
+	if ( class_exists( 'RecursiveDirectoryIterator' ) ) {
+		// Setup return array
+		$return = array();
+		$iterator = new RecursiveDirectoryIterator( $dir );
+		// Loop through results and add uniques to return array
+		foreach ( new RecursiveIteratorIterator( $iterator ) as $file ) {
+			if ( !in_array( $file->getPath(), $return ) ) {	
+				$return[] = $file->getPath();
+			}
+		}
+		return $return;
+	}
+	return false;
+}
+
+/**
+ * Get Downloads Filesize
+ * Returns the total filesize of all files.
+ */
+function dedo_get_filesize( $download_id = false ) {
+	global $wpdb;
+	$sql = $wpdb->prepare( "
+		SELECT SUM( meta_value )
+		FROM $wpdb->postmeta
+		WHERE meta_key = %s
+	", 
+	'_dedo_file_size' );
+	if ( $download_id ) { $sql .= $wpdb->prepare( " AND post_id = %d", $download_id ); }
+	$return = $wpdb->get_var( $sql );
+	return ( NULL !== $return ) ? $return : 0;
+}
+
+/**
+ * Delete All Transients
+ * Deletes all transients created by Delightful Downloads
+ */
+function dedo_delete_all_transients() {
+	global $wpdb;
+	$sql = $wpdb->prepare( "
+		DELETE FROM $wpdb->options
+		WHERE option_name LIKE %s
+		OR option_name LIKE %s
+		OR option_name LIKE %s
+		OR option_name LIKE %s
+		", 
+		'\_transient\_delightful-downloads%%', 
+		'\_transient\_timeout\_delightful-downloads%%',
+		'\_transient\_dedo_%%',
+		'\_transient\_timeout\_dedo_%%' );
+	$wpdb->query( $sql );
+}
+
+/**
+ * Get Absolute Path
+ * Searches various locations for download file.
+ * It is always recommended that the file should be within /wp-content
+ * otherwise it can't be guaranteed that the file will be found.
+ * Also allows absolute path to store files outsite the document root.
+ */
+function dedo_get_abs_path( $requested_file ) {
+	$parsed_file = parse_url( $requested_file );
+	// Check for absolute path
+	if ( ( !isset( $parsed_file['scheme'] ) || !in_array( $parsed_file['scheme'], array( 'http', 'https' ) ) ) && isset( $parsed_file['path'] ) && file_exists( $requested_file ) ) {
+		$file = $requested_file;
+	}
+	// Falls within wp_content
+	else if ( strpos( $requested_file, WP_CONTENT_URL ) !== false ) {
+		$file_path = str_replace( WP_CONTENT_URL, WP_CONTENT_DIR, $requested_file );
+		$file = realpath( $file_path );
+	}
+	// Falls in multisite
+	else if ( is_multisite() && !is_main_site() && strpos( $requested_file, network_site_url() ) !== false ) {
+		$site_url = trailingslashit( site_url() );
+		$file_path = str_replace( $site_url, ABSPATH, $requested_file );
+		$site_url = trailingslashit( network_site_url() );
+		$file_path = str_replace( $site_url, ABSPATH, $file_path );
+		$file = realpath( $file_path );
+	}
+	// Falls within WordPress directory structure
+	else if ( strpos( $requested_file, site_url() ) !== false ) {
+		$site_url = trailingslashit( site_url() );
+		$file_path = str_replace( $site_url, ABSPATH, $requested_file );
+
+		$file = realpath( $file_path );
+	}
+	// Falls outside WordPress structure but within document root.
+	else if ( strpos( $requested_file, site_url() ) && file_exists( $_SERVER['DOCUMENT_ROOT'] . $parsed_file['path'] ) ) {
+		$file_path = $_SERVER['DOCUMENT_ROOT'] . $parsed_file['path'];
+		
+		$file = realpath( $file_path );
+	}
+	// Checks file exists
+	if ( isset( $file ) && is_file( $file ) ) {
+		return $file;
+	}
+	else {
+		return false;
+	}
+}
+
+/**
+ * Get File Name
+ * Strips the filename from a URL or path.
+ * @param string $path File path/url of filename.
+ * @return string Value of file name with extension.
+ */
+function dedo_get_file_name( $path ) {
+	return basename( $path );
+}
+
+/**
+ * Get File Mime
+ * Get the file mime type from the file path using WordPress
+ * built in filetype check.
+ * @param string $path File path/url of filename.
+ * @return string Value of file mime.
+ */
+function dedo_get_file_mime( $path ) {
+	$file = wp_check_filetype( $path, array_merge(get_allowed_mime_types(),array('html' => 'text/html')) );
+	return $file['type'];
+}
+
+/**
+ * Get File Extension
+ * Get the file extension from the file path using WordPress
+ * built in filetype check.
+ * @param string $path File path/url of filename.
+ * @return string Value of file extension.
+ */
+function dedo_get_file_ext( $path ) {
+	$file = wp_check_filetype( $path, array_merge(get_allowed_mime_types(),array('html' => 'text/html')) );
+	return $file['ext'];
+}
+
+/**
+ * Get File Status
+ * Checks whether a file is accessible, either locally or remotely.
+ * @param string $url File path/url of filename.
+ * @return boolean/array.
+ */
+function dedo_get_file_status( $url ) {
+	// Check locally
+	if( $file = dedo_get_abs_path( $url ) ) {
+		$type = 'local';
+		$size = @filesize( $file );
+	}
+	else {
+		$response = @get_headers( $url, 1 );
+		if ( ( false === $response || 'HTTP/1.1 404 Not Found' == $response[0] || 'HTTP/1.1 403 Forbidden' == $response[0] ) || !isset( $response['Content-Length'] ) ) {		
+			return false;
+		}
+		else {
+			$type = 'remote';
+			$size = $response['Content-Length'];
+		}
+	}
+	return array(
+		'type'	=> $type,
+		'size'	=> $size
+	);
+}
+
+/**
+ * Get File Icon
+ * Return the correct file icon for a file type from css sprite.
+ * @param string $file url/path.
+ * @return string.
+ */
+function dedo_get_file_icon( $file ) {
+	$ext = dedo_get_file_ext( $file );
+	$fmime = dedo_get_file_mime( $file );
+	$icon = '<i class="ftyp ftyp-'.strtolower($ext).'" title="'.$ext.'-Datei&#10;'.$fmime.'"></i>';
+	return $icon;
+}
+
+// Get total downloads counter
+function dedo_total_downloads() {
+	global $wpdb;
+	$sql = $wpdb->prepare( "SELECT SUM(meta_value) FROM $wpdb->postmeta	WHERE meta_key = %s	", '_dedo_file_count' );
+	return $wpdb->get_var( $sql );
+}
