@@ -8,11 +8,11 @@ Description: A super-awesome downloads manager for WordPress with htacces file l
 Text Domain: delightful-downloads
 Domain Path: /languages
 License: GPL2
-Version: 9.10.200
-Stable tag: 9.10.200
+Version: 9.11.300
+Stable tag: 9.11.300
 Requires at least: 6.0
 Tested up to: 6.9.4
-Requires PHP: 8.2
+Requires PHP: 8.4
 */
 
 // Exit if accessed directly
@@ -34,7 +34,7 @@ class Delightful_Downloads {
 	// As this class is a singleton it should not be clone-able
 	protected function __clone() {}
 	// As this class is a singleton it should not be able to be unserialized
-	public function __wakeup() {}
+	public function __wakeup(): void {}
 
 	/**
 	 * Return an instance of this class.
@@ -80,27 +80,10 @@ class Delightful_Downloads {
 	 * Include all the classes used by the plugin
 	 */
 	protected function includes() {
-		require_once dirname( $this->path ) . '/includes/class-dedo-cache.php';
-		require_once dirname( $this->path ) . '/includes/class-dedo-logging.php';
-		require_once dirname( $this->path ) . '/includes/class-dedo-statistics.php';
-		require_once dirname( $this->path ) . '/includes/cron.php';
-		require_once dirname( $this->path ) . '/includes/functions.php';
-		require_once dirname( $this->path ) . '/includes/mime-types.php';
-		require_once dirname( $this->path ) . '/includes/post-types.php';
-		require_once dirname( $this->path ) . '/includes/process-download.php';
-		require_once dirname( $this->path ) . '/includes/scripts.php';
-		require_once dirname( $this->path ) . '/includes/shortcodes.php';
-		require_once dirname( $this->path ) . '/includes/taxonomies.php';
+		require_once dirname( $this->path ) . '/includes/core.php';
 
 		if ( is_admin() ) {
-			require_once dirname( $this->path ) . '/includes/admin/ajax.php';
-			require_once dirname( $this->path ) . '/includes/admin/class-dedo-list-table.php';
-			require_once dirname( $this->path ) . '/includes/admin/class-dedo-notices.php';
-			require_once dirname( $this->path ) . '/includes/admin/dashboard.php';
-			require_once dirname( $this->path ) . '/includes/admin/media-button.php';
-			require_once dirname( $this->path ) . '/includes/admin/meta-boxes.php';
-			require_once dirname( $this->path ) . '/includes/admin/page-settings.php';
-			require_once dirname( $this->path ) . '/includes/admin/page-statistics.php';
+			require_once dirname( $this->path ) . '/includes/admin.php';
 		}
 	}
 
@@ -126,8 +109,6 @@ class Delightful_Downloads {
 	protected function options() {
 		global $dedo_options, $dedo_default_options;
 
-		require_once dirname( $this->path ) . '/includes/options.php';
-
 		// Set globals
 		$dedo_default_options = dedo_get_default_options();
 		$dedo_options         = wp_parse_args( get_option( 'delightful-downloads' ), $dedo_default_options );
@@ -142,7 +123,7 @@ class Delightful_Downloads {
 	 */
 	public function plugin_links( $links, $file ) {
 		if ( plugin_basename( __FILE__ ) === $file ) {
-			$plugin_links[] = '<a href="' . admin_url( 'edit.php?post_type=dedo_download&page=dedo_settings' ) . '">' . __( 'Settings', 'delightful-downloads' ) . '</a>';
+			$plugin_links[] = '<a href="' . esc_url( admin_url( 'edit.php?post_type=dedo_download&page=dedo_settings' ) ) . '">' . esc_html__( 'Settings', 'delightful-downloads' ) . '</a>';
 
 			foreach ( $plugin_links as $plugin_link ) {
 				array_unshift( $links, $plugin_link );
@@ -189,7 +170,7 @@ class Delightful_Downloads {
  * @return Delightful_Downloads
  */
 function Delightful_Downloads() {
-	$version = '9.9.112';
+	$version = '9.10.200';
 	return Delightful_Downloads::get_instance( __FILE__, $version );
 }
 Delightful_Downloads();

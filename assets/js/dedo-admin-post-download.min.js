@@ -57,7 +57,14 @@ jQuery( document ).ready( function( $ ) {
 
 		updateStatus: function() {
 			var self = this;
-			var url = $( '#dedo-file-url' ).val();
+			var url = $.trim( $( '#dedo-file-url' ).val() || '' );
+
+			if ( '' === url ) {
+				$( '.file-name' ).html( '--' );
+				$( '.file-size' ).html( '--' );
+				$( '.file-status .status' ).removeClass( 'spinner local remote warning' ).addClass( 'warning' ).attr( 'title', self.options.lang_warning );
+				return;
+			}
 
 			$( '.file-status .status' ).removeClass( 'local remote warning' ).addClass( 'spinner' );
 
@@ -70,9 +77,8 @@ jQuery( document ).ready( function( $ ) {
 				},
 				dataType: 'json',
 				success: function( response ) {
-					$( '.file-name' ).html( response.content.filename );
-
-					if ( 'success' === response.status ) {
+					if ( 'success' === response.status && response.content ) {
+						$( '.file-name' ).html( response.content.filename || '--' );
 						$( '.file-icon img' ).attr( 'src', response.content.icon );
 						$( '.file-size' ).html( response.content.size );
 						$( '.file-status .status' ).removeClass( 'spinner' ).addClass( response.content.type );
