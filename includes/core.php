@@ -1,20 +1,17 @@
 <?php
 /**
  * Delightful Downloads Core Bundle
- * Merged for simpler maintenance.
  */
 
-/* ===== BEGIN includes/class-dedo-cache.php ===== */
+// Exit if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 /**
  * Cache Class
- *
  * @package  	Delightful Downloads
  * @author   	Ashley Rich
  * @copyright   Copyright (c) 2014, Ashley Rich
 */
-
-// Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
 
 class DEDO_Cache {
 
@@ -98,28 +95,16 @@ class DEDO_Cache {
 
 }
 
-/* ===== END includes/class-dedo-cache.php ===== */
-
-/* ===== BEGIN includes/class-dedo-logging.php ===== */
 /**
  * Logging Class
- *
- * @package  	Delightful Downloads
- * @author   	Ashley Rich
- * @copyright   Copyright (c) 2014, Ashley Rich
- * @since    	1.4
 */
 
-// Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
 
 class DEDO_Logging {
 
 	/**
 	 *	Init Logging
-	 *
 	 * @access public
-	 * @since 1.4
 	 * @return void
 	 */
 	public function __construct() {
@@ -130,9 +115,7 @@ class DEDO_Logging {
 
 	/**
 	 * Save Success Log
-	 *
 	 * @access public
-	 * @since 1.4
 	 * @return void
 	 */
 	public function save_success( $download_id ) {
@@ -155,30 +138,24 @@ class DEDO_Logging {
 	 * Save Blocked Log
 	 *
 	 * @access public
-	 * @since 1.4
 	 * @return void
 	 */
 	public function save_blocked( $download_id ) {
 		
 		// Hook before log
 		do_action( 'ddownload_save_blocked_before', $download_id );
-
 		$log = array(
 			'status'	=> 'blocked',
 			'post_id'	=> $download_id
 		);
-
 		$this->insert_log( $log );
-
 		// Hook after log
 		do_action( 'ddownload_save_blocked_after', $download_id );
 	}
 
 	/**
 	 * Save Permission Log
-	 *
 	 * @access public
-	 * @since 1.4
 	 * @return void
 	 */
 	public function save_permission( $download_id ) {
@@ -199,9 +176,7 @@ class DEDO_Logging {
 
 	/**
 	 * Insert Log
-	 *
 	 * @access public
-	 * @since 1.4
 	 * @return void
 	 */
 	public function insert_log( $log ) {
@@ -271,11 +246,8 @@ class DEDO_Logging {
 
 	/**
 	 * Role Check
-	 *
 	 * Are we logging events for this user role?
-	 *
 	 * @access public
-	 * @since 1.4
 	 * @return boolean
 	 */
 	public function role_check( $log ) {
@@ -294,7 +266,7 @@ class DEDO_Logging {
 	 * Has a log of the same type been logged recently?
 	 *
 	 * @access public
-	 * @since 1.4
+
 	 * @return boolean
 	 */
 	public function grace_period( $log ) {
@@ -331,14 +303,9 @@ class DEDO_Logging {
 	/**
 	 *
 	 * @param $ip_address
-	 *
 	 * @return string
-	 */
-	/**
 	 * Check whether the statistics table exists.
-	 *
 	 * @access public
-	 * @since 1.4
 	 * @return bool
 	 */
 	public function table_exists() {
@@ -352,16 +319,12 @@ class DEDO_Logging {
 
 	/**
 	 * Create the statistics table when needed.
-	 *
 	 * @access public
-	 * @since 1.4
 	 * @return void
 	 */
 	public function setup_table() {
 		global $wpdb;
-
 		$wpdb->ddownload_statistics = $wpdb->prefix . 'ddownload_statistics';
-
 		$sql = "
 			CREATE TABLE {$wpdb->ddownload_statistics} (
 				ID bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -396,28 +359,17 @@ class DEDO_Logging {
 // Initiate the logging system
 $GLOBALS['dedo_logging'] = new DEDO_Logging();
 
-/* ===== END includes/class-dedo-logging.php ===== */
-
-/* ===== BEGIN includes/class-dedo-statistics.php ===== */
 /**
  * Statistics Class
- *
  * @package  	Delightful Downloads
- * @author   	Ashley Rich
- * @copyright   Copyright (c) 2014, Ashley Rich
- * @since    	1.4
 */
 
-// Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
 
 class DEDO_Statistics {
 
 	/**
 	 *	Init Statistics
-	 *
 	 * @access public
-	 * @since 1.4
 	 * @return void
 	 */
 	public function __construct() {
@@ -477,14 +429,10 @@ class DEDO_Statistics {
 
 	/**
 	 * Count Downloads
-	 *
 	 * Count total downloads for all/single downloads/download. If a date range is set
 	 * the statistics table is used. If not, the meta keys are used.
-	 *
 	 * Data is cached in transients.
-	 *
 	 * @access public
-	 * @since 1.4
 	 * @return string
 	 */
 	public function count_downloads( $args = array() ) {
@@ -550,12 +498,8 @@ class DEDO_Statistics {
 	}
 
 	/**
-	 * Count Logs
-	 *
 	 * Count logs from statistics table.
-	 *
 	 * @access public
-	 * @since 1.4
 	 * @return string
 	 */
 	public function count_logs( $args = array() ) {
@@ -616,9 +560,7 @@ class DEDO_Statistics {
 	 * If days supplied use statistics table, else use download meta.
 	 *
 	 * Selecting by days is slow. Use responsibly!
-	 * 
 	 * @access public
-	 * @since 1.4
 	 * @return array
 	 */
 	function get_popular_downloads( $args = array() ) {
@@ -702,12 +644,8 @@ class DEDO_Statistics {
 	}
 
 	/**
-	 * Delete Logs
-	 *
 	 * Delete logs, oldest first.
-	 *
 	 * @access public
-	 * @since 1.4
 	 * @return string
 	 */
 	public function delete_logs( $args = array() ) {
@@ -758,12 +696,8 @@ class DEDO_Statistics {
 	}
 
 	/**
-	 * Convert Days Date
-	 *
 	 * Converts number of days into current date minus days.
-	 *
 	 * @access public
-	 * @since 1.4
 	 * @return string
 	 */
 	public function convert_days_date( $days ) {
@@ -776,9 +710,7 @@ class DEDO_Statistics {
 
 	/**
 	 * Check whether statistics table exists.
-	 *
 	 * @access public
-	 * @since 1.4
 	 * @return bool
 	 */
 	public function table_exists() {
@@ -792,15 +724,11 @@ class DEDO_Statistics {
 
 	/**
 	 * Setup Statistics Table
-	 *
 	 * @access public
-	 * @since 1.4
 	 * @return void
 	 */
 	public function setup_table() {
-		
 		global $wpdb;
-
 		$sql = "
 			CREATE TABLE $wpdb->ddownload_statistics (
 				ID bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -824,7 +752,7 @@ class DEDO_Statistics {
 	 * Empty Statistics Table
 	 *
 	 * @access public
-	 * @since 1.4
+
 	 * @return int/boolean (rows affected or false on error)
 	 */
 	public function empty_table() {
@@ -843,9 +771,7 @@ class DEDO_Statistics {
 
 	/**
 	 * Delete Statistics Table
-	 *
 	 * @access public
-	 * @since 1.4
 	 * @return int/boolean (rows affected or false on error)
 	 */
 	public function delete_table() {
@@ -867,24 +793,14 @@ class DEDO_Statistics {
 // Initiate the logging system
 $GLOBALS['dedo_statistics'] = new DEDO_Statistics();
 
-/* ===== END includes/class-dedo-statistics.php ===== */
-
-/* ===== BEGIN includes/cron.php ===== */
 /**
  * Delightful Downloads Cron
- *
- * @package     Delightful Downloads
  * @subpackage  Includes/Cron
- * @since       1.3
 */
 
-// Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
  * Register Cron Events
- *
- * @since  1.3
  */
 function dedo_cron_register() {
 	
@@ -903,7 +819,6 @@ add_action( 'admin_init', 'dedo_cron_register' );
 /**
  * Daily Events
  *
- * @since  1.4
  */
 function dedo_cron_daily() {
 
@@ -923,8 +838,6 @@ add_action( 'dedo_cron_daily', 'dedo_cron_daily' );
 
 /**
  * Weekly Events
- *
- * @since  1.3
  */
 function dedo_cron_weekly() {
 	// Run folder protection
@@ -934,8 +847,6 @@ add_action( 'dedo_cron_weekly', 'dedo_cron_weekly' );
 
 /**
  * Add Cron Schedules
- *
- * @since  1.3
  */
 function dedo_cron_schedules( $schedules ) {
 	// Adds once weekly to the existing schedules.
@@ -948,16 +859,9 @@ function dedo_cron_schedules( $schedules ) {
 }
 add_filter( 'cron_schedules', 'dedo_cron_schedules' );
 
-/* ===== END includes/cron.php ===== */
-
-/* ===== BEGIN includes/functions.php ===== */
 /**
  * Delightful Downloads Functions
- * @package     Delightful Downloads
 */
-
-// Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
 
 // Register own template for downloads
 function dedo_template( $single_template ) {
@@ -989,275 +893,159 @@ function dedo_heatcolor($visithotness) {
 	return $hotcolor;	
 }
 
-// ----------------------------------- Funktionen, die in andere Plugins und themes gespiegelt sind ------------------------------------
-
-// Converts a number into a short version, eg: 1000 -> 1k
-//  gespiegelt in: delightful-downloads/includes/functions.php und foldergallery.php und wpdoodlez.php   (Aufruf als wpdoo/dedo_number_format_short)
-if( !function_exists('number_format_short')) {
-	function number_format_short( $n ) {
-		if ( $n <= 0 ) return '<span title="0">0</span>';
-		$si_prefix = array( '', 'K', 'M', 'G', 'T', 'E', 'Z', 'Y' );
-		$base = 1024;
-		$class = min((int)log($n , $base) , count($si_prefix) - 1);
-		$short_value = $n / pow($base,$class);
-		// $precis = 1, wenn Wert < 10 (einstellig) UND es ein Suffix gibt ($class > 0)
-		$precis = ($short_value < 10 && $class > 0) ? 1 : 0;
-		// Fügt das number_format_i18n nur hinzu, wenn es verfügbar ist
-		$title = function_exists('number_format_i18n') ? number_format_i18n($n) : number_format($n, 0, ',', '.');
-		return '<span title="'.$title.'">' . sprintf('%1.'.$precis.'f' , $short_value) . $si_prefix[$class] . '</span>';
-	}
-}
-
-// Zeitdifferenz ermitteln und gestern/vorgestern/morgen schreiben
-//   gespiegelt in: chartcodes.php, delightful-downloads/includes/functions.php, foldergallery.php, penguin/functions.php, timeclock/includes/functions.php
-if( !function_exists('ago')) {
-	function ago($timestamp) {
-		if (empty($timestamp)) return;
-		$xlang = get_bloginfo("language");
-		date_default_timezone_set('Europe/Berlin');
-		$now = time();
-		if ($timestamp > $now) {
-			$prepo = __('in', 'penguin');
-			$postpo = '';
-		} else {
-			if ($xlang == 'de') {
-				$prepo = 'vor';
-				$postpo = '';
-			} else {
-				$prepo = '';
-				$postpo = ' ' . __('ago', 'penguin');
-			}
-		}
-		$her = date( 'd.m.Y', intval($timestamp) );
-		if ($her == date('d.m.Y',$now - (24 * 3600))) {
-			$hdate = __('yesterday', 'penguin');
-		} else if ($her == date('d.m.Y',$now - (48 * 3600))) {
-			$hdate = __('1 day before yesterday', 'penguin');
-		} else if ($her == date('d.m.Y',$now + (24 * 3600))) {
-			$hdate = __('tomorrow', 'penguin');
-		} else if ($her == date('d.m.Y',$now + (48 * 3600))) {
-			$hdate = __('1 day after tomorrow', 'penguin');
-		} else {
-			$hdate = $prepo . ' ' . human_time_diff(intval($timestamp), $now) . $postpo;
-		}
-		return $hdate;
-	}
-}	
-
-// Datumbox farbig mit Wochenende SA gelb und SO rot ausgeben aus createdatum und moddatum. wird nur createdatum gesetzt, wird nur das ausgewertet.
-//   gespiegelt in: chartcodes.php, delightful-downloads/includes/functions.php, foldergallery.php, penguin/functions.php
-//   Parameter 1: Erstell-Unix-Timestamp | 2: Mod-Timestamp oder NULL=Erstell-Timestamp | 3: NULL=ICON anzeigen, 1=kein Icon | 4: NULL=nur Datum, 1=Datum und AGO, 2=nur AGO
-//     test:     echo colordatebox( (time()-86400), NULL, NULL, 1);
-
-	// SA orange, Sonntag rot, gestern hellgrün, heute cyan, 30T gelb, >30T grau
-	if (!function_exists('getColorStyles')) {
-		function getColorStyles($timestamp) {
-			$days = (int)((strtotime(date('Y-m-d', $timestamp)) - strtotime(date('Y-m-d'))) / 86400);
-			$bg = match (true) {
-				$days === 0   => '#bfd', // heute
-				$days === -1  => '#efe', // gestern
-				$days < -30   => '#eee', // vergangen >30T
-				$days < 0     => '#fe8', // vergangen 1–30T
-				$days <= 30   => '#bdf', // zukünftig 1–30T
-				default       => '#cef', // zukünftig >30T
-			};
-			$weekday = (int)date('N', $timestamp);
-			$fg = match ($weekday) {
-				6 => '#e60', // Samstag
-				7 => '#f00', // Sonntag
-				default => '#222',
-			};
-			return ['background' => $bg, 'color' => $fg];
-		}
-	}
-
-if( !function_exists('colordatebox')) {
-	function colordatebox($created, $modified = null, $noicon = null, $showago = null) {
-		$modified = $modified ?? $created;
-		// Tauschen bei Unix Filesystemen (falls modified < created)
-		$unixfile = 0;
-		if ($modified < $created) {
-			[$created, $modified] = [$modified, $created];
-			$unixfile = 1;
-		}
-		// Datum formatieren
-		$erstelldat = str_replace(' 00:00', '', wp_date('D d. M Y H:i', $created));
-		$moddat    = str_replace(' 00:00', '', wp_date('D d. M Y H:i', $modified));
-		// "vor X" Strings
-		$postago = ago($created);
-		$modago  = ago($modified);
-		// Zeitdifferenzen berechnen
-		$diffmod  = $modified - $created;
-		$refTime  = $unixfile ? $created : $modified;
-		$diff     = time() - $refTime;
-		$diffdays = floor($diff / 86400);
-		// Tooltip zusammenbauen
-		$erstelltitle = __("created", "penguin") . ': ' . $erstelldat . ' ' . $postago . ' ' . $diffdays . ' Tg';
-		if ($diffmod !== 0) {
-			$erstelltitle .= "\n" . __("modified", "penguin") . ': ' . $moddat . ' ' . $modago;
-			$erstelltitle .= "\n" . __("modified after", "penguin") . ': ' . human_time_diff($created, $modified);
-		}
-		// Angezeigtes Datum & Icon bestimmen
-		if ($diffmod > 0 && !$unixfile) {
-			$newormod = '🕰️';
-			if ($showago === 2) {
-				$anzeigedat = $modago;
-			} elseif ($showago === 1) {
-				$anzeigedat = $moddat . ' ' . $modago;
-			} else {
-				$anzeigedat = $moddat;
-			}
-			$cstyles = getColorStyles($modified);
-		} else {
-			$newormod = '📅';
-			if ($showago === 2) {
-				$anzeigedat = $postago;
-			} elseif ($showago === 1) {
-				$anzeigedat = $erstelldat . ' ' . $postago;
-			} else {
-				$anzeigedat = $erstelldat;
-			}
-			$cstyles = getColorStyles($created);
-		}
-		// HTML-Ausgabe generieren
-		$colordate = '<span class="newlabel" style="background-color:' . $cstyles['background'] . '">';
-		if (!isset($noicon)) {
-			$colordate .= $newormod;
-		}
-		$colordate .= '<span style="color:' . $cstyles['color'] . '" title="' . htmlspecialchars($erstelltitle, ENT_QUOTES) . '">' . $anzeigedat . '</span></span>';
-		return $colordate;
-	}
-}
-
-
-// ---------------------------------- Spiegelung Ende ------------------------------------------------------------------------
-
-
 // Shortcode Styles
 function dedo_get_shortcode_styles() {
 	$styles = array(
-	 	'infobox'		=> array(
-	 		'name'			=> __( 'Infobox mit Icon, Rahmen und Details', 'delightful-downloads' ),
-	 		'format'		=> '<blockquote class="%class% blockleer" style="font-size:inherit;display:flex;width:100%;padding:4px;border-radius:3px">
-					<div style="display:flex;width:100%">
-					<div style="display:inline-block;min-width:60px;width:60px">%icon%</div>
-					<div style="display:inline-block;width:100%;min-width:70%">
-					<div class="entry-meta-top">
-					<div class="iconleiste noprint"> %locked% &nbsp; %adminedit%%datesymbol%%filesize%%downloadtime%%count%</div> 
-					<div class="greybox">%category% %tags%</div></div>
-					<h6 style="margin-top:6px"><a href="%permalink%" title="'.__( 'download details', 'delightful-downloads' ).'" rel="nofollow">
-					%title%</a></h6>
-					<a class="ddownload-button page-numbers"  href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">'.__( 'download file', 'delightful-downloads' ).'</a>
-					 %filedate%
-					<div>%description%</div></div>%thumb%</div></blockquote>'
-	 	),
-	 	'singlepost'		=> array(
-	 		'name'			=> __( 'Infobox mit Icon, Rahmen für Post Archive', 'delightful-downloads' ),
-	 		'format'		=> '<blockquote class="%class% blockleer" style="font-size:inherit;display:flex;width:100%;padding:4px;border-radius:3px">
-					<div style="display:inline-block;min-width:60px;width:60px">%icon%</div>
-					<div style="display:inline-block;width:100%;min-width:70%">
-					<a class="ddownload-button page-numbers"  href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
-					'.__( 'download file', 'delightful-downloads' ).'</a>
-					<table>
-					<tr><td style="width:25%">'.__( 'Locked admin Onedaypass', 'delightful-downloads' ).'</td><td>%locked% &nbsp; %adminedit%</td></tr>
-					<tr><td>'.__( 'filename', 'delightful-downloads' ).'</td><td>%filename%</td></tr>
-					<tr><td>'.__( 'file size', 'delightful-downloads' ).'</td><td>%filesize%</td></tr>
-					<tr><td>'.__( 'file date', 'delightful-downloads' ).'</td><td>%filedate%</td></tr>
-					<tr><td>'.__( 'download time', 'delightful-downloads' ).'</td><td>%downloadtime%</td></tr>
-					<tr><td>'.__( 'download count', 'delightful-downloads' ).'</td><td>%count%</td></tr>
-					<tr><td colspan=2>%id3tag%</td></tr>
+		'infobox' => array(
+			'name' => __( 'Infobox mit Icon, Rahmen und Details', 'delightful-downloads' ),
+			'format' => '<article class="%class% dedo-download-article">
+				<div class="dedo-download-row">
+					<div class="dedo-download-icon-small">%icon%</div>
+					<div class="dedo-download-content">
+						<div class="entry-meta-top">
+							<div class="iconleiste noprint">%locked% &nbsp; %adminedit%%datesymbol%%filesize%%downloadtime%%count%</div>
+							<div class="greybox">%category% %tags%</div>
+						</div>
+						<h6 class="dedo-download-title"><a href="%permalink%" title="' . __( 'download details', 'delightful-downloads' ) . '" rel="nofollow">%title%</a></h6>
+						<a class="ddownload-button page-numbers" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a>
+						%filedate%
+						<div>%description%</div>
+					</div>
+					%thumb%
+				</div>
+			</article>'
+		),
+
+		'singlepost' => array(
+			'name' => __( 'Infobox mit Icon, Rahmen für Post Archive', 'delightful-downloads' ),
+			'format' => '<article class="%class% dedo-download-article">
+				<div class="dedo-download-icon">%icon%</div>
+				<div class="dedo-download-content">
+					<a class="ddownload-button page-numbers" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a>
+					<table class="dedo-download-meta-table">
+						<tr><td class="dedo-download-meta-label">' . __( 'Locked admin Onedaypass', 'delightful-downloads' ) . '</td><td>%locked% &nbsp; %adminedit%</td></tr>
+						<tr><td>' . __( 'filename', 'delightful-downloads' ) . '</td><td>%filename%</td></tr>
+						<tr><td>' . __( 'file size', 'delightful-downloads' ) . '</td><td>%filesize%</td></tr>
+						<tr><td>' . __( 'file date', 'delightful-downloads' ) . '</td><td>%filedate%</td></tr>
+						<tr><td>' . __( 'download time', 'delightful-downloads' ) . '</td><td>%downloadtime%</td></tr>
+						<tr><td>' . __( 'download count', 'delightful-downloads' ) . '</td><td>%count%</td></tr>
+						<tr><td colspan="2">%id3tag%</td></tr>
 					</table>
 					%manexcerpt%
-					</div></blockquote>'
-	 	),
-	 	'button'		=> array(
-	 		'name'			=> __( 'Button', 'delightful-downloads' ),
-	 		'format'		=> '<a href="%url%" title="%text%" rel="nofollow" class="%class%">%text%</a>'
-	 	),
-	 	'link'			=> array(
-	 		'name'			=> __( 'Link', 'delightful-downloads' ),
-	 		'format'		=> '<a href="%url%" title="%text%" rel="nofollow" class="%class%">%text%</a>'
-	 	),
-	 	'iconlink'			=> array(
-	 		'name'			=> __( 'Icon und Link', 'delightful-downloads' ),
-	 		'format'		=> '%icon% &nbsp; <a href="%url%" title="%text%" rel="nofollow" class="%class%">%text%</a>'
-	 	),
-	 	'plain_text'	=> array(
-	 		'name'			=> __( 'Plain Text', 'delightful-downloads' ),
-	 		'format'		=> '%url%'
-	 	)
+				</div>
+			</article>'
+		),
+
+		'button' => array(
+			'name' => __( 'Button', 'delightful-downloads' ),
+			'format' => '<a href="%url%" title="%text%" rel="nofollow" class="%class%">%text%</a>'
+		),
+
+		'link' => array(
+			'name' => __( 'Link', 'delightful-downloads' ),
+			'format' => '<a href="%url%" title="%text%" rel="nofollow" class="%class%">%text%</a>'
+		),
+
+		'iconlink' => array(
+			'name' => __( 'Icon und Link', 'delightful-downloads' ),
+			'format' => '%icon% &nbsp; <a href="%url%" title="%text%" rel="nofollow" class="%class%">%text%</a>'
+		),
+
+		'plain_text' => array(
+			'name' => __( 'Plain Text', 'delightful-downloads' ),
+			'format' => '%url%'
+		)
 	);
+
 	return apply_filters( 'dedo_get_styles', $styles );
-}
+	}
 
 /**
  * Returns List Styles
  */
 function dedo_get_shortcode_lists() {
 	$lists = array(
-	 	'title'				=> array(
-	 		'name'				=> __( 'Title', 'delightful-downloads' ),
-	 		'format'			=> '<a href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a>'
-	 	),
-	 	'title_date'		=> array(
-	 		'name'				=> __( 'Title/Date)', 'delightful-downloads' ),
-	 		'format'			=> '<a href="%url%" title="%title%" rel="nofollow" class="%class%">%title% (%datesymbol%)</a>'
-	 	),
-	 	'title_count'		=> array(
-	 		'name'				=> __( 'Title/Count', 'delightful-downloads' ),
-	 		'format'			=> '<a style="margin-left:30px" href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a> &nbsp; %count%'
-	 	),
-	 	'title_filesize'	=> array(
-	 		'name'				=> __( 'Title/Filesize', 'delightful-downloads' ),
-	 		'format'			=> '<a style="margin-left:30px" href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a> &nbsp; %filesize%'
-	 	),
-	 	'title_ext_filesize'=> array(
-	 		'name'				=> __( 'Title/Extension/Filesize', 'delightful-downloads' ),
-	 		'format'			=> '<a style="margin-left:30px" href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a> &nbsp; %ext% &nbsp; %filesize%'
-	 	),
-	 	'title_date_ext_filesize'=> array(
-	 		'name'				=> __( 'Title/Date/Extension/Filesize', 'delightful-downloads' ),
-	 		'format'			=> '<a style="margin-left:30px" href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a> &nbsp; %datesymbol% &nbsp; %ext% &nbsp; %filesize%'
-	 	),
-	 	'title_ext_filesize_count'=> array(
-	 		'name'				=> __( 'Title/Date/Extension/Filesize/count', 'delightful-downloads' ),
-	 		'format'			=> '<a style="margin-left:30px" href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a> &nbsp; %datesymbol% &nbsp; %ext% &nbsp; %filesize% &nbsp; %count%'
-	 	),
-	 	'icon_title_ext_filesize'=> array(
-	 		'name'				=> __( 'Title/Icon/Category/File size', 'delightful-downloads' ),
-	 		'format'			=> '<div style="display:flex;width:100%">
-					<div style="display:inline-block;min-width:60px;width:60px">%icon%</div>
-					<div style="display:inline-block;width:100%;min-width:70%">
-					<a class="headline" href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
-					 %title%</a><br>%adminedit%
-					 &nbsp;%locked% &nbsp;%category% %tags% &nbsp;
-					%filesize%</div></div>'
-	 	),
-	 	'icon_title_ext_filesize_count_datesymbol'=> array(
-	 		'name'				=> __( 'Title/Icon/Category/File size/Count/Dateago)', 'delightful-downloads' ),
-	 		'format'			=> '<div style="display:flex;width:100%">
-					<div style="display:inline-block;min-width:55px;width:55px">%icon%</div>
-					<div style="display:inline-block;width:100%;min-width:70%;vertical-align:top;line-height:1.35em">
-					<div class="entry-meta-top"><div class="iconleiste noprint">%locked% &nbsp; %adminedit%
-					%dateago%%filesize%%count%</div><div class="greybox">%category% %tags%</div></div>
-					<h6 style="margin-top:4px"><a href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
-					📥 %title%</a></h6>
-					</div></div>'
-	 	),
-	 	'infoboxlist'=> array(
-	 		'name'				=> __( 'Infoboxliste (Icon/Date/Extension/Filesize/count/Thumb/descript)', 'delightful-downloads' ),
-	 		'format'			=> '
-					<div style="display:flex;width:100%">
-					<div style="display:inline-block;min-width:55px;width:55px">%icon%</div>
-					<div style="display:inline-block;width:100%;min-width:70%">
-					<div class="entry-meta-top"><div class="iconleiste noprint">%locked% &nbsp; %adminedit% %datesymbol%</div>
-					<div class="greybox">%category% %tags%</div></div>
-					<h6 style="margin-top:4px"><a href="%url%" title="'.__( 'download file', 'delightful-downloads' ).'" rel="nofollow">
-					📥 %title%</a></h6>
+		'title' => array(
+			'name' => __( 'Title', 'delightful-downloads' ),
+			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a>'
+		),
+
+		'title_date' => array(
+			'name' => __( 'Title/Date', 'delightful-downloads' ),
+			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class%">%title% (%datesymbol%)</a>'
+		),
+
+		'title_count' => array(
+			'name' => __( 'Title/Count', 'delightful-downloads' ),
+			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-indent">%title%</a> &nbsp; %count%'
+		),
+
+		'title_filesize' => array(
+			'name' => __( 'Title/Filesize', 'delightful-downloads' ),
+			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-indent">%title%</a> &nbsp; %filesize%'
+		),
+
+		'title_ext_filesize' => array(
+			'name' => __( 'Title/Extension/Filesize', 'delightful-downloads' ),
+			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-indent">%title%</a> &nbsp; %ext% &nbsp; %filesize%'
+		),
+
+		'title_date_ext_filesize' => array(
+			'name' => __( 'Title/Date/Extension/Filesize', 'delightful-downloads' ),
+			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-indent">%title%</a> &nbsp; %datesymbol% &nbsp; %ext% &nbsp; %filesize%'
+		),
+
+		'title_ext_filesize_count' => array(
+			'name' => __( 'Title/Date/Extension/Filesize/Count', 'delightful-downloads' ),
+			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-indent">%title%</a> &nbsp; %datesymbol% &nbsp; %ext% &nbsp; %filesize% &nbsp; %count%'
+		),
+
+		'icon_title_ext_filesize' => array(
+			'name' => __( 'Title/Icon/Category/File size', 'delightful-downloads' ),
+			'format' => '<div class="dedo-list-row">
+				<div class="dedo-list-icon">%icon%</div>
+				<div class="dedo-list-content">
+					<a class="headline dedo-list-headline" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">%title%</a><br>
+					%adminedit% &nbsp;%locked% &nbsp;%category% %tags% &nbsp;%filesize%
+				</div>
+			</div>'
+		),
+
+		'icon_title_ext_filesize_count_datesymbol' => array(
+			'name' => __( 'Title/Icon/Category/File size/Count/Dateago', 'delightful-downloads' ),
+			'format' => '<div class="dedo-list-row">
+				<div class="dedo-list-icon-small">%icon%</div>
+				<div class="dedo-list-content-compact">
+					<div class="entry-meta-top">
+						<div class="iconleiste noprint">%locked% &nbsp; %adminedit% %dateago%%filesize%%count%</div>
+						<div class="greybox">%category% %tags%</div>
+					</div>
+					<h6 class="dedo-list-title">
+						<a href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">📥 %title%</a>
+					</h6>
+				</div>
+			</div>'
+		),
+
+		'infoboxlist' => array(
+			'name' => __( 'Infoboxliste (Icon/Date/Extension/Filesize/count/Thumb/descript)', 'delightful-downloads' ),
+			'format' => '<div class="dedo-list-row">
+				<div class="dedo-list-icon-small">%icon%</div>
+				<div class="dedo-list-content">
+					<div class="entry-meta-top">
+						<div class="iconleiste noprint">%locked% &nbsp; %adminedit% %datesymbol%</div>
+						<div class="greybox">%category% %tags%</div>
+					</div>
+					<h6 class="dedo-list-title">
+						<a href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">📥 %title%</a>
+					</h6>
 					<div>%filename%%filedate%%filesize%%count%%downloadtime%<br>%description%</div>
-					</div>%thumb%</div>%id3tag%'
-	 	)
+				</div>
+				%thumb%
+			</div>%id3tag%'
+		)
 	);
+
 	return apply_filters( 'dedo_get_lists', $lists );
 }
 
@@ -1912,26 +1700,14 @@ function dedo_total_downloads() {
 	return $wpdb->get_var( $sql );
 }
 
-/* ===== END includes/functions.php ===== */
-
-/* ===== BEGIN includes/mime-types.php ===== */
 /**
  * Delightful Downloads Mime Types
- *
- * @package     Delightful Downloads
- * @subpackage  Includes/Mime Types
- * @since       1.3
 */
 
-// Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
  * Mime Types
- *
  * Add additioanl mime types that WordPress is allowed to upload.
- *
- * @since   1.3
  */
 function dedo_mime_types( $existing_mimes ) {
 
@@ -1958,26 +1734,12 @@ function dedo_mime_types( $existing_mimes ) {
 }
 add_filter( 'upload_mimes', 'dedo_mime_types' );
 
-/* ===== END includes/mime-types.php ===== */
-
-/* ===== BEGIN includes/options.php ===== */
 /**
  * Delightful Downloads Options
- *
- * @package     Delightful Downloads
- * @subpackage  Includes/Options
- * @since       1.3
  */
-
-// Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 /**
  * Get Registered Tabs
- *
- * @since  1.3
  */
 function dedo_get_tabs() {
 	$tabs = apply_filters( 'dedo_settings_tabs', array(
@@ -2003,8 +1765,6 @@ function dedo_get_tabs() {
 
 /**
  * Get Registered Options
- *
- * @since  1.3
  */
 function dedo_get_options() {
 	$options = array(
@@ -2136,7 +1896,7 @@ function dedo_get_options() {
 /**
  * Get Default Options
  *
- * @since  1.3
+
  */
 function dedo_get_default_options() {
 	// Get registered settings
@@ -2157,26 +1917,13 @@ function dedo_get_default_options() {
 	return $default_options;
 }
 
-/* ===== END includes/options.php ===== */
-
-/* ===== BEGIN includes/post-types.php ===== */
 /**
  * Delightful Downloads Post Types
- *
- * @package     Delightful Downloads
- * @subpackage  Includes/Post Types
- * @since       1.0
  */
 
-// Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 /**
  * Register Download Post Type
- *
- * @since  1.0
  */
 function dedo_download_post_type() {
 	$labels = array(
@@ -2212,8 +1959,6 @@ add_action( 'init', 'dedo_download_post_type' );
 
 /**
  * Download Post Type Column Headings
- *
- * @since  1.0
  */
 function dedo_download_column_headings( $columns ) {
 	global $dedo_options;
@@ -2262,8 +2007,6 @@ add_filter( 'manage_dedo_download_posts_columns', 'dedo_download_column_headings
 
 /**
  * Download Post Type Column Contents
- *
- * @since  1.0
  */
 function dedo_download_column_contents( $column_name, $post_id ) {
 	
@@ -2358,7 +2101,6 @@ add_action( 'manage_dedo_download_posts_custom_column', 'dedo_download_column_co
 /**
  * Download Post Type Sortable Filter
  *
- * @since  1.0
  */
 function dedo_download_column_sortable( $columns ) {
 	$columns['filesize']  = 'filesize';
@@ -2371,7 +2113,6 @@ add_filter( 'manage_edit-dedo_download_sortable_columns', 'dedo_download_column_
 /**
  * Download Post Type Sortable Action
  *
- * @since  1.0
  */
 function dedo_download_column_orderby( $query ) {
 	$orderby = $query->get( 'orderby' );
@@ -2388,34 +2129,18 @@ function dedo_download_column_orderby( $query ) {
 }
 add_action( 'pre_get_posts', 'dedo_download_column_orderby' );
 
-/* ===== END includes/post-types.php ===== */
-
-/* ===== BEGIN includes/process-download.php ===== */
 /**
  * Delightful Downloads Process Download
- *
- * @package     Delightful Downloads
- * @subpackage  Includes/Process Downloads and secure one day pass downloads
- * @since       1.0
  */
 
-// Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 /**
  * Process Download
- *
  * Validate download and send file to user
- * http://www.richnetapps.com/php-download-script-with-resume-option/
- *
- * @since 1.0
  */
 
 /**
  * Abort a download request safely even before wp_loaded.
- * Avoid wp_die() too early because themes/plugins may touch WooCommerce cart in the die template.
  */
 function dedo_download_abort( $message, $title = '' ) {
 	$message = (string) $message;
@@ -2658,21 +2383,9 @@ function dedo_init_handle_download() {
 }
 add_action( 'init', 'dedo_init_handle_download', 4 );
 
-/* ===== END includes/process-download.php ===== */
-
-/* ===== BEGIN includes/scripts.php ===== */
 /**
  * Delightful Downloads Scripts
- *
- * @package     Delightful Downloads
- * @subpackage  Includes/Scripts
- * @since       1.0
  */
-
-// Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 /**
  * Register Frontend Scripts & Styles - unicode symbole für icons
@@ -2743,19 +2456,9 @@ function dedo_admin_enqueue_scripts( $page ) {
 }
 add_action( 'admin_enqueue_scripts', 'dedo_admin_enqueue_scripts' );
 
-/* ===== END includes/scripts.php ===== */
-
-/* ===== BEGIN includes/shortcodes.php ===== */
 /**
  * Delightful Downloads Shortcodes
- *
- * @package     Delightful Downloads
- * @subpackage  Includes/Shortcodes
- * @since       1.1
 */
-
-// Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
  * Download Shortcode.
@@ -3073,7 +2776,6 @@ function dedo_shortcode_ddownload_list( $atts ) {
 		if (!empty($exclude_tags)) $listfilter .= ' &nbsp;<span title="excluded tags" style="color:tomato">🔽</span>🔖 '.$exclude_tags;
 		if (!empty($search_term)) $listfilter .= ' &nbsp;🔎 <span class="ddownload-search-term">'.esc_html($search_term).'</span>';
 
-
 		echo '<div class="entry-meta-top" style="text-align:center;width:100%;text-transform:uppercase">';
 
 		// Suchfeld (immer anzeigen, außer show_search=0)
@@ -3089,7 +2791,7 @@ function dedo_shortcode_ddownload_list( $atts ) {
 			echo '</form>';
 		}
 
-		if (!empty($listfilter)) echo '<strong>'.__('downloads','delightful-downloads').'</strong> &nbsp;'.$listfilter;
+		echo '<strong>'.__('downloads','delightful-downloads').'</strong> &nbsp;'.$listfilter;
 		echo '</div>';
 
 		echo '<div class="ddownloads_list' . $tax_class . $style_class . '">';
@@ -3102,7 +2804,7 @@ function dedo_shortcode_ddownload_list( $atts ) {
 			$filecount++;
 			$dlcount += get_post_meta( get_the_ID(), '_dedo_file_count', true );
 			$tfilesize += (int) get_post_meta( get_the_ID(), '_dedo_file_size', true );
-			echo '<div style="margin-bottom:.3em;border:1px solid var(--pengcolor)"><div style="position:relative"><div style="background-color:#fffb;color:#000;font-size:1.2em;font-weight:700;position:absolute;left:8px;top:6px;z-index:99999;line-height:1em">'. $filecount.'</div></div>' . dedo_search_replace_wildcards( $new_style_format, get_the_ID() ) . '</div>';
+			echo '<article style="margin: .3em"><div style="position:relative"><div style="background-color:#fffb;color:#000;font-size:1.2em;font-weight:700;position:absolute;left:8px;top:6px;z-index:99999;line-height:1em">'. $filecount.'</div></div>' . dedo_search_replace_wildcards( $new_style_format, get_the_ID() ) . '</article>';
 			// Reset classes for next iteration
 			unset( $classes );
 			unset( $new_style_format );
@@ -3157,24 +2859,13 @@ add_shortcode( 'ddownload_list', 'dedo_shortcode_ddownload_list' );
  */
 add_filter( 'widget_text', 'do_shortcode' );
 
-/* ===== END includes/shortcodes.php ===== */
-
-/* ===== BEGIN includes/taxonomies.php ===== */
 /**
  * Delightful Downloads Taxonomies
- *
- * @package     Delightful Downloads
- * @subpackage  Includes/Taxonomies
- * @since       1.3
 */
 
-// Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
  * Register Download Taxonomies
- *
- * @since  1.3
  */
 function dedo_download_taxonomies() {
 	global $dedo_options;	
@@ -3235,5 +2926,144 @@ function dedo_download_taxonomies() {
 }
 add_action( 'init', 'dedo_download_taxonomies', 3 );
 
-/* ===== END includes/taxonomies.php ===== */
 
+// ----------------------------------- Funktionen, die in andere Plugins und themes gespiegelt sind ------------------------------------
+
+// Converts a number into a short version, eg: 1000 -> 1k
+//  gespiegelt in: delightful-downloads/includes/functions.php und foldergallery.php und wpdoodlez.php   (Aufruf als wpdoo/dedo_number_format_short)
+if( !function_exists('number_format_short')) {
+	function number_format_short( $n ) {
+		if ( $n <= 0 ) return '<span title="0">0</span>';
+		$si_prefix = array( '', 'K', 'M', 'G', 'T', 'E', 'Z', 'Y' );
+		$base = 1024;
+		$class = min((int)log($n , $base) , count($si_prefix) - 1);
+		$short_value = $n / pow($base,$class);
+		// $precis = 1, wenn Wert < 10 (einstellig) UND es ein Suffix gibt ($class > 0)
+		$precis = ($short_value < 10 && $class > 0) ? 1 : 0;
+		// Fügt das number_format_i18n nur hinzu, wenn es verfügbar ist
+		$title = function_exists('number_format_i18n') ? number_format_i18n($n) : number_format($n, 0, ',', '.');
+		return '<span title="'.$title.'">' . sprintf('%1.'.$precis.'f' , $short_value) . $si_prefix[$class] . '</span>';
+	}
+}
+
+// Zeitdifferenz ermitteln und gestern/vorgestern/morgen schreiben
+//   gespiegelt in: chartcodes.php, delightful-downloads/includes/functions.php, foldergallery.php, penguin/functions.php, timeclock/includes/functions.php
+if( !function_exists('ago')) {
+	function ago($timestamp) {
+		if (empty($timestamp)) return;
+		$xlang = get_bloginfo("language");
+		date_default_timezone_set('Europe/Berlin');
+		$now = time();
+		if ($timestamp > $now) {
+			$prepo = __('in', 'penguin');
+			$postpo = '';
+		} else {
+			if ($xlang == 'de') {
+				$prepo = 'vor';
+				$postpo = '';
+			} else {
+				$prepo = '';
+				$postpo = ' ' . __('ago', 'penguin');
+			}
+		}
+		$her = date( 'd.m.Y', intval($timestamp) );
+		if ($her == date('d.m.Y',$now - (24 * 3600))) {
+			$hdate = __('yesterday', 'penguin');
+		} else if ($her == date('d.m.Y',$now - (48 * 3600))) {
+			$hdate = __('1 day before yesterday', 'penguin');
+		} else if ($her == date('d.m.Y',$now + (24 * 3600))) {
+			$hdate = __('tomorrow', 'penguin');
+		} else if ($her == date('d.m.Y',$now + (48 * 3600))) {
+			$hdate = __('1 day after tomorrow', 'penguin');
+		} else {
+			$hdate = $prepo . ' ' . human_time_diff(intval($timestamp), $now) . $postpo;
+		}
+		return $hdate;
+	}
+}	
+
+// Datumbox farbig mit Wochenende SA gelb und SO rot ausgeben aus createdatum und moddatum. wird nur createdatum gesetzt, wird nur das ausgewertet.
+//   gespiegelt in: chartcodes.php, delightful-downloads/includes/functions.php, foldergallery.php, penguin/functions.php
+//   Parameter 1: Erstell-Unix-Timestamp | 2: Mod-Timestamp oder NULL=Erstell-Timestamp | 3: NULL=ICON anzeigen, 1=kein Icon | 4: NULL=nur Datum, 1=Datum und AGO, 2=nur AGO
+//     test:     echo colordatebox( (time()-86400), NULL, NULL, 1);
+
+	// SA orange, Sonntag rot, gestern hellgrün, heute cyan, 30T gelb, >30T grau
+	if (!function_exists('getColorStyles')) {
+		function getColorStyles($timestamp) {
+			$days = (int)((strtotime(date('Y-m-d', $timestamp)) - strtotime(date('Y-m-d'))) / 86400);
+			$bg = match (true) {
+				$days === 0   => '#bfd', // heute
+				$days === -1  => '#efe', // gestern
+				$days < -30   => '#eee', // vergangen >30T
+				$days < 0     => '#fe8', // vergangen 1–30T
+				$days <= 30   => '#bdf', // zukünftig 1–30T
+				default       => '#cef', // zukünftig >30T
+			};
+			$weekday = (int)date('N', $timestamp);
+			$fg = match ($weekday) {
+				6 => '#e60', // Samstag
+				7 => '#f00', // Sonntag
+				default => '#222',
+			};
+			return ['background' => $bg, 'color' => $fg];
+		}
+	}
+
+if( !function_exists('colordatebox')) {
+	function colordatebox($created, $modified = null, $noicon = null, $showago = null) {
+		$modified = $modified ?? $created;
+		// Tauschen bei Unix Filesystemen (falls modified < created)
+		$unixfile = 0;
+		if ($modified < $created) {
+			[$created, $modified] = [$modified, $created];
+			$unixfile = 1;
+		}
+		// Datum formatieren
+		$erstelldat = str_replace(' 00:00', '', wp_date('D d. M Y H:i', $created));
+		$moddat    = str_replace(' 00:00', '', wp_date('D d. M Y H:i', $modified));
+		// "vor X" Strings
+		$postago = ago($created);
+		$modago  = ago($modified);
+		// Zeitdifferenzen berechnen
+		$diffmod  = $modified - $created;
+		$refTime  = $unixfile ? $created : $modified;
+		$diff     = time() - $refTime;
+		$diffdays = floor($diff / 86400);
+		// Tooltip zusammenbauen
+		$erstelltitle = __("created", "penguin") . ': ' . $erstelldat . ' ' . $postago . ' ' . $diffdays . ' Tg';
+		if ($diffmod !== 0) {
+			$erstelltitle .= "\n" . __("modified", "penguin") . ': ' . $moddat . ' ' . $modago;
+			$erstelltitle .= "\n" . __("modified after", "penguin") . ': ' . human_time_diff($created, $modified);
+		}
+		// Angezeigtes Datum & Icon bestimmen
+		if ($diffmod > 0 && !$unixfile) {
+			$newormod = '🕰️';
+			if ($showago === 2) {
+				$anzeigedat = $modago;
+			} elseif ($showago === 1) {
+				$anzeigedat = $moddat . ' ' . $modago;
+			} else {
+				$anzeigedat = $moddat;
+			}
+			$cstyles = getColorStyles($modified);
+		} else {
+			$newormod = '📅';
+			if ($showago === 2) {
+				$anzeigedat = $postago;
+			} elseif ($showago === 1) {
+				$anzeigedat = $erstelldat . ' ' . $postago;
+			} else {
+				$anzeigedat = $erstelldat;
+			}
+			$cstyles = getColorStyles($created);
+		}
+		// HTML-Ausgabe generieren
+		$colordate = '<span class="newlabel" style="background-color:' . $cstyles['background'] . '">';
+		if (!isset($noicon)) {
+			$colordate .= $newormod;
+		}
+		$colordate .= '<span style="color:' . $cstyles['color'] . '" title="' . htmlspecialchars($erstelltitle, ENT_QUOTES) . '">' . $anzeigedat . '</span></span>';
+		return $colordate;
+	}
+}
+// ---------------------------------- Spiegelung Ende ------------------------------------------------------------------------
