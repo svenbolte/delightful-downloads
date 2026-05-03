@@ -2983,8 +2983,8 @@ if( !function_exists('ago')) {
 }	
 
 // Datumbox farbig mit Wochenende SA gelb und SO rot ausgeben aus createdatum und moddatum. wird nur createdatum gesetzt, wird nur das ausgewertet.
-//   gespiegelt in: chartcodes.php, delightful-downloads/includes/functions.php, foldergallery.php, penguin/functions.php
-//   Parameter 1: Erstell-Unix-Timestamp | 2: Mod-Timestamp oder NULL=Erstell-Timestamp | 3: NULL=ICON anzeigen, 1=kein Icon | 4: NULL=nur Datum, 1=Datum und AGO, 2=nur AGO
+//   gespiegelt in: chartcodes.php, delightful-downloads/includes/core.php, foldergallery.php, penguin/functions.php
+//   Parameter 1: Erstell-Unix-Timestamp | 2: Mod-Timestamp oder NULL=Erstell-Timestamp | 3: NULL=ICON anzeigen, 1=kein Icon | 4: NULL=nur Datum, 1=Datum und AGO, 2=nur AGO, 3=ago in Kurzform
 //     test:     echo colordatebox( (time()-86400), NULL, NULL, 1);
 
 	// SA orange, Sonntag rot, gestern hellgrün, heute cyan, 30T gelb, >30T grau
@@ -3012,36 +3012,30 @@ if( !function_exists('ago')) {
 if( !function_exists('colordatebox')) {
 	function colordatebox($created, $modified = null, $noicon = null, $showago = null) {
 		$modified = $modified ?? $created;
-		// Tauschen bei Unix Filesystemen (falls modified < created)
 		$unixfile = 0;
 		if ($modified < $created) {
 			[$created, $modified] = [$modified, $created];
 			$unixfile = 1;
 		}
-		// Datum formatieren
 		$erstelldat = str_replace(' 00:00', '', wp_date('D d. M Y H:i', $created));
 		$moddat    = str_replace(' 00:00', '', wp_date('D d. M Y H:i', $modified));
-		// "vor X" Strings
 		$postago = ago($created);
 		$modago  = ago($modified);
-		// Zeitdifferenzen berechnen
 		$diffmod  = $modified - $created;
 		$refTime  = $unixfile ? $created : $modified;
 		$diff     = time() - $refTime;
 		$diffdays = floor($diff / 86400);
-		// Tooltip zusammenbauen
 		$erstelltitle = __("created", "penguin") . ': ' . $erstelldat . ' ' . $postago . ' ' . $diffdays . ' Tg';
 		if ($diffmod !== 0) {
 			$erstelltitle .= "\n" . __("modified", "penguin") . ': ' . $moddat . ' ' . $modago;
 			$erstelltitle .= "\n" . __("modified after", "penguin") . ': ' . human_time_diff($created, $modified);
 		}
-		// Angezeigtes Datum & Icon bestimmen
 		if ($diffmod > 0 && !$unixfile) {
 			$newormod = '🕰️';
 			if ($showago === 2) {
 				$anzeigedat = $modago;
 			} elseif ($showago === 1) {
-				$anzeigedat = $moddat . ' ' . $modago;
+				$anzeigedat = $moddat . '⌛' . $modago;
 			} else {
 				$anzeigedat = $moddat;
 			}
@@ -3051,11 +3045,24 @@ if( !function_exists('colordatebox')) {
 			if ($showago === 2) {
 				$anzeigedat = $postago;
 			} elseif ($showago === 1) {
-				$anzeigedat = $erstelldat . ' ' . $postago;
+				$anzeigedat = $erstelldat . '⌛' . $postago;
 			} else {
 				$anzeigedat = $erstelldat;
 			}
 			$cstyles = getColorStyles($created);
+		}
+		if ($showago === 3) {
+			$shortago = function($timestamp){
+				$now = time();
+				$d = abs($now - intval($timestamp));
+				return $d < 3600 ? max(1, floor($d/60)).' Min'
+					: ($d < 86400 ? floor($d/3600).' Std'
+					: ($d < 604800 ? floor($d/86400).' Tg'
+					: ($d < 2629800 ? floor($d/604800).' Wo'
+					: ($d < 31557600 ? floor($d/2629800).' Mon'
+					: floor($d/31557600).' Jahr'))));
+			};
+			$anzeigedat .= '⌛' . ($diffmod > 0 && !$unixfile ? $shortago($modified) : $shortago($created));
 		}
 		// HTML-Ausgabe generieren
 		$colordate = '<span class="newlabel" style="background-color:' . $cstyles['background'] . '">';
@@ -3066,4 +3073,5 @@ if( !function_exists('colordatebox')) {
 		return $colordate;
 	}
 }
+
 // ---------------------------------- Spiegelung Ende ------------------------------------------------------------------------
