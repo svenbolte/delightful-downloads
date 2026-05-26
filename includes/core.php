@@ -1036,12 +1036,16 @@ function dedo_get_shortcode_lists() {
 						<div class="iconleiste noprint">%locked% &nbsp; %adminedit% %datesymbol%</div>
 						<div class="greybox">%category% %tags%</div>
 					</div>
-					<h6 class="dedo-list-title">
-						<a href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">📥 %title%</a>
-					</h6>
-					<div>%filename%%filedate%%filesize%%count%%downloadtime%<br>%description%</div>
+					<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:15px;">
+						<div style="flex:1;min-width:0;">
+							<h6 class="dedo-list-title">
+								<a href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">📥 %title%</a>
+							</h6>
+							<div>%filename%%filedate%%filesize%%count%%downloadtime%<br>%description%</div>
+						</div>
+						%thumb%
+					</div>
 				</div>
-				%thumb%
 			</div>%id3tag%'
 		)
 	);
@@ -1198,7 +1202,7 @@ function download_times($filesize) {
 				// $phtml .= ' <span style="margin-left:1em">🔉</span> '.basename($filename); // Alternativ für fa-file-audio-o
 				if ( !post_password_required( $id) && !empty(@$meta['unsynchronised_lyric'])) $phtml .= ' <span style="margin-left:1em">📜</span> ' . $meta['unsynchronised_lyric']; // fa-text-width -> 📜 (Schriftrolle/Text)
 				$phtml .= '</span></div><div>';
-				if (!empty($meta['image']['data'])) $phtml .= '<img class="img-zoom" style="width:96px" src="data:'.$meta['image']['mime'].';charset=utf-8;base64,'.base64_encode($meta['image']['data']).'">';				$phtml .= '</div></div>';
+				if (!empty($meta['image']['data'])) $phtml .= '<img style="width:96px" src="data:'.$meta['image']['mime'].';charset=utf-8;base64,'.base64_encode($meta['image']['data']).'">';				$phtml .= '</div></div>';
 			} else $phtml = '';		
 			$value = $phtml;
 		} else $value='';	
@@ -1216,7 +1220,11 @@ function download_times($filesize) {
  	}
 	// post thumbnail - Beitragsbild mit img-zoom on hover
  	if ( strpos( $string, '%thumb%' ) !== false ) {
- 		$value = '<div style="float:right;padding-top:0;display:inline-block;max-width:200px;border:1px none"><img class="img-zoom" style="min-height:100px;transform-origin: center right" src="' . get_the_post_thumbnail_url( $id ) . '"></div>';
+ 		if ( has_post_thumbnail( $id ) ) {
+ 			$value = '<div class="dedo-thumb-inline" style="flex:0 0 180px;max-width:180px;text-align:right;"><img style="max-width:180px;height:auto;display:block;" src="' . get_the_post_thumbnail_url( $id, 'medium' ) . '"></div>';
+ 		} else {
+ 			$value = '';
+ 		}
  		$string = str_replace( '%thumb%', $value, $string );
  	}
  	// file-date created modified und postdatum ändern, wenn Datei per sftp neuer im Dateisystem
