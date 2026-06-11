@@ -1,4 +1,41 @@
 === Delightful Downloads ===
+Contributors: A5hleyRich, Sven Bolte, PBMod
+Tags: download, manager, downloads, shortcode, secure downloads, statistics, file manager
+Requires at least: 6.0
+Tested up to: 6.9.4
+Requires PHP: 8.4
+Stable tag: 9.10.300
+License: GPLv2 or later
+
+A professional WordPress download manager with secure downloads, one-day-pass links, statistics, categories, tags, infoboxes and extensive shortcode customization.
+
+== Overview ==
+
+This PBMod fork combines the best features from multiple Delightful Downloads forks and includes:
+* Security fixes for jQueryFileTree
+* One-Day-Pass download links
+* GDPR-friendly IP anonymization
+* Extended file icons
+* Enhanced infobox layouts
+* Additional wildcards and templates
+* Optional Chartcodes/IPFlag integration
+* German and German Formal translations
+
+== Quick Start ==
+
+1. Install and activate the plugin.
+2. Create a download under Downloads.
+3. Upload or link a file.
+4. Insert [ddownload id="123"] into a page or post.
+5. Use [ddownload_list] to create download archives.
+
+== Complete Documentation ==
+
+The original detailed documentation follows below and has intentionally been preserved because it contains the complete shortcode, wildcard, template and developer reference.
+
+--------------------------------------------------------------------------------
+
+=== Delightful Downloads ===
 Contributors: A5hleyRich, Sven Bolte, others (best of forks)
 Tags: download, manager, downloads, monitor, shortcode, delightful downloads, file, counter, tracking, infobox, fixed filetree,ipflag, chartscodes
 License: GPLv2 or later

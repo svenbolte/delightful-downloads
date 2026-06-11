@@ -1,44 +1,92 @@
-## Why this Version (my special Air Fork of it ;))
+# Delightful Downloads – PBMod Fork
 
-DEDO is blocked on wordpress plugins directory because of a security vulnerability in jqueryfiletree.php. Latter was already closed, so i integrated the fixes in this plugin.
-New features from some of the other forks are quite useful, so i integrated them too in this forks
-New File type icons (taken from an open source project and added some types like office and visio xml types, 7Zip and more
-Custom file type extended: Description can be given and stored in database, Categories and tags added
-language packs german and german formal added.
+A professional WordPress download manager with secure file delivery, one-day-pass links, GDPR-friendly statistics, advanced shortcode support and extended download presentation.
 
-## Documentation ##
+## Why this Fork?
 
-The Delightful Downloads documentation can be found at the root folder of this plugin.
-It was updated and put in the project in text form (/readme.txt)
+This PBMod fork combines the best improvements from multiple Delightful Downloads forks and adds additional security, usability and localization features.
 
-## Features ##
+### Improvements
 
-* crypted Link for one day pass download of a file copy in admin area and share. File Can be downloaded until end of same day
-* File upload via the WordPress admin area. Absolute file paths and remote file URLs are supported via manual entry.
-* Categorise and tag downloads.
-* Shortcodes to display download links, buttons and download information within posts, pages and widget areas.
-* Shortcode to list downloads, optionally filtered by categories and tags. Order by download count, file size, date, title and random.
-* Editor button to automatically generate shortcodes.
-* Download statistics tracked within the WordPress dashboard area. Specify a grace period so that multiple log entries are not triggered by the same user (more accurate statistics).
-* Automatically delete logs older than a specified number of days.
-* Blocks users from accessing files directly.
-* Block bots from downloading files.
-* Members only downloads with page redirect for non-logged in users.
-* Password protected files.
-* Open in Browser - Allow files such as PDFs and movies to open directly within the browser window and still track download statistics.
-* Various button styles included with the ability to add custom buttons.
-* Built in caching for excellent performance.
-* Developer friendly.
-* Localisation support and german translations.
+- Security fixes for the former jQueryFileTree vulnerability
+- One-Day-Pass download links
+- Extended file type icons
+- Additional file type support (Office, Visio, 7-Zip and more)
+- Categories and tags for downloads
+- Extended metadata support
+- German and German Formal translations
+- Improved shortcode layouts and infoboxes
 
-## Bugs
+## Features
 
-If you find a bug, please raise it [here](https://github.com/svenbolte/delightful-downloads/issues).
+### Secure Download Management
+- Protected download directories
+- Password protected downloads
+- Member-only downloads
+- Bot protection
+- Optional browser viewing for PDFs and media files
 
-## Contributions
+### One-Day-Pass Links
+- Temporary encrypted download links
+- Valid until the end of the current day
+- Easy sharing with customers and partners
 
-Anyone is welcome to contribute to Delightful Downloads. There are various ways to do so:
+### Download Statistics
+- Download counters
+- Download logs
+- Configurable duplicate protection
+- Automatic log cleanup
+- Optional country detection via Chartcodes/IPFlag integration
+- GDPR-friendly anonymized IP storage
 
-* Report a bug on GitHub
-* Send a Pull Request with your bug fixes and/or new features
-* Provide feedback and suggestions on enhancements
+### Download Organization
+- Categories and tags
+- Local and remote files
+- Searchable download lists
+- Sorting by title, date, filesize and downloads
+
+### Frontend Presentation
+- Download buttons
+- Download links
+- Infobox layouts
+- File type icons
+- Custom templates
+- Extensive wildcard support
+
+### Developer Features
+- Filter hooks
+- Custom list templates
+- Custom output styles
+- Custom button styles
+- Theme integration support
+
+## Main Shortcodes
+
+```text
+[ddownload id="123"]
+[ddownload_list]
+```
+
+The complete shortcode reference, wildcard documentation, template examples and developer documentation can be found in `readme.txt`.
+
+## Documentation
+
+A complete user and developer reference is included in the project:
+
+- Shortcodes
+- Wildcards
+- Output styles
+- List styles
+- Button styles
+- Custom templates
+- Filters and hooks
+- Installation guide
+- Changelog
+
+## Contributing
+
+Bug reports, pull requests and feature suggestions are welcome.
+
+## License
+
+GPL v2 or later
