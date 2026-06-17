@@ -2812,7 +2812,7 @@ function dedo_shortcode_ddownload_list( $atts ) {
 			$filecount++;
 			$dlcount += get_post_meta( get_the_ID(), '_dedo_file_count', true );
 			$tfilesize += (int) get_post_meta( get_the_ID(), '_dedo_file_size', true );
-			echo '<article style="margin: .3em"><div style="position:relative"><div style="background-color:#fffb;color:#000;font-size:1.2em;font-weight:700;position:absolute;left:8px;top:6px;z-index:99999;line-height:1em">'. $filecount.'</div></div>' . dedo_search_replace_wildcards( $new_style_format, get_the_ID() ) . '</article>';
+			echo '<article style="margin: .3em"><div style="position:relative"><div style="background-color:#fffb;color:#000;font-size:1.3rem;font-weight:700;position:absolute;left:8px;top:8px;z-index:99999;line-height:1em">'. $filecount.'</div></div>' . dedo_search_replace_wildcards( $new_style_format, get_the_ID() ) . '</article>';
 			// Reset classes for next iteration
 			unset( $classes );
 			unset( $new_style_format );

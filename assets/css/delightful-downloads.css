@@ -11,7 +11,7 @@
 .dedo-list-content-compact{line-height:1.35em}
 .dedo-download-icon,.dedo-list-icon{flex:0 0 60px;width:60px;min-width:60px}
 .dedo-download-icon-small{flex:0 0 58px;width:58px;min-width:60px}
-.dedo-list-icon-small{flex:0 0 55px;width:55px;min-width:55px}
+.dedo-list-icon-small{flex:0 0 55px;width:55px;min-width:55px;padding:5px 0 0 5px}
 .dedo-download-title{margin-top:6px}
 .dedo-list-title{margin-top:4px}
 .dedo-list-indent{margin-left:30px}
