@@ -1100,17 +1100,90 @@ function download_times($filesize) {
 	return $dtime;
 }
 
+
+/**
+ * Create a signed, time-limited download ticket URL.
+ *
+ * @param int $download_id Download post ID.
+ * @param int $valid_days  Ticket validity in calendar days, starting today.
+ * @return string
+ */
+function dedo_ticket_url( $download_id, $valid_days ) {
+    $download_id = absint( $download_id );
+    $valid_days  = absint( $valid_days );
+
+    if ( ! in_array( $valid_days, array( 7, 365 ), true ) ) {
+        return '';
+    }
+
+    $today   = new DateTimeImmutable( 'today', wp_timezone() );
+    $expires = $today->modify( '+' . ( $valid_days - 1 ) . ' days' )->format( 'Ymd' );
+    $payload = $download_id . '|' . $valid_days . '|' . $expires;
+    $code    = hash_hmac( 'sha256', $payload, wp_salt( 'auth' ) );
+
+    return add_query_arg(
+        array(
+            'sdownload' => $download_id,
+            'valid'     => $valid_days,
+            'expires'   => $expires,
+            'code'      => $code,
+        ),
+        home_url( '/' )
+    );
+}
+
+/**
+ * Validate a signed download ticket.
+ *
+ * Legacy one-day tickets for the current day remain valid for compatibility.
+ *
+ * @param int $download_id Download post ID.
+ * @return bool
+ */
+function dedo_ticket_is_valid( $download_id ) {
+    $download_id = absint( $download_id );
+    $code        = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : '';
+    $valid_days  = isset( $_GET['valid'] ) ? absint( $_GET['valid'] ) : 0;
+    $expires     = isset( $_GET['expires'] ) ? sanitize_text_field( wp_unslash( $_GET['expires'] ) ) : '';
+
+    // Backwards compatibility for the former ticket valid until midnight today.
+    if ( 0 === $valid_days && '' === $expires ) {
+        $today       = new DateTimeImmutable( 'now', wp_timezone() );
+        $legacy_code = md5( intval( $download_id ) + intval( $today->format( 'Ymd' ) ) );
+        return hash_equals( $legacy_code, $code );
+    }
+
+    if ( ! in_array( $valid_days, array( 7, 365 ), true ) || ! preg_match( '/^\d{8}$/', $expires ) ) {
+        return false;
+    }
+
+    $expiry_date = DateTimeImmutable::createFromFormat( '!Ymd', $expires, wp_timezone() );
+    if ( ! $expiry_date || $expiry_date->format( 'Ymd' ) !== $expires ) {
+        return false;
+    }
+
+    $today      = new DateTimeImmutable( 'today', wp_timezone() );
+    $start_date = $expiry_date->modify( '-' . ( $valid_days - 1 ) . ' days' );
+    if ( $today < $start_date || $today > $expiry_date ) {
+        return false;
+    }
+
+    $payload       = $download_id . '|' . $valid_days . '|' . $expires;
+    $expected_code = hash_hmac( 'sha256', $payload, wp_salt( 'auth' ) );
+
+    return hash_equals( $expected_code, $code );
+}
+
 // Replace Wildcards
  function dedo_search_replace_wildcards( $string, $id ) {
 	global $wpdb;
  	//adminedit
  	if ( strpos( $string, '%adminedit%' ) !== false ) {
  		if(current_user_can('administrator')) {
-			$datetime = new DateTime('now');
-			$hashwert = md5( intval($id) + intval($datetime->format('Ymd')) );
-			if (is_singular() && in_the_loop() ) {
-				$oneday = '<input type="text" title="Copy '.$datetime->format('d.m.Y').' Onedaypass für heute&#10;'.$hashwert.'" class="copy-to-clipboard" style="direction:rtl;cursor:pointer;font-size:0.7em;width:80px;height:17px;margin-top:0" value="' . get_site_url() . '?sdownload=' . esc_attr( $id ) .  '&code='. $hashwert . '" readonly> &nbsp;';
-				$oneday .= '<p class="newlabel" style="background-color:#fe8;display:none">' . __( 'One day pass copied to clipboard.', 'delightful-downloads' ) . '</p>';
+			if ( is_singular() && in_the_loop() ) {
+                $ticket_url = dedo_ticket_url( $id, 7 );
+				$oneday = '<input type="text" title="7-Tage-Ticket ab heute" class="copy-to-clipboard" style="direction:rtl;cursor:pointer;font-size:0.7em;width:80px;height:17px;margin-top:0" value="' . esc_url( $ticket_url ) . '" readonly> &nbsp;';
+				$oneday .= '<p class="newlabel" style="background-color:#fe8;display:none">' . __( 'Download ticket copied to clipboard.', 'delightful-downloads' ) . '</p>';
 			} else $oneday='';
 			$string = str_replace( '%adminedit%', ' <a href="'. get_home_url() . '/wp-admin/post.php?post='.$id.'&action=edit"><span title="'. __( 'edit this download', 'delightful-downloads' ) . '">✏️</span></a> &nbsp; '.$oneday, $string );
 		} else {
@@ -1977,7 +2050,7 @@ function dedo_download_column_headings( $columns ) {
 		'file'         => __( 'File', 'delightful-downloads' ),
 		'filesize'     => __( 'File Size', 'delightful-downloads' ),
 		'shortcode'    => __( 'Shortcode', 'delightful-downloads' ),
-		'onedaypass'    => __( 'One day pass:', 'delightful-downloads' ),
+		'onedaypass'    => __( 'Download tickets', 'delightful-downloads' ),
 		'downloads'    => '<span class="dashicons dashicons-download" title="' . __( 'Downloads', 'delightful-downloads' ) . '"></span>',
 		'members_only' => '<span class="dashicons dashicons-businessperson" title="' . __( 'Members Only', 'delightful-downloads' ) . '"></span>',
 		'open_browser' => '<span class="dashicons dashicons-portfolio" title="' . __( 'Open in Browser', 'delightful-downloads' ) . '"></span>',
@@ -2061,15 +2134,17 @@ function dedo_download_column_contents( $column_name, $post_id ) {
 		echo '<p class="newlabel" style="background-color:#fe8;display:none">' . __( 'Quicklink copied to clipboard.', 'delightful-downloads' ) . '</p>';
 	}
 	
-	// One day pass column
+	// Time-limited download ticket column.
 	if ( $column_name == 'onedaypass' ) {
-		$datetime = new DateTime('now');
-		$datetime2 = new DateTime('tomorrow');
-		$hashwert = md5( intval($post_id) + intval($datetime->format('Ymd')) );
-		$hashwertmorgen = md5( intval($post_id) + intval($datetime2->format('Ymd')) );
-		echo '<input type="text" title="für '.$datetime->format('d.m.Y').' heute&#10;'.$hashwert.'" class="copy-to-clipboard" style="direction:rtl;cursor:pointer" value="' . get_site_url() . '?sdownload=' . esc_attr( $post_id ) .  '&code='. $hashwert . '" readonly>';
-		echo '<input type="text" title="für '.$datetime2->format('d.m.Y').' morgen&#10;'.$hashwertmorgen.'" class="copy-to-clipboard" style="direction:rtl;cursor:pointer" value="' . get_site_url() . '?sdownload=' . esc_attr( $post_id ) .  '&code='. $hashwertmorgen . '" readonly>';
-		echo '<p class="newlabel" style="background-color:#fe8;display:none">' . __( 'One day pass copied to clipboard.', 'delightful-downloads' ) . '</p>';
+        $ticket_7   = dedo_ticket_url( $post_id, 7 );
+        $ticket_365 = dedo_ticket_url( $post_id, 365 );
+        $today      = new DateTimeImmutable( 'today', wp_timezone() );
+        $end_7      = $today->modify( '+6 days' );
+        $end_365    = $today->modify( '+364 days' );
+
+        echo '<label style="display:block;margin-bottom:6px"><strong>7 Tage</strong><br><input type="text" title="Gültig vom ' . esc_attr( $today->format( 'd.m.Y' ) ) . ' bis ' . esc_attr( $end_7->format( 'd.m.Y' ) ) . '" class="copy-to-clipboard" style="direction:rtl;cursor:pointer" value="' . esc_url( $ticket_7 ) . '" readonly></label>';
+        echo '<label style="display:block"><strong>365 Tage</strong><br><input type="text" title="Gültig vom ' . esc_attr( $today->format( 'd.m.Y' ) ) . ' bis ' . esc_attr( $end_365->format( 'd.m.Y' ) ) . '" class="copy-to-clipboard" style="direction:rtl;cursor:pointer" value="' . esc_url( $ticket_365 ) . '" readonly></label>';
+		echo '<p class="newlabel" style="background-color:#fe8;display:none">' . __( 'Download ticket copied to clipboard.', 'delightful-downloads' ) . '</p>';
 	}
 	
 	// Count column
@@ -2203,13 +2278,10 @@ function dedo_onedaypass_process( $download_id ) {
 	// Disable max_execution_time
 	set_time_limit( 0 );
 
-	// Hook before download starts
-	do_action( 'ddownload_download_before', $download_id );
-	
-    // Onedaypass prüfen
-	$datetime = new DateTime('now');
-	$hashwert = md5( intval($download_id) + intval($datetime->format('Ymd')) );
-	if ( file_exists(dedo_get_abs_path( $download_url ) ) && $_GET['code'] == $hashwert ) { // if it match it is legit
+    // Signed ticket prüfen (7 oder 365 Tage; alte heutige One-Day-Links bleiben kompatibel).
+	if ( file_exists( dedo_get_abs_path( $download_url ) ) && dedo_ticket_is_valid( $download_id ) ) {
+        // Only valid ticket downloads are logged and counted.
+        do_action( 'ddownload_download_before', $download_id );
 		// $path = ABSPATH.'wp-content/uploads/delightful-downloads/2019/software.zip'; // the file made available for download via this PHP file
 		$path = dedo_get_abs_path( $download_url );
 		$mm_type="application/octet-stream"; // modify accordingly to the file type of $path, but in most cases no need to do so
@@ -2227,7 +2299,7 @@ function dedo_onedaypass_process( $download_id ) {
 		do_action( 'ddownload_download_complete', $download_id );
 		exit();		  
 	} else {
-		dedo_download_abort( __( 'download not found or onedaypass invalid or expired.', 'delightful-downloads' ) ); // not legit
+		dedo_download_abort( __( 'Download not found or ticket invalid or expired.', 'delightful-downloads' ) ); // not legit
 	}  
 
 }

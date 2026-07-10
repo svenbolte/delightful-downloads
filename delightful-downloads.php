@@ -4,14 +4,14 @@ Plugin Name: Delightful Downloads
 Plugin URI: https://github.com/svenbolte/delightful-downloads/
 Author URI: https://github.com/svenbolte/
 Author: Ashley Rich und PBMod
-Description: A super-awesome downloads manager for WordPress with htacces file limits and file icons and one day passes.
+Description: A downloads manager for WordPress with protected files, download statistics and signed 7-day and 365-day download tickets.
 Text Domain: delightful-downloads
 Domain Path: /languages
 License: GPL2
-Version: 9.11.300
-Stable tag: 9.11.300
+Version: 9.12.000
+Stable tag: 9.12.000
 Requires at least: 6.0
-Tested up to: 6.9.4
+Tested up to: 7.0.1
 Requires PHP: 8.4
 */
 

@@ -2,9 +2,9 @@
 Contributors: A5hleyRich, Sven Bolte, PBMod
 Tags: download, manager, downloads, shortcode, secure downloads, statistics, file manager
 Requires at least: 6.0
-Tested up to: 6.9.4
+Tested up to: 7.0.1
 Requires PHP: 8.4
-Stable tag: 9.10.300
+Stable tag: 9.12.000
 License: GPLv2 or later
 
 A professional WordPress download manager with secure downloads, one-day-pass links, statistics, categories, tags, infoboxes and extensive shortcode customization.
@@ -40,8 +40,8 @@ Contributors: A5hleyRich, Sven Bolte, others (best of forks)
 Tags: download, manager, downloads, monitor, shortcode, delightful downloads, file, counter, tracking, infobox, fixed filetree,ipflag, chartscodes
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 9.10.300
-Stable tag: 9.10.300
+Version: 9.12.000
+Stable tag: 9.12.000
 Requires at least: 6.0
 Tested up to: 6.9.4
 Requires PHP: 8.4
@@ -509,6 +509,12 @@ Please refer to the [documentation] in this readme.txt.
 
 
 ==================== Changelog ==========================================================================
+
+= 9.12.000 =
+* Replaced the separate today/tomorrow one-day links with a signed 7-day ticket starting today.
+* Added a signed 365-day ticket starting today.
+* Kept legacy one-day tickets for the current day compatible.
+* Invalid or expired ticket requests are no longer counted as successful downloads.
 
 = 9.11.300 =
 updated and bugfixed, second run nocw working.
