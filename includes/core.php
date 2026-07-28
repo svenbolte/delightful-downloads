@@ -907,7 +907,7 @@ function dedo_get_shortcode_styles() {
 							<div class="greybox">%category% %tags%</div>
 						</div>
 						<h6 class="dedo-download-title"><a href="%permalink%" title="' . __( 'download details', 'delightful-downloads' ) . '" rel="nofollow">%title%</a></h6>
-						<a class="ddownload-button page-numbers" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a>
+						<a class="button page-numbers" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a>
 						%filedate%
 						<div>%description%</div>
 					</div>
@@ -921,7 +921,7 @@ function dedo_get_shortcode_styles() {
 			'format' => '<article class="%class% dedo-download-article">
 				<div class="dedo-download-icon">%icon%</div>
 				<div class="dedo-download-content">
-					<a class="ddownload-button page-numbers" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a>
+					<a class="button page-numbers" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a>
 					<table class="dedo-download-meta-table">
 						<tr><td class="dedo-download-meta-label">' . __( 'Locked admin Onedaypass', 'delightful-downloads' ) . '</td><td>%locked% &nbsp; %adminedit%</td></tr>
 						<tr><td>' . __( 'filename', 'delightful-downloads' ) . '</td><td>%filename%</td></tr>
