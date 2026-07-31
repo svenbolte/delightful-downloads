@@ -8,10 +8,10 @@ Description: A downloads manager for WordPress with protected files, download st
 Text Domain: delightful-downloads
 Domain Path: /languages
 License: GPL2
-Version: 9.12.000
-Stable tag: 9.12.000
+Version: 9.12.2001
+Stable tag: 9.12.2001
 Requires at least: 6.0
-Tested up to: 7.0.1
+Tested up to: 7.0.2
 Requires PHP: 8.4
 */
 

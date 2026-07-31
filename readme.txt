@@ -1,11 +1,12 @@
 === Delightful Downloads ===
 Contributors: A5hleyRich, Sven Bolte, PBMod
 Tags: download, manager, downloads, shortcode, secure downloads, statistics, file manager
-Requires at least: 6.0
-Tested up to: 7.0.1
-Requires PHP: 8.4
-Stable tag: 9.12.000
 License: GPLv2 or later
+Version: 9.12.2001
+Stable tag: 9.12.2001
+Requires at least: 6.0
+Tested up to: 7.0.2
+Requires PHP: 8.4
 
 A professional WordPress download manager with secure downloads, one-day-pass links, statistics, categories, tags, infoboxes and extensive shortcode customization.
 
