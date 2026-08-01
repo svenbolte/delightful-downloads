@@ -41,7 +41,7 @@
 #ddownload-count ul li:nth-of-type(odd){border-right:1px dotted #eee}
 #ddownload-count ul li:nth-of-type(-n+2){padding-top:10px}
 #ddownload-count ul li:nth-of-type(n+3){padding-bottom:10px}
-#ddownload-popular h4{border:1px solid #eee;border-left:0;border-right:0;margin:0 -12px!important;padding:8px 12px;position:relative}
+#ddownload-popular h4{border:1px solid #eee;border-left:none;border-right:0;margin:0 -12px!important;padding:8px 12px;position:relative}
 #ddownload-popular ol{list-style:none;margin:0 -12px}
 #ddownload-popular ol li a{display:block;padding:8px 12px}
 #ddownload-popular ol li .position{display:inline-block;margin-right:1em}
@@ -61,7 +61,7 @@
 .dedo_download_page_dedo_settings #dedo-settings-main,.dedo_download_page_dedo_settings #dedo-settings-sidebar,#dedo-existing-download .left-panel,#dedo-existing-download .right-panel,#dedo-select-modal #dedo-file-browser{box-sizing:border-box}
 .dedo_download_page_dedo_settings #dedo-settings-main,.dedo_download_page_dedo_settings #dedo-settings-sidebar{float:left}
 .dedo_download_page_dedo_settings #dedo-settings-main{background-color:#fff;border:1px solid #e1e1e1;padding:.2em 20px 0 10px;width:75%}
-.dedo_download_page_dedo_settings #dedo-settings-sidebar{border-left:1px solid #ccc;padding:1em 0 0 20px;width:25%}
+.dedo_download_page_dedo_settings #dedo-settings-sidebar{border-left:none;padding:1em 0 0 20px;width:25%}
 .dedo_download_page_dedo_settings .dedo-sub-option,#dedo-existing-download .dedo-sub-option{margin-top:30px}
 .dedo_download_page_dedo_settings label,#dedo-existing-download .form-table label{margin-right:12px}
 .dedo-settings-textarea{height:200px;width:50%}
@@ -84,7 +84,7 @@ input.copy-to-clipboard + .description{margin-top:5px}
 #dedo-new-download{padding:60px 0;text-align:center}
 #dedo-new-download .button{display:inline-block;font-size:16px;height:auto;margin:10px 5px;padding:16px 0;width:180px}
 #dedo-existing-download .left-panel{border-right:1px solid #ddd;margin-right:-1px;padding:30px 20px;text-align:center;width:33%}
-#dedo-existing-download .right-panel{border-left:1px solid #ddd;padding:30px 20px;width:67%}
+#dedo-existing-download .right-panel{border-left:none;padding:30px 20px;width:67%}
 #dedo-existing-download .footer{background:#f5f5f5;border-top:1px solid #ddd;clear:both;line-height:28px;padding:10px 12px}
 #dedo-existing-download .footer .button{margin-left:5px}
 #dedo-existing-download .footer .delete{float:right;text-decoration:none}
