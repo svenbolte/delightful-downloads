@@ -1,18 +1,93 @@
-.button-grey{background:#888}
-.button-red{background:#f6677b}
-.button-green{background:#7ba52d}
-.button-black{background:#222}
-.dedo-form-error-message{color:#a00}
-.dedo-download-article{margin:.8rem;display:flex}
-.dedo-download-row,.dedo-list-row{display:flex;width:100%}
-.dedo-download-content,.dedo-list-content,.dedo-list-content-compact{flex:1 1 auto;width:100%;min-width:70%}
-.dedo-list-content-compact{line-height:1.35em}
-.dedo-download-icon,.dedo-list-icon{flex:0 0 60px;width:60px;min-width:60px}
-.dedo-download-icon-small{flex:0 0 58px;width:58px;min-width:60px}
-.dedo-list-icon-small{flex:0 0 55px;width:55px;min-width:55px;padding:5px 0 0 5px}
-.dedo-download-title{margin-top:6px}
-.dedo-list-title{margin-top:4px}
-.dedo-list-indent{margin-left:30px}
-.dedo-download-meta-table{width:100%}
-.dedo-download-meta-label{width:25%}
-.dedo-list-headline{font-weight:600}
+.button-grey{background:#888}.button-red{background:#f6677b}.button-green{background:#7ba52d}.button-black{background:#222}.dedo-form-error-message{color:#a00}
+
+/* Modern cards: uses Penguin theme tokens with standalone fallbacks. */
+.dedo-download-article,.dedo-list-row{
+ --dedo-accent:var(--pengcolor,#006060);
+ --dedo-bg:var(--pb-panel-bg,#fff);
+ --dedo-text:var(--pb-text,#1f2b2d);
+ --dedo-muted:var(--pb-muted,#5f6d70);
+ --dedo-border:var(--pb-soft-border,#dfe7e7);
+ --dedo-border-strong:var(--pb-soft-border-strong,#cbd7d7);
+ --dedo-radius:var(--pb-radius,12px);
+ color:var(--dedo-text)
+}
+.dedo-download-article{
+ margin:.75rem 0;
+ padding:0;
+ overflow:hidden;
+ background:var(--dedo-bg);
+ border:1px solid var(--dedo-border);
+ border-left:4px solid var(--dedo-accent);
+ border-radius:var(--dedo-radius);
+ box-shadow:var(--pb-soft-shadow,0 3px 14px #0000000d);
+ transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease
+}
+.dedo-download-article:hover,.dedo-list-row:hover{
+ border-color:var(--dedo-border-strong);
+ box-shadow:var(--pb-panel-shadow,0 6px 20px #00000012);
+ transform:translateY(-1px)
+}
+.dedo-download-row,.dedo-list-row{display:flex;width:100%;min-width:0}
+.dedo-list-row{
+ margin:.55rem 0;
+ padding:.7rem;
+ gap:.65rem;
+ background:var(--dedo-bg);
+ border:1px solid var(--dedo-border);
+ border-left:3px solid var(--dedo-accent);
+ border-radius:var(--dedo-radius);
+ box-shadow:var(--pb-soft-shadow,0 3px 14px #0000000d);
+ transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease
+}
+.dedo-download-content,.dedo-list-content,.dedo-list-content-compact{flex:1 1 auto;width:auto;min-width:0;padding:.8rem}
+.dedo-list-content,.dedo-list-content-compact{padding:0}.dedo-list-content-compact{line-height:1.35}
+.dedo-download-icon,.dedo-list-icon,.dedo-download-icon-small,.dedo-list-icon-small{
+ display:flex;align-items:flex-start;justify-content:center;flex:0 0 64px;width:64px;min-width:64px;padding:.85rem .35rem;
+ background:color-mix(in srgb,var(--dedo-bg) 94%,var(--dedo-accent));border-radius:0
+}
+.dedo-list-icon,.dedo-list-icon-small{margin:-.7rem 0 -.7rem -.7rem;border-right:1px solid var(--dedo-border)}
+.dedo-download-icon img,.dedo-download-icon-small img,.dedo-list-icon img,.dedo-list-icon-small img{max-width:48px;height:auto}
+.dedo-download-title,.dedo-list-title{margin:.5rem 0 .35rem;font-size:clamp(1rem,.95rem + .2vw,1.18rem);line-height:1.25}
+.dedo-download-title a,.dedo-list-title a,.dedo-list-headline{font-weight:700;letter-spacing:0;color:var(--dedo-text)}
+.dedo-download-title a:hover,.dedo-list-title a:hover,.dedo-list-headline:hover{background:transparent;color:var(--dedo-accent)}
+.dedo-list-indent{margin-left:0}.dedo-list-headline{font-size:1.05rem}
+.dedo-card-body{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}.dedo-card-main{flex:1;min-width:0}
+.dedo-thumb-inline{flex:0 0 160px!important;max-width:160px!important;text-align:right;overflow:hidden;border-radius:var(--pb-radius-small,7px)}
+.dedo-thumb-inline img{width:100%;max-width:160px!important;height:105px!important;display:block;object-fit:cover}
+.dedo-download-meta-table{width:100%;margin:.65rem 0}.dedo-download-meta-label{width:25%}
+
+/* Same metadata/chip language as Penguin .meta-icons. */
+.dedo-meta-icons{margin:0 0 .45rem;border-left:3px solid var(--dedo-accent);background:color-mix(in srgb,var(--dedo-bg) 96%,var(--dedo-accent));box-shadow:inset 0 0 0 1px var(--dedo-border);overflow:hidden}
+.dedo-meta-icons .meta-icons__bar,.dedo-meta-icons .meta-icons__terms{display:flex;align-items:center;flex-wrap:wrap;gap:3px 5px;min-width:0}
+.dedo-meta-icons .meta-icons__bar{padding:5px 7px;color:var(--dedo-muted)}
+.dedo-meta-icons .meta-icons__terms{width:100%;padding:4px 7px;border-top:1px solid var(--dedo-border)}
+.dedo-meta-icons .meta-icons__terms:empty{display:none}
+.dedo-meta-icons a{color:inherit;letter-spacing:0}.dedo-meta-icons a:hover{background:transparent;color:var(--dedo-accent)}
+.dedo-meta-icons .meta-chip,.dedo-meta-icons .newlabel,.dedo-meta-icons .colordatebox{
+ display:inline-flex;align-items:center;gap:2px;min-height:1.45rem;max-width:100%;margin:0!important;padding:1px 5px!important;
+ border:1px solid var(--dedo-border)!important;border-left:2px solid color-mix(in srgb,var(--dedo-accent) 55%,var(--dedo-border))!important;
+ border-radius:var(--pb-radius-small,7px)!important;background:color-mix(in srgb,var(--dedo-bg) 97%,var(--dedo-accent))!important;
+ color:var(--dedo-muted)!important;font-size:.78rem!important;font-weight:500;line-height:1.25;white-space:nowrap;box-shadow:none!important
+}
+.dedo-meta-icons .meta-chip:hover{border-color:var(--dedo-border-strong)!important;color:var(--dedo-text)!important}
+.dedo-meta-icons .meta-icon{font-size:1em;opacity:.82}.dedo-meta-icons input.copy-to-clipboard{height:1.45rem!important;margin:0!important;padding:1px 5px!important;border-color:var(--dedo-border-strong);font-size:.72rem!important}
+.dedo-download-article .button{margin-top:.2rem}
+
+@media screen and (max-width:600px){
+ .dedo-download-article{margin:.55rem 0}.dedo-download-row,.dedo-card-body{align-items:stretch;flex-wrap:wrap}
+ .dedo-download-icon,.dedo-download-icon-small{flex-basis:52px;width:52px;min-width:52px;padding:.7rem .25rem}
+ .dedo-list-icon,.dedo-list-icon-small{flex-basis:48px;width:48px;min-width:48px}
+ .dedo-download-content{padding:.65rem}.dedo-thumb-inline{flex:1 1 100%!important;max-width:none!important}
+ .dedo-thumb-inline img{max-width:none!important;height:150px!important}.dedo-meta-icons .meta-chip{font-size:.75rem!important}
+}
+.dedo-list-simple{
+ --dedo-accent:var(--pengcolor,#006060);--dedo-bg:var(--pb-panel-bg,#fff);--dedo-text:var(--pb-text,#1f2b2d);--dedo-muted:var(--pb-muted,#5f6d70);--dedo-border:var(--pb-soft-border,#dfe7e7);
+ display:flex;align-items:center;justify-content:space-between;gap:.7rem;width:100%;margin:.4rem 0;padding:.55rem .7rem;
+ background:var(--dedo-bg);border:1px solid var(--dedo-border);border-left:3px solid var(--dedo-accent);border-radius:var(--pb-radius-small,7px);
+ box-shadow:var(--pb-soft-shadow,0 3px 14px #0000000d);color:var(--dedo-text);letter-spacing:0;transition:transform .16s ease,box-shadow .16s ease
+}
+a.dedo-list-simple:hover,.dedo-list-simple:hover{background:var(--dedo-bg);box-shadow:var(--pb-panel-shadow,0 6px 20px #00000012);transform:translateY(-1px)}
+.dedo-list-simple-title{min-width:0;overflow-wrap:anywhere;color:var(--dedo-text);font-weight:700;letter-spacing:0}
+.dedo-list-simple-title:hover{background:transparent;color:var(--dedo-accent)}
+.dedo-list-simple-meta{display:flex;align-items:center;justify-content:flex-end;gap:4px;flex-wrap:wrap;color:var(--dedo-muted);font-size:.82rem}
+@media screen and (max-width:600px){.dedo-list-simple{align-items:flex-start;flex-direction:column}.dedo-list-simple-meta{justify-content:flex-start}}

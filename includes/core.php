@@ -902,9 +902,9 @@ function dedo_get_shortcode_styles() {
 				<div class="dedo-download-row">
 					<div class="dedo-download-icon-small">%icon%</div>
 					<div class="dedo-download-content">
-						<div class="entry-meta-top">
-							<div class="iconleiste noprint">%locked% &nbsp; %adminedit%%datesymbol%%filesize%%downloadtime%%count%</div>
-							<div class="greybox">%category% %tags%</div>
+						<div class="meta-icons dedo-meta-icons">
+							<div class="meta-icons__bar noprint">%locked% %adminedit%%datesymbol%%filesize%%downloadtime%%count%</div>
+							<div class="meta-icons__terms">%category% %tags%</div>
 						</div>
 						<h6 class="dedo-download-title"><a href="%permalink%" title="' . __( 'download details', 'delightful-downloads' ) . '" rel="nofollow">%title%</a></h6>
 						<a class="button page-numbers" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a>
@@ -967,37 +967,37 @@ function dedo_get_shortcode_lists() {
 	$lists = array(
 		'title' => array(
 			'name' => __( 'Title', 'delightful-downloads' ),
-			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class%">%title%</a>'
+			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-simple"><span class="dedo-list-simple-title">%title%</span></a>'
 		),
 
 		'title_date' => array(
 			'name' => __( 'Title/Date', 'delightful-downloads' ),
-			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class%">%title% (%datesymbol%)</a>'
+			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-simple"><span class="dedo-list-simple-title">%title%</span><span class="dedo-list-simple-meta">%datesymbol%</span></a>'
 		),
 
 		'title_count' => array(
 			'name' => __( 'Title/Count', 'delightful-downloads' ),
-			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-indent">%title%</a> &nbsp; %count%'
+			'format' => '<div class="dedo-list-simple"><a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-simple-title">%title%</a><span class="dedo-list-simple-meta">%count%</span></div>'
 		),
 
 		'title_filesize' => array(
 			'name' => __( 'Title/Filesize', 'delightful-downloads' ),
-			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-indent">%title%</a> &nbsp; %filesize%'
+			'format' => '<div class="dedo-list-simple"><a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-simple-title">%title%</a><span class="dedo-list-simple-meta">%filesize%</span></div>'
 		),
 
 		'title_ext_filesize' => array(
 			'name' => __( 'Title/Extension/Filesize', 'delightful-downloads' ),
-			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-indent">%title%</a> &nbsp; %ext% &nbsp; %filesize%'
+			'format' => '<div class="dedo-list-simple"><a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-simple-title">%title%</a><span class="dedo-list-simple-meta">%ext% %filesize%</span></div>'
 		),
 
 		'title_date_ext_filesize' => array(
 			'name' => __( 'Title/Date/Extension/Filesize', 'delightful-downloads' ),
-			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-indent">%title%</a> &nbsp; %datesymbol% &nbsp; %ext% &nbsp; %filesize%'
+			'format' => '<div class="dedo-list-simple"><a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-simple-title">%title%</a><span class="dedo-list-simple-meta">%datesymbol% %ext% %filesize%</span></div>'
 		),
 
 		'title_ext_filesize_count' => array(
 			'name' => __( 'Title/Date/Extension/Filesize/Count', 'delightful-downloads' ),
-			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-indent">%title%</a> &nbsp; %datesymbol% &nbsp; %ext% &nbsp; %filesize% &nbsp; %count%'
+			'format' => '<div class="dedo-list-simple"><a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-simple-title">%title%</a><span class="dedo-list-simple-meta">%datesymbol% %ext% %filesize%</span></div> &nbsp; %count%'
 		),
 
 		'icon_title_ext_filesize' => array(
@@ -1006,7 +1006,7 @@ function dedo_get_shortcode_lists() {
 				<div class="dedo-list-icon">%icon%</div>
 				<div class="dedo-list-content">
 					<a class="headline dedo-list-headline" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">%title%</a><br>
-					%adminedit% &nbsp;%locked% &nbsp;%category% %tags% &nbsp;%filesize%
+					<div class="meta-icons dedo-meta-icons"><div class="meta-icons__bar noprint">%adminedit% %locked% %filesize%</div><div class="meta-icons__terms">%category% %tags%</div></div>
 				</div>
 			</div>'
 		),
@@ -1016,9 +1016,9 @@ function dedo_get_shortcode_lists() {
 			'format' => '<div class="dedo-list-row">
 				<div class="dedo-list-icon-small">%icon%</div>
 				<div class="dedo-list-content-compact">
-					<div class="entry-meta-top">
-						<div class="iconleiste noprint">%locked% &nbsp; %adminedit% %dateago%%filesize%%count%</div>
-						<div class="greybox">%category% %tags%</div>
+					<div class="meta-icons dedo-meta-icons">
+						<div class="meta-icons__bar noprint">%locked% %adminedit% %dateago%%filesize%%count%</div>
+						<div class="meta-icons__terms">%category% %tags%</div>
 					</div>
 					<h6 class="dedo-list-title">
 						<a href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">📥 %title%</a>
@@ -1032,12 +1032,12 @@ function dedo_get_shortcode_lists() {
 			'format' => '<div class="dedo-list-row">
 				<div class="dedo-list-icon-small">%icon%</div>
 				<div class="dedo-list-content">
-					<div class="entry-meta-top">
-						<div class="iconleiste noprint">%locked% &nbsp; %adminedit% %datesymbol%</div>
-						<div class="greybox">%category% %tags%</div>
+					<div class="meta-icons dedo-meta-icons">
+						<div class="meta-icons__bar noprint">%locked% %adminedit% %datesymbol%</div>
+						<div class="meta-icons__terms">%category% %tags%</div>
 					</div>
-					<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:15px;">
-						<div style="flex:1;min-width:0;">
+					<div class="dedo-card-body">
+						<div class="dedo-card-main">
 							<h6 class="dedo-list-title">
 								<a href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">📥 %title%</a>
 							</h6>
@@ -1207,17 +1207,24 @@ function dedo_ticket_is_valid( $download_id ) {
  	// Kategorie (erste)
  	if ( strpos( $string, '%category%' ) !== false ) {
 		$post_terms = get_the_terms( $id, 'ddownload_category' );
-		if (!empty($post_terms)) $value = '<span title="category">📂</span> <a href="'.get_term_link($post_terms[0]->slug,'ddownload_category').'">' . $post_terms[0]->name .'</a> &nbsp; '; else $value='';
+		if ( ! empty( $post_terms ) && ! is_wp_error( $post_terms ) ) {
+			$term_link = get_term_link( $post_terms[0], 'ddownload_category' );
+			$value = is_wp_error( $term_link ) ? '' : '<a class="meta-chip meta-chip--category" href="' . esc_url( $term_link ) . '"><span class="meta-icon" aria-hidden="true">📂</span>' . esc_html( $post_terms[0]->name ) . '</a>';
+		} else {
+			$value = '';
+		}
 		$string = str_replace( '%category%', $value, $string );
  	}
  	// Tags
  	if ( strpos( $string, '%tags%' ) !== false ) {
 		$value = '';
 		$post_terms = get_the_terms( $id, 'ddownload_tag' );
-		if ($post_terms && !is_wp_error($post_terms)) {
-			$value .='<span title="Themen">🏷️</span> ';
-			foreach ($post_terms as $term) {
-				$value .= '<a href="'.esc_attr( get_tag_link( $term->term_id ) ).'">'.$term->name . '</a> ';
+		if ( $post_terms && ! is_wp_error( $post_terms ) ) {
+			foreach ( $post_terms as $term ) {
+				$term_link = get_term_link( $term, 'ddownload_tag' );
+				if ( ! is_wp_error( $term_link ) ) {
+					$value .= '<a class="meta-chip meta-chip--tag" href="' . esc_url( $term_link ) . '"><span class="meta-icon" aria-hidden="true">🏷️</span>' . esc_html( $term->name ) . '</a>';
+				}
 			}
 		}
 		$string = str_replace( '%tags%', $value, $string );
@@ -2884,7 +2891,7 @@ function dedo_shortcode_ddownload_list( $atts ) {
 			$filecount++;
 			$dlcount += get_post_meta( get_the_ID(), '_dedo_file_count', true );
 			$tfilesize += (int) get_post_meta( get_the_ID(), '_dedo_file_size', true );
-			echo '<article style="margin: .3em"><div style="position:relative"><div style="background-color:#fffb;color:#000;font-size:1.3rem;font-weight:700;position:absolute;left:8px;top:8px;z-index:99999;line-height:1em">'. $filecount.'</div></div>' . dedo_search_replace_wildcards( $new_style_format, get_the_ID() ) . '</article>';
+			echo '<article style="margin: .3em"><div style="position:relative"><div style="background-color:#fffb;color:#000;font-size:1.3rem;font-weight:700;position:absolute;left:1rem;top:2rem;z-index:99999;line-height:1em">'. $filecount.'</div></div>' . dedo_search_replace_wildcards( $new_style_format, get_the_ID() ) . '</article>';
 			// Reset classes for next iteration
 			unset( $classes );
 			unset( $new_style_format );
