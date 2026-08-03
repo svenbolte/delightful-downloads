@@ -1023,7 +1023,7 @@ function dedo_get_shortcode_lists() {
 						<div class="meta-icons__terms">%category% %tags%</div>
 					</div>
 					<h6 class="dedo-list-title">
-						<a href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">📥 %title%</a>
+						<a href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> %title%</a>
 					</h6>
 				</div>
 			</div>'
@@ -1041,7 +1041,7 @@ function dedo_get_shortcode_lists() {
 					<div class="dedo-card-body">
 						<div class="dedo-card-main">
 							<h6 class="dedo-list-title">
-								<a href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">📥 %title%</a>
+								<a href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> %title%</a>
 							</h6>
 							<div>%filename%%filedate%%filesize%%count%%downloadtime%<br>%description%</div>
 						</div>
@@ -1098,7 +1098,7 @@ function download_times($filesize) {
 		$outp[] = ($h>0 ? $h.'h ' :'').($m>0 ? $m.'m ' :'').$s.'s@'.$value.'MBit';
 	}	
 	if ($s > 0) $s=1;
-	$dtime = '<a class="dedo-meta-chip dedo-meta-chip--neutral" title="'.implode("\n", $outp).'">🕐 '.$outp[4].'</a>';
+	$dtime = '<a class="dedo-meta-chip dedo-meta-chip--neutral" title="'.implode("\n", $outp).'"><span class="dedo-icon dedo-icon--clock" aria-hidden="true"></span> '.$outp[4].'</a>';
 	return $dtime;
 }
 
@@ -1187,7 +1187,7 @@ function dedo_ticket_is_valid( $download_id ) {
 				$oneday = '<input type="text" title="7-Tage-Ticket ab heute" class="copy-to-clipboard dedo-copy-field" value="' . esc_url( $ticket_url ) . '" readonly> &nbsp;';
 				$oneday .= '<p class="dedo-copy-feedback">' . __( 'Download ticket copied to clipboard.', 'delightful-downloads' ) . '</p>';
 			} else $oneday='';
-			$string = str_replace( '%adminedit%', ' <a href="'. get_home_url() . '/wp-admin/post.php?post='.$id.'&action=edit"><span title="'. __( 'edit this download', 'delightful-downloads' ) . '">✏️</span></a> &nbsp; '.$oneday, $string );
+			$string = str_replace( '%adminedit%', ' <a href="'. get_home_url() . '/wp-admin/post.php?post='.$id.'&action=edit"><span class="dedo-icon dedo-icon--edit" title="'. __( 'edit this download', 'delightful-downloads' ) . '" aria-hidden="true"></span></a> &nbsp; '.$oneday, $string );
 		} else {
 			$string = str_replace( '%adminedit%', '', $string );
 		}
@@ -1266,23 +1266,22 @@ function dedo_ticket_is_valid( $download_id ) {
 				if ( !post_password_required( $id) ) $phtml .= '<audio class="noprint" controlsList="nodownload" style="width:100%" controls src="'.$musiurl.'" preload="metadata"></audio>';
 				$phtml .='<span style="font-size:.9em;font-style:italic">';
 				// Metadata Ausgabe auch für penguin podcasts template und für audio template --------------
-				if (isset($meta['title'])) $phtml .= '🎫 <b>'.$meta['title'].'</b>'; // fa-ticket -> 🎫 (Eintrittskarte)
-				if (isset($meta['artist'])) $phtml .= ' <span style="margin-left:1em">👤</span> '.$meta['artist']; // fa-user -> 👤 (Silhouette/Person)
-				if (isset($meta['album'])) $phtml .= ' <span style="margin-left:1em">💿</span> ' . $meta['album']; // fa-book -> 💿 (CD/Album)
-				if (isset($meta['track_number'])) $phtml .= ' <span style="margin-left:1em">#️⃣</span> ' . $meta['track_number']; // fa-hashtag -> #️⃣ (Hashtag/Nummer)
-				if (isset($meta['year'])) $phtml .= ' <span style="margin-left:1em">🗓️</span> '.$meta['year']; // fa-calendar-check-o -> 🗓️ (Kalender)
-				if (isset($meta['genre'])) $phtml .= ' <span style="margin-left:1em">🎼</span> ' . $meta['genre']; // fa-cubes -> 🎼 (Musikalische Noten)
-				if (isset($meta['length_formatted'])) $phtml .= ' <span style="margin-left:1em">⏱️</span> ' . $meta['length_formatted']; // fa-clock-o -> ⏱️ (Stoppuhr)
-				if (isset($meta['composer'])) $phtml .= ' <span style="margin-left:1em">🎶</span> ' . $meta['composer']; // fa-music -> 🎶 (Musikanimation)
-				if (isset($meta['band'])) $phtml .= ' <span style="margin-left:1em">👥</span> ' . $meta['band']; // fa-users -> 👥 (Silhouetten/Gruppe)
-				if (isset($meta['filesize'])) $phtml .= ' <span style="margin-left:1em">🗜️</span> ' . number_format_short($meta['filesize']); // fa-expand -> 🗜️ (Klammer/Größe/Dateigröße)
-				if (isset($meta['part_of_a_set'])) $phtml .= ' <span style="margin-left:1em">⏺️</span> ' . $meta['part_of_a_set']; // fa-circle-thin -> ⏺️ (Aufnahme-Taste/Disc)
-				if (isset($meta['encoder_options'])) $phtml .= ' <span style="margin-left:1em">⚙️</span> ' . $meta['encoder_options']; // fa-compress -> ⚙️ (Zahnrad/Einstellungen/Encoding)
-				if (isset($meta['channelmode'])) $phtml .= ' <span style="margin-left:1em">🎙️</span> ' . $meta['channelmode']; // fa-microphone -> 🎙️ (Mikrofon/Audio)
-				if (isset($meta['publisher'])) $phtml .= ' <span style="margin-left:1em">📰</span> ' . $meta['publisher']; // fa-newspaper-o -> 📰 (Zeitung/Herausgeber)
-				if (isset($meta['comment'])) $phtml .= ' <span style="margin-left:1em">💬</span> ' . $meta['comment']; // fa-comments -> 💬 (Sprechblase/Kommentar)
-				// $phtml .= ' <span style="margin-left:1em">🔉</span> '.basename($filename); // Alternativ für fa-file-audio-o
-				if ( !post_password_required( $id) && !empty(@$meta['unsynchronised_lyric'])) $phtml .= ' <span style="margin-left:1em">📜</span> ' . $meta['unsynchronised_lyric']; // fa-text-width -> 📜 (Schriftrolle/Text)
+				if (isset($meta['title'])) $phtml .= '<span class="dedo-icon dedo-icon--ticket" aria-hidden="true"></span> <b>'.$meta['title'].'</b>';
+				if (isset($meta['artist'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--user" aria-hidden="true"></span> '.$meta['artist'];
+				if (isset($meta['album'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--disc" aria-hidden="true"></span> ' . $meta['album'];
+				if (isset($meta['track_number'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--hashtag" aria-hidden="true"></span> ' . $meta['track_number'];
+				if (isset($meta['year'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--calendar" aria-hidden="true"></span> '.$meta['year'];
+				if (isset($meta['genre'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--music" aria-hidden="true"></span> ' . $meta['genre'];
+				if (isset($meta['length_formatted'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--clock" aria-hidden="true"></span> ' . $meta['length_formatted'];
+				if (isset($meta['composer'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--music" aria-hidden="true"></span> ' . $meta['composer'];
+				if (isset($meta['band'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--users" aria-hidden="true"></span> ' . $meta['band'];
+				if (isset($meta['filesize'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--file-size" aria-hidden="true"></span> ' . number_format_short($meta['filesize']);
+				if (isset($meta['part_of_a_set'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--set" aria-hidden="true"></span> ' . $meta['part_of_a_set'];
+				if (isset($meta['encoder_options'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--settings" aria-hidden="true"></span> ' . $meta['encoder_options'];
+				if (isset($meta['channelmode'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--microphone" aria-hidden="true"></span> ' . $meta['channelmode'];
+				if (isset($meta['publisher'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--newspaper" aria-hidden="true"></span> ' . $meta['publisher'];
+				if (isset($meta['comment'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--comment" aria-hidden="true"></span> ' . $meta['comment'];
+				if ( !post_password_required( $id) && !empty(@$meta['unsynchronised_lyric'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--text" aria-hidden="true"></span> ' . $meta['unsynchronised_lyric'];
 				$phtml .= '</span></div><div>';
 				if (!empty($meta['image']['data'])) $phtml .= '<img style="width:96px" src="data:'.$meta['image']['mime'].';charset=utf-8;base64,'.base64_encode($meta['image']['data']).'">';				$phtml .= '</div></div>';
 			} else $phtml = '';		
@@ -1344,7 +1343,7 @@ function dedo_ticket_is_valid( $download_id ) {
 		$fsfrommeta = size_format( get_post_meta( $id, '_dedo_file_size', true ), 0 );
 		$fsfromfile = size_format( filesize( $fpath ) );
 		if (!empty( get_post_meta( $id, '_dedo_file_size', true ) )) {
-			$value = '<span class="dedo-meta-chip dedo-meta-chip--neutral"><span title="filesize: '.$fsfrommeta.'">💾</span>'.$fsfromfile.'</span>';
+			$value = '<span class="dedo-meta-chip dedo-meta-chip--neutral"><span class="dedo-icon dedo-icon--save" title="filesize: '.$fsfrommeta.'" aria-hidden="true"></span>'.$fsfromfile.'</span>';
 		} else { $value='';  }	
 		$string = str_replace( '%filesize%', $value, $string );
  	}
@@ -1364,26 +1363,26 @@ function dedo_ticket_is_valid( $download_id ) {
 		} else { $perctotal = 0; $hotcolor = '#fff'; }
 		$fullcounter = number_format_i18n( $filedlc );
 		$shortcounter = dedo_number_format_short($filedlc);
- 		$value = '<span title="DLCounter: '.$fullcounter.' Ranking: '.$perctotal.'%" class="dedo-meta-chip" style="--dedo-chip-bg:'.$hotcolor.'" >📥 ' . $shortcounter .'</span>';
+ 		$value = '<span title="DLCounter: '.$fullcounter.' Ranking: '.$perctotal.'%" class="dedo-meta-chip" style="--dedo-chip-bg:'.$hotcolor.'" ><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> ' . $shortcounter .'</span>';
  		$string = str_replace( '%count%', $value, $string );
  	}
  	// file name
  	if ( strpos( $string, '%filename%' ) !== false ) {
- 		$value = '<span title="Dateiname" class="dedo-meta-chip dedo-meta-chip--neutral">📃 ' . dedo_get_file_name( get_post_meta( $id, '_dedo_file_url', true ) ).'</span>';
+ 		$value = '<span title="Dateiname" class="dedo-meta-chip dedo-meta-chip--neutral"><span class="dedo-icon dedo-icon--file" aria-hidden="true"></span> ' . dedo_get_file_name( get_post_meta( $id, '_dedo_file_url', true ) ).'</span>';
  		$string = str_replace( '%filename%', $value, $string );
  	}
  	// protected file
  	if ( strpos( $string, '%locked%' ) !== false ) {
  		if (post_password_required($id)) {
-			$value='<span style="font-size:1.1em;color:tomato" title="Kennwortgeschützt">🔐︎</span>';
+			$value='<span class="dedo-icon dedo-icon--lock dedo-icon--danger" title="Kennwortgeschützt" aria-hidden="true"></span>';
 		} else {
-			$value='<span style="font-size:1.1em" title="öffentlich">🔓</span>';
+			$value='<span class="dedo-icon dedo-icon--unlock" title="öffentlich" aria-hidden="true"></span>';
 		}
  		$string = str_replace( '%locked%', $value, $string );
  	}
  	// file extension
  	if ( strpos( $string, '%ext%' ) !== false ) {
- 		$value = '<span title="filename">📑</span> '.strtoupper( dedo_get_file_ext( get_post_meta( $id, '_dedo_file_url', true ) ) );
+ 		$value = '<span class="dedo-icon dedo-icon--file" title="filename" aria-hidden="true"></span> '.strtoupper( dedo_get_file_ext( get_post_meta( $id, '_dedo_file_url', true ) ) );
  		$string = str_replace( '%ext%', $value, $string );
  	}
   	// file icon
@@ -2477,7 +2476,7 @@ add_action( 'init', 'dedo_init_handle_download', 4 );
  */
 
 /**
- * Register Frontend Scripts & Styles - unicode symbole für icons
+ * Register frontend scripts and styles.
  */
 function dedo_enqueue_scripts( $page ) {
 	global $dedo_options,$post;
@@ -2861,9 +2860,9 @@ function dedo_shortcode_ddownload_list( $atts ) {
 
 		if (!empty($categories)) $listfilter .= ''.$categories;
 		if (!empty($tags)) $listfilter .= ' &nbsp;'.$tags;
-		if (!empty($exclude_categories)) $listfilter .= ' &nbsp;<span title="excluded cats">🔽</span>'.$exclude_categories;
-		if (!empty($exclude_tags)) $listfilter .= ' &nbsp;<span title="excluded tags" style="color:tomato">🔽</span>'.$exclude_tags;
-		if (!empty($search_term)) $listfilter .= ' &nbsp;🔎 <span class="ddownload-search-term">'.esc_html($search_term).'</span>';
+		if (!empty($exclude_categories)) $listfilter .= ' &nbsp;<span class="dedo-icon dedo-icon--filter" title="excluded cats" aria-hidden="true"></span>'.$exclude_categories;
+		if (!empty($exclude_tags)) $listfilter .= ' &nbsp;<span class="dedo-icon dedo-icon--filter dedo-icon--danger" title="excluded tags" aria-hidden="true"></span>'.$exclude_tags;
+		if (!empty($search_term)) $listfilter .= ' &nbsp;<span class="dedo-icon dedo-icon--search" aria-hidden="true"></span> <span class="ddownload-search-term">'.esc_html($search_term).'</span>';
 
 		$total_files = (int) wp_count_posts( 'dedo_download' )->publish;
 		$show_statistics = true;

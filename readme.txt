@@ -380,7 +380,7 @@ To add a new list style to those already registered by Delightful Downloads simp
 function custom_list( $lists ) {
 	$lists['icon_date'] = array(
  		'name' => 'Icon (Date)',
- 		'format' => '<i class="fa fa-download"></i><a href="%url%" title="%title%" rel="nofollow">%title% - %date%</a>'
+ 		'format' => '<span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> <a href="%url%" title="%title%" rel="nofollow">%title% - %date%</a>'
 	);
 	return $lists;
 }
@@ -392,7 +392,7 @@ replace list
 function custom_list( $lists ) {
 	$new_lists['icon_date'] = array(
  		'name' => 'Icon (Date)',
- 		'format' => '<i class="fa fa-download"></i><a href="%url%" title="%title%" rel="nofollow">%title% - %date%</a>'
+ 		'format' => '<span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> <a href="%url%" title="%title%" rel="nofollow">%title% - %date%</a>'
 	);
 	return $new_lists;
 }
@@ -468,7 +468,7 @@ To add a new output style to those already registered by Delightful Downloads si
 function dedo_custom_output( $styles ) {
 	$styles['icon_link'] = array(
  		'name' => __( 'Icon Link', 'delightful-downloads' ),
- 		'format' => '<div class="download_container"><i class="fa fa-download"></i><a href="%url%" title="%title%" rel="nofollow">%title%</a></div>'
+ 		'format' => '<div class="download_container"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> <a href="%url%" title="%title%" rel="nofollow">%title%</a></div>'
 	);
 
 	return $styles;
@@ -481,7 +481,7 @@ To completely replace the default output styles simply overwrite the $styles arr
 function dedo_custom_output( $styles ) {
 	$new_styles['icon_link'] = array(
  		'name' => __( 'Icon Link', 'delightful-downloads' ),
- 		'format' => '<div class="download_container"><i class="fa fa-download"></i><a href="%url%" title="%title%" rel="nofollow">%title%</a></div>'
+ 		'format' => '<div class="download_container"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> <a href="%url%" title="%title%" rel="nofollow">%title%</a></div>'
 	);
 	return $new_styles;
 }
