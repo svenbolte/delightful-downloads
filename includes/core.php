@@ -3133,21 +3133,21 @@ if( !function_exists('colordatebox')) {
 			$erstelltitle .= "\n" . __("modified after", "penguin") . ': ' . human_time_diff($created, $modified);
 		}
 		if ($diffmod > 0 && !$unixfile) {
-			$newormod = '🕰️';
+			$newormod = '';
 			if ($showago === 2) {
 				$anzeigedat = $modago;
 			} elseif ($showago === 1) {
-				$anzeigedat = $moddat . '⌛' . $modago;
+				$anzeigedat = $moddat . ' ' . $modago;
 			} else {
 				$anzeigedat = $moddat;
 			}
 			$cstyles = getColorStyles($modified);
 		} else {
-			$newormod = '📅';
+			$newormod = '';
 			if ($showago === 2) {
 				$anzeigedat = $postago;
 			} elseif ($showago === 1) {
-				$anzeigedat = $erstelldat . '⌛' . $postago;
+				$anzeigedat = $erstelldat . ' ' . $postago;
 			} else {
 				$anzeigedat = $erstelldat;
 			}
@@ -3164,10 +3164,10 @@ if( !function_exists('colordatebox')) {
 					: ($d < 31557600 ? floor($d/2629800).' Mon'
 					: floor($d/31557600).' Jahr'))));
 			};
-			$anzeigedat .= '⌛' . ($diffmod > 0 && !$unixfile ? $shortago($modified) : $shortago($created));
+			$anzeigedat .= ' ' . ($diffmod > 0 && !$unixfile ? $shortago($modified) : $shortago($created));
 		}
 		// HTML-Ausgabe generieren
-		$colordate = '<span class="dedo-meta-chip" style="--dedo-chip-bg:' . $cstyles['background'] . '">';
+		$colordate = '<span class="newlabel" style="background-color:' . $cstyles['background'] . '">';
 		if (!isset($noicon)) {
 			$colordate .= $newormod;
 		}
