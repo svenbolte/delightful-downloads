@@ -16,7 +16,7 @@
 .dedo-list-content-compact{line-height:1.35}
 .dedo-download-icon,.dedo-list-icon,.dedo-download-icon-small,.dedo-list-icon-small{display:flex;align-items:flex-start;justify-content:center;flex:0 0 64px;width:64px;min-width:64px;padding:.85rem .35rem;background:color-mix(in srgb,var(--dedo-bg) 94%,var(--dedo-accent));border-radius:0}
 .dedo-list-icon,.dedo-list-icon-small{margin:-.7rem 0 -.7rem -.7rem;border-right:1px solid var(--dedo-border)}
-.dedo-download-icon img,.dedo-download-icon-small img,.dedo-list-icon img,.dedo-list-icon-small img{max-width:48px;height:auto}
+.dedo-download-icon .ftyp,.dedo-download-icon-small .ftyp,.dedo-list-icon .ftyp,.dedo-list-icon-small .ftyp{flex:0 0 auto}
 .dedo-download-title,.dedo-list-title{margin:.5rem 0 .35rem;font-size:clamp(1rem,.95rem + .2vw,1.18rem);line-height:1.25}
 .dedo-download-title a,.dedo-list-title a,.dedo-list-headline{font-weight:700;letter-spacing:0;color:var(--dedo-text)}
 .dedo-download-title a:hover,.dedo-list-title a:hover,.dedo-list-headline:hover{background:transparent;color:var(--dedo-accent)}

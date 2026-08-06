@@ -233,7 +233,7 @@ Wildcards allow you to dynamically enter data associated with a download. The av
 display a pencil link next to the downloads for admin use (only displayed if logged in with admin rights and if FA present)
 
 %icon% 
-display a filetype icon (from a color png sprite)
+display a compact, color-coded filetype icon generated with inline CSS
 
 %category%
 display the first dedo category assigned to the download 
@@ -588,7 +588,7 @@ minor improvements
 = 9.9.63 =
 PHP 8.2 compatibility 
 documentation was updated and put in the project in text form (/readme.txt)
-filetype handling: css will only be loaded on filetype dedo_download and on shortcodes using the icons
+filetype handling: compact icon CSS is added inline only on dedo_download pages and shortcodes using icons
 same filetypes will also be uses when using dirlist shortcode from foldergallery/slider mod plugin
 (the will be only loaded when used too) 
 

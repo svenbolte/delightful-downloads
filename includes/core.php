@@ -1775,11 +1775,50 @@ function dedo_get_file_status( $url ) {
  * @param string $file url/path.
  * @return string.
  */
+function dedo_get_file_icon_color( $ext ) {
+	$groups = array(
+		'#e99000' => array( 'zip', 'rar', '7z', 'tar', 'gz', 'bz2' ),
+		'#333333' => array( 'exe', 'msi', 'bin', 'dmg', 'iso' ),
+		'#006fd6' => array( 'html', 'htm', 'css', 'js', 'json', 'xml', 'php' ),
+		'#c93333' => array( 'pdf', 'xps' ),
+		'#3366cc' => array( 'doc', 'docx', 'docm', 'dotx', 'dotm', 'odt', 'ott' ),
+		'#159a8c' => array( 'pub', 'pubx' ),
+		'#198754' => array( 'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'ods', 'ots', 'csv' ),
+		'#3f51b5' => array( 'vsd', 'vsdx', 'vss', 'vssx' ),
+		'#ed6c02' => array( 'ppt', 'pps', 'pptx', 'ppsx', 'pot', 'potx', 'potm', 'pptm', 'odp' ),
+		'#8e44ad' => array( 'mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac' ),
+		'#d35400' => array( 'mp4', 'm4v', 'mov', 'avi', 'mkv', 'webm' ),
+		'#168aad' => array( 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'tif', 'tiff' ),
+		'#795548' => array( 'txt', 'rtf', 'md', 'log' ),
+	);
+	$ext = strtolower( (string) $ext );
+	foreach ( $groups as $color => $extensions ) {
+		if ( in_array( $ext, $extensions, true ) ) return $color;
+	}
+	return '#777777';
+}
+
+/**
+ * Add the compact file-type icon CSS inline, without a separate request.
+ */
+function dedo_enqueue_filetype_style() {
+	static $inline_added = false;
+	if ( ! wp_style_is( 'filetype-style', 'registered' ) ) {
+		wp_register_style( 'filetype-style', false, array(), DEDO_VERSION );
+	}
+	wp_enqueue_style( 'filetype-style' );
+	if ( ! $inline_added ) {
+		wp_add_inline_style( 'filetype-style', '.ftyp{--ftyp-bg:#777;box-sizing:border-box;background:var(--ftyp-bg);border-radius:5px 18px 5px 5px;color:#fff;display:inline-flex;align-items:flex-end;justify-content:center;font-style:normal;font-weight:700;height:55px;line-height:1;overflow:hidden;padding:0 3px 5px;position:relative;text-align:center;text-transform:uppercase;width:45px}.ftyp:before{border-color:transparent transparent rgba(255,255,255,.5) rgba(255,255,255,.5);border-style:solid;border-width:6px;content:"";position:absolute;right:0;top:0}.ftyp:after{content:attr(data-ext);display:block;font-size:11px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ftyp:hover{filter:brightness(.82)}' );
+		$inline_added = true;
+	}
+}
+
 function dedo_get_file_icon( $file ) {
-	$ext = dedo_get_file_ext( $file );
+	$ext   = strtolower( (string) dedo_get_file_ext( $file ) );
+	$label = $ext !== '' && $ext !== '_blank' ? $ext : '?';
 	$fmime = dedo_get_file_mime( $file );
-	$icon = '<i class="ftyp ftyp-'.strtolower($ext).'" title="'.$ext.'-Datei&#10;'.$fmime.'"></i>';
-	return $icon;
+	$title = strtoupper( $label ) . '-Datei' . "\n" . $fmime;
+	return '<i class="ftyp" data-ext="' . esc_attr( $label ) . '" style="--ftyp-bg:' . esc_attr( dedo_get_file_icon_color( $ext ) ) . '" title="' . esc_attr( $title ) . '"></i>';
 }
 
 // Get total downloads counter
@@ -2480,9 +2519,7 @@ add_action( 'init', 'dedo_init_handle_download', 4 );
  */
 function dedo_enqueue_scripts( $page ) {
 	global $dedo_options,$post;
-	// Load css sprite for file type icons
-	wp_register_style( 'filetype-style', DEDO_PLUGIN_URL . 'assets/css/filetypes.min.css' );
-	if ( 'dedo_download' == get_post_type() ) wp_enqueue_style( 'filetype-style' );
+	if ( 'dedo_download' == get_post_type() ) dedo_enqueue_filetype_style();
 	// Enqueue frontend CSS if option is enabled
 	if ( ! $dedo_options['enable_css'] ) { return; }
 	$version = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? time() : DEDO_VERSION;
@@ -2499,8 +2536,7 @@ function dedo_admin_enqueue_scripts( $page ) {
 	$version = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? time() : DEDO_VERSION;
 	$suffix  = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
-	// Load css sprite for file type icons
-	wp_enqueue_style( 'filetye-style', DEDO_PLUGIN_URL . 'assets/css/filetypes.min.css' );
+	dedo_enqueue_filetype_style();
 
 	// Register scripts
 	$src = DEDO_PLUGIN_URL . 'assets/js/dedo-admin-global' . $suffix . '.js';
@@ -2563,8 +2599,8 @@ function dedo_shortcode_ddownload( $atts ) {
 	global $dedo_default_options;
 	$dedo_options = wp_parse_args( get_option( 'delightful-downloads' ), $dedo_default_options );
 
-	// filetype skript laden
-	wp_enqueue_style( 'filetype-style' );
+	// Compact file-type icon style (inline, no extra CSS request).
+	dedo_enqueue_filetype_style();
 
 	// Attributes
 	extract( shortcode_atts(
@@ -2639,8 +2675,8 @@ add_shortcode( 'ddownload', 'dedo_shortcode_ddownload' );
 function dedo_shortcode_ddownload_list( $atts ) {
 	global $dedo_options, $dedo_statistics;
 
-	// filetype skript laden
-	wp_enqueue_style( 'filetype-style' );
+	// Compact file-type icon style (inline, no extra CSS request).
+	dedo_enqueue_filetype_style();
 	
 	// Attributes
 	extract( shortcode_atts(

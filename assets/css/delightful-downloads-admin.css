@@ -89,9 +89,9 @@ input.copy-to-clipboard + .description{margin-top:5px}
 #dedo-existing-download .footer .button{margin-left:5px}
 #dedo-existing-download .footer .delete{float:right;text-decoration:none}
 #dedo-existing-download .footer .delete:hover{color:red}
-#dedo-existing-download .file-icon,#dedo-existing-download .file-icon img{height:128px;width:128px}
+#dedo-existing-download .file-icon{height:128px;width:128px}
 #dedo-existing-download .file-icon{margin:0 auto 1.4em}
-#dedo-existing-download .file-icon img{display:block;margin:0}
+#dedo-existing-download .file-icon .ftyp{display:flex;margin:0 auto;transform:scale(2);transform-origin:top center}
 #dedo-existing-download .file-name{font-weight:700;position:relative}
 #dedo-existing-download .file-size{color:#666;margin-bottom:1.4em}
 #dedo-existing-download .file-status .status:before{font-style:normal;font-weight:400;line-height:1}
