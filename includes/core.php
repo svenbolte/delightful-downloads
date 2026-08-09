@@ -897,43 +897,54 @@ function dedo_heatcolor($visithotness) {
 function dedo_get_shortcode_styles() {
 	$styles = array(
 		'infobox' => array(
-			'name' => __( 'Infobox mit Icon, Rahmen und Details', 'delightful-downloads' ),
-			'format' => '<article class="%class% dedo-download-article">
-				<div class="dedo-download-row">
-					<div class="dedo-download-icon-small">%icon%</div>
-					<div class="dedo-download-content">
-						<div class="meta-icons dedo-meta-icons">
-							<div class="meta-icons__bar noprint">%locked% %adminedit%%datesymbol%%filesize%%downloadtime%%count%</div>
+			'name' => __( 'Infobox im einheitlichen Kartenlayout', 'delightful-downloads' ),
+			'format' => '<article class="%class% dedo-list-item dedo-shortcode-card">
+				<div class="dedo-list-row">
+					<div class="dedo-list-icon-small">%icon%</div>
+					<div class="dedo-list-content">
+						<div class="dedo-card-body">
+							<div class="dedo-card-main">
+								<h6 class="dedo-list-title"><a href="%permalink%" title="' . __( 'download details', 'delightful-downloads' ) . '" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> %title%</a></h6>
+								<a class="button page-numbers" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a>
+								%filedate%
+								<div>%description%</div>
+							</div>
+							%thumb%
+						</div>
+						<div class="meta-icons dedo-meta-icons dedo-list-meta-bottom">
+							<div class="meta-icons__bar noprint">%locked% %adminedit% %datesymbol% %filesize% %downloadtime% %count%</div>
 							<div class="meta-icons__terms">%category% %tags%</div>
 						</div>
-						<h6 class="dedo-download-title"><a href="%permalink%" title="' . __( 'download details', 'delightful-downloads' ) . '" rel="nofollow">%title%</a></h6>
-						<a class="button page-numbers" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a>
-						%filedate%
-						<div>%description%</div>
 					</div>
-					%thumb%
 				</div>
 			</article>'
 		),
 
 		'singlepost' => array(
-			'name' => __( 'Infobox mit Icon, Rahmen für Post Archive', 'delightful-downloads' ),
-			'format' => '<article class="%class% dedo-download-article dedo-single-download">
-				<div class="dedo-single-download-header">
-					<div class="dedo-download-icon">%icon%</div>
-					<a class="button page-numbers dedo-single-download-button" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a>
-				</div>
-				<div class="dedo-download-content">
-					<table class="dedo-download-meta-table">
-						<tr><td class="dedo-download-meta-label">' . __( 'Locked admin Onedaypass', 'delightful-downloads' ) . '</td><td>%locked% &nbsp; %adminedit%</td></tr>
-						<tr><td>' . __( 'filename', 'delightful-downloads' ) . '</td><td>%filename%</td></tr>
-						<tr><td>' . __( 'file size', 'delightful-downloads' ) . '</td><td>%filesize%</td></tr>
-						<tr><td>' . __( 'file date', 'delightful-downloads' ) . '</td><td>%filedate%</td></tr>
-						<tr><td>' . __( 'download time', 'delightful-downloads' ) . '</td><td>%downloadtime%</td></tr>
-						<tr><td>' . __( 'download count', 'delightful-downloads' ) . '</td><td>%count%</td></tr>
-						<tr><td colspan="2">%id3tag%</td></tr>
-					</table>
-					%manexcerpt%
+			'name' => __( 'Einheitliche Download-Karte mit erweiterten Singular-Details', 'delightful-downloads' ),
+			'format' => '<article class="%class% dedo-list-item dedo-shortcode-card dedo-single-download">
+				<div class="dedo-list-row">
+					<div class="dedo-list-icon-small">%icon%</div>
+					<div class="dedo-list-content">
+						<div class="dedo-card-body">
+							<div class="dedo-card-main">
+								<h6 class="dedo-list-title"><a href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> %title%</a></h6>
+								<a class="button page-numbers dedo-single-download-button" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a>
+							</div>
+						</div>
+						<div class="dedo-single-details">
+							<table class="dedo-download-meta-table">
+								<tr><td class="dedo-download-meta-label">' . __( 'filename', 'delightful-downloads' ) . '</td><td>%filename%</td></tr>
+								<tr><td>' . __( 'file size', 'delightful-downloads' ) . '</td><td>%filesize%</td></tr>
+								<tr><td>' . __( 'file date', 'delightful-downloads' ) . '</td><td>%filedate%</td></tr>
+								<tr><td>' . __( 'download time', 'delightful-downloads' ) . '</td><td>%downloadtime%</td></tr>
+								<tr><td>' . __( 'download count', 'delightful-downloads' ) . '</td><td>%count%</td></tr>
+								<tr class="dedo-single-admin-row"><td>' . __( 'Locked admin Onedaypass', 'delightful-downloads' ) . '</td><td>%locked% &nbsp; %adminedit%</td></tr>
+								<tr><td colspan="2">%id3tag%</td></tr>
+							</table>
+							%manexcerpt%
+						</div>
+					</div>
 				</div>
 			</article>'
 		),
@@ -1018,13 +1029,13 @@ function dedo_get_shortcode_lists() {
 			'format' => '<div class="dedo-list-row">
 				<div class="dedo-list-icon-small">%icon%</div>
 				<div class="dedo-list-content-compact">
-					<div class="meta-icons dedo-meta-icons">
-						<div class="meta-icons__bar noprint">%locked% %adminedit% %dateago%%filesize%%count%</div>
-						<div class="meta-icons__terms">%category% %tags%</div>
-					</div>
 					<h6 class="dedo-list-title">
 						<a href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> %title%</a>
 					</h6>
+					<div class="meta-icons dedo-meta-icons dedo-list-meta-bottom">
+						<div class="meta-icons__bar noprint">%locked% %adminedit% %dateago%%filesize%%count%</div>
+						<div class="meta-icons__terms">%category% %tags%</div>
+					</div>
 				</div>
 			</div>'
 		),
@@ -1034,10 +1045,6 @@ function dedo_get_shortcode_lists() {
 			'format' => '<div class="dedo-list-row">
 				<div class="dedo-list-icon-small">%icon%</div>
 				<div class="dedo-list-content">
-					<div class="meta-icons dedo-meta-icons">
-						<div class="meta-icons__bar noprint">%locked% %adminedit% %datesymbol%</div>
-						<div class="meta-icons__terms">%category% %tags%</div>
-					</div>
 					<div class="dedo-card-body">
 						<div class="dedo-card-main">
 							<h6 class="dedo-list-title">
@@ -1046,6 +1053,10 @@ function dedo_get_shortcode_lists() {
 							<div>%filename%%filedate%%filesize%%count%%downloadtime%<br>%description%</div>
 						</div>
 						%thumb%
+					</div>
+					<div class="meta-icons dedo-meta-icons dedo-list-meta-bottom">
+						<div class="meta-icons__bar noprint">%locked% %adminedit% %datesymbol%</div>
+						<div class="meta-icons__terms">%category% %tags%</div>
 					</div>
 				</div>
 			</div>%id3tag%'
@@ -2955,7 +2966,7 @@ function dedo_shortcode_ddownload_list( $atts ) {
 			$filecount++;
 			$dlcount += get_post_meta( get_the_ID(), '_dedo_file_count', true );
 			$tfilesize += (int) get_post_meta( get_the_ID(), '_dedo_file_size', true );
-			echo '<article style="margin: .3em"><div style="position:relative"><div style="background-color:#fffb;color:#000;font-size:1.3rem;font-weight:700;position:absolute;left:1rem;top:2rem;z-index:99999;line-height:1em">'. $filecount.'</div></div>' . dedo_search_replace_wildcards( $new_style_format, get_the_ID() ) . '</article>';
+			echo '<article class="dedo-list-item"><span class="dedo-list-index" aria-hidden="true">' . $filecount . '</span>' . dedo_search_replace_wildcards( $new_style_format, get_the_ID() ) . '</article>';
 			// Reset classes for next iteration
 			unset( $classes );
 			unset( $new_style_format );
