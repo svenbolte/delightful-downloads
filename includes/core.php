@@ -6,6 +6,44 @@
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
+
+// Shared helpers: use theme/other-plugin implementations when available, otherwise lean WordPress fallbacks.
+if ( ! function_exists( 'dd_shared_number_format_short' ) ) {
+	function dd_shared_number_format_short( $n ) {
+		if ( function_exists( 'number_format_short' ) ) return number_format_short( $n );
+		$n = (float) $n;
+		if ( $n <= 0 ) return '<span title="0">0</span>';
+		$units = array( '', 'K', 'M', 'G', 'T', 'P' );
+		$i = min( (int) floor( log( max( 1, $n ), 1024 ) ), count( $units ) - 1 );
+		$v = $n / pow( 1024, $i );
+		$dec = ( $i > 0 && $v < 10 ) ? 1 : 0;
+		return '<span title="' . esc_attr( number_format_i18n( $n ) ) . '">' . number_format_i18n( $v, $dec ) . $units[$i] . '</span>';
+	}
+}
+
+if ( ! function_exists( 'dd_shared_ago' ) ) {
+	function dd_shared_ago( $timestamp ) {
+		$timestamp = (int) $timestamp;
+		if ( $timestamp <= 0 ) return '';
+		if ( function_exists( 'ago' ) ) return ago( $timestamp );
+		$now = current_time( 'timestamp' );
+		return $timestamp > $now
+			? sprintf( __( 'in %s', 'delightful-downloads' ), human_time_diff( $now, $timestamp ) )
+			: sprintf( __( '%s ago', 'delightful-downloads' ), human_time_diff( $timestamp, $now ) );
+	}
+}
+
+if ( ! function_exists( 'dd_shared_colordatebox' ) ) {
+	function dd_shared_colordatebox( $created, $modified = null, $noicon = null, $showago = null ) {
+		$created = (int) $created;
+		$modified = $modified !== null ? (int) $modified : $created;
+		if ( function_exists( 'colordatebox' ) ) return colordatebox( $created, $modified, $noicon, $showago );
+		$ts = $modified > 0 ? $modified : $created;
+		if ( $ts <= 0 ) return '';
+		return esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $ts ) );
+	}
+}
+
 /**
  * Cache Class
  * @package  	Delightful Downloads
@@ -879,7 +917,7 @@ add_filter( 'single_template', 'dedo_template' );
 
 // k,M,G T formatieren bei großen Zahlen
 function dedo_number_format_short( $n ) {
-    return number_format_short( $n );
+    return dd_shared_number_format_short( $n );
 }
 
 // colorize heat after given value and return volor value
@@ -1286,7 +1324,7 @@ function dedo_ticket_is_valid( $download_id ) {
 				if (isset($meta['length_formatted'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--clock" aria-hidden="true"></span> ' . $meta['length_formatted'];
 				if (isset($meta['composer'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--music" aria-hidden="true"></span> ' . $meta['composer'];
 				if (isset($meta['band'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--users" aria-hidden="true"></span> ' . $meta['band'];
-				if (isset($meta['filesize'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--file-size" aria-hidden="true"></span> ' . number_format_short($meta['filesize']);
+				if (isset($meta['filesize'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--file-size" aria-hidden="true"></span> ' . dd_shared_number_format_short($meta['filesize']);
 				if (isset($meta['part_of_a_set'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--set" aria-hidden="true"></span> ' . $meta['part_of_a_set'];
 				if (isset($meta['encoder_options'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--settings" aria-hidden="true"></span> ' . $meta['encoder_options'];
 				if (isset($meta['channelmode'])) $phtml .= ' <span class="dedo-icon dedo-icon--spaced dedo-icon--microphone" aria-hidden="true"></span> ' . $meta['channelmode'];
@@ -1323,7 +1361,7 @@ function dedo_ticket_is_valid( $download_id ) {
  	if ( strpos( $string, '%filedate%' ) !== false ) {
  		if (!empty( get_post_meta( $id, '_dedo_file_url', true ) )) {
 			$fpath = dedo_get_abs_path(get_post_meta( $id, '_dedo_file_url', true));
-			$value = colordatebox( filectime($fpath), filemtime($fpath) ,NULL,1);
+			$value = dd_shared_colordatebox( filectime($fpath), filemtime($fpath) ,NULL,1);
 			// Post modified Datum aktualisieren, wenn File - Anhang neuer
 			if (filemtime($fpath) > get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z') ) {
 				$mysql_time_format= "Y-m-d H:i:s";
@@ -1338,14 +1376,14 @@ function dedo_ticket_is_valid( $download_id ) {
  	if ( strpos( $string, '%datesymbol%' ) !== false ) {
 		$erstelldat = get_post_time('U', false, $id, true) - get_post_time('Z');
 		$moddat = get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z');
-		$value = colordatebox( $erstelldat, $moddat, NULL, 1);
+		$value = dd_shared_colordatebox( $erstelldat, $moddat, NULL, 1);
 		$string = str_replace( '%datesymbol%', $value, $string );
  	}
 	// dateago   - so viele Tage wochen her, sonntags rot, samstags orange
  	if ( strpos( $string, '%dateago%' ) !== false ) {
 		$erstelldat = get_post_time('U', false, $id, true) - get_post_time('Z');
 		$moddat = get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z');
-		$value = colordatebox( $erstelldat, $moddat, NULL, 2);
+		$value = dd_shared_colordatebox( $erstelldat, $moddat, NULL, 2);
 		$string = str_replace( '%dateago%', $value, $string );
  	}
  	// filesize
@@ -2176,7 +2214,7 @@ function dedo_download_column_contents( $column_name, $post_id ) {
 	// Modified date column
 	if ( $column_name == 'modified' ) {
 		$file_datum = get_the_modified_date(get_option('date_format').' '.get_option('time_format'),$post_id);
-		echo '<i title="modified">'.$file_datum.' '.ago(get_the_modified_date('U')).'</i>';
+		echo '<i title="modified">'.$file_datum.' '.dd_shared_ago(get_the_modified_date('U')).'</i>';
 	}
 
 	// Shortcode column
@@ -3075,151 +3113,4 @@ function dedo_download_taxonomies() {
 add_action( 'init', 'dedo_download_taxonomies', 3 );
 
 
-// ----------------------------------- Funktionen, die in andere Plugins und themes gespiegelt sind ------------------------------------
 
-// Converts a number into a short version, eg: 1000 -> 1k
-//  gespiegelt in: delightful-downloads/includes/functions.php und foldergallery.php und wpdoodlez.php   (Aufruf als wpdoo/dedo_number_format_short)
-if( !function_exists('number_format_short')) {
-	function number_format_short( $n ) {
-		if ( $n <= 0 ) return '<span title="0">0</span>';
-		$si_prefix = array( '', 'K', 'M', 'G', 'T', 'E', 'Z', 'Y' );
-		$base = 1024;
-		$class = min((int)log($n , $base) , count($si_prefix) - 1);
-		$short_value = $n / pow($base,$class);
-		// $precis = 1, wenn Wert < 10 (einstellig) UND es ein Suffix gibt ($class > 0)
-		$precis = ($short_value < 10 && $class > 0) ? 1 : 0;
-		// Fügt das number_format_i18n nur hinzu, wenn es verfügbar ist
-		$title = function_exists('number_format_i18n') ? number_format_i18n($n) : number_format($n, 0, ',', '.');
-		return '<span title="'.$title.'">' . sprintf('%1.'.$precis.'f' , $short_value) . $si_prefix[$class] . '</span>';
-	}
-}
-
-// Zeitdifferenz ermitteln und gestern/vorgestern/morgen schreiben
-//   gespiegelt in: chartcodes.php, delightful-downloads/includes/functions.php, foldergallery.php, penguin/functions.php, timeclock/includes/functions.php
-if( !function_exists('ago')) {
-	function ago($timestamp) {
-		if (empty($timestamp)) return;
-		$xlang = get_bloginfo("language");
-		date_default_timezone_set('Europe/Berlin');
-		$now = time();
-		if ($timestamp > $now) {
-			$prepo = __('in', 'penguin');
-			$postpo = '';
-		} else {
-			if ($xlang == 'de') {
-				$prepo = 'vor';
-				$postpo = '';
-			} else {
-				$prepo = '';
-				$postpo = ' ' . __('ago', 'penguin');
-			}
-		}
-		$her = date( 'd.m.Y', intval($timestamp) );
-		if ($her == date('d.m.Y',$now - (24 * 3600))) {
-			$hdate = __('yesterday', 'penguin');
-		} else if ($her == date('d.m.Y',$now - (48 * 3600))) {
-			$hdate = __('1 day before yesterday', 'penguin');
-		} else if ($her == date('d.m.Y',$now + (24 * 3600))) {
-			$hdate = __('tomorrow', 'penguin');
-		} else if ($her == date('d.m.Y',$now + (48 * 3600))) {
-			$hdate = __('1 day after tomorrow', 'penguin');
-		} else {
-			$hdate = $prepo . ' ' . human_time_diff(intval($timestamp), $now) . $postpo;
-		}
-		return $hdate;
-	}
-}	
-
-// Datumbox farbig mit Wochenende SA gelb und SO rot ausgeben aus createdatum und moddatum. wird nur createdatum gesetzt, wird nur das ausgewertet.
-//   gespiegelt in: chartcodes.php, delightful-downloads/includes/core.php, foldergallery.php, penguin/functions.php
-//   Parameter 1: Erstell-Unix-Timestamp | 2: Mod-Timestamp oder NULL=Erstell-Timestamp | 3: NULL=ICON anzeigen, 1=kein Icon | 4: NULL=nur Datum, 1=Datum und AGO, 2=nur AGO, 3=ago in Kurzform
-//     test:     echo colordatebox( (time()-86400), NULL, NULL, 1);
-
-	// SA orange, Sonntag rot, gestern hellgrün, heute cyan, 30T gelb, >30T grau
-	if (!function_exists('getColorStyles')) {
-		function getColorStyles($timestamp) {
-			$days = (int)((strtotime(date('Y-m-d', $timestamp)) - strtotime(date('Y-m-d'))) / 86400);
-			$bg = match (true) {
-				$days === 0   => '#bfd', // heute
-				$days === -1  => '#efe', // gestern
-				$days < -30   => '#eee', // vergangen >30T
-				$days < 0     => '#fe8', // vergangen 1–30T
-				$days <= 30   => '#bdf', // zukünftig 1–30T
-				default       => '#cef', // zukünftig >30T
-			};
-			$weekday = (int)date('N', $timestamp);
-			$fg = match ($weekday) {
-				6 => '#e60', // Samstag
-				7 => '#f00', // Sonntag
-				default => '#222',
-			};
-			return ['background' => $bg, 'color' => $fg];
-		}
-	}
-
-if( !function_exists('colordatebox')) {
-	function colordatebox($created, $modified = null, $noicon = null, $showago = null) {
-		$modified = $modified ?? $created;
-		$unixfile = 0;
-		if ($modified < $created) {
-			[$created, $modified] = [$modified, $created];
-			$unixfile = 1;
-		}
-		$erstelldat = str_replace(' 00:00', '', wp_date('D d. M Y H:i', $created));
-		$moddat    = str_replace(' 00:00', '', wp_date('D d. M Y H:i', $modified));
-		$postago = ago($created);
-		$modago  = ago($modified);
-		$diffmod  = $modified - $created;
-		$refTime  = $unixfile ? $created : $modified;
-		$diff     = time() - $refTime;
-		$diffdays = floor($diff / 86400);
-		$erstelltitle = __("created", "penguin") . ': ' . $erstelldat . ' ' . $postago . ' ' . $diffdays . ' Tg';
-		if ($diffmod !== 0) {
-			$erstelltitle .= "\n" . __("modified", "penguin") . ': ' . $moddat . ' ' . $modago;
-			$erstelltitle .= "\n" . __("modified after", "penguin") . ': ' . human_time_diff($created, $modified);
-		}
-		if ($diffmod > 0 && !$unixfile) {
-			$newormod = '';
-			if ($showago === 2) {
-				$anzeigedat = $modago;
-			} elseif ($showago === 1) {
-				$anzeigedat = $moddat . ' ' . $modago;
-			} else {
-				$anzeigedat = $moddat;
-			}
-			$cstyles = getColorStyles($modified);
-		} else {
-			$newormod = '';
-			if ($showago === 2) {
-				$anzeigedat = $postago;
-			} elseif ($showago === 1) {
-				$anzeigedat = $erstelldat . ' ' . $postago;
-			} else {
-				$anzeigedat = $erstelldat;
-			}
-			$cstyles = getColorStyles($created);
-		}
-		if ($showago === 3) {
-			$shortago = function($timestamp){
-				$now = time();
-				$d = abs($now - intval($timestamp));
-				return $d < 3600 ? max(1, floor($d/60)).' Min'
-					: ($d < 86400 ? floor($d/3600).' Std'
-					: ($d < 604800 ? floor($d/86400).' Tg'
-					: ($d < 2629800 ? floor($d/604800).' Wo'
-					: ($d < 31557600 ? floor($d/2629800).' Mon'
-					: floor($d/31557600).' Jahr'))));
-			};
-			$anzeigedat .= ' ' . ($diffmod > 0 && !$unixfile ? $shortago($modified) : $shortago($created));
-		}
-		// HTML-Ausgabe generieren
-		$colordate = '<span class="newlabel" style="background-color:' . $cstyles['background'] . '">';
-		if (!isset($noicon)) {
-			$colordate .= $newormod;
-		}
-		$colordate .= '<span style="color:' . $cstyles['color'] . '" title="' . htmlspecialchars($erstelltitle, ENT_QUOTES) . '">' . $anzeigedat . '</span></span>';
-		return $colordate;
-	}
-}
-
-// ---------------------------------- Spiegelung Ende ------------------------------------------------------------------------

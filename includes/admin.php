@@ -323,7 +323,7 @@ class DEDO_List_Table extends WP_List_Table {
 				return esc_attr( $item->user_agent );
 				break;
 			case 'dedo_date':
-				$output = ago( mysql2date( 'U', $item->date ) ) . '<br>';
+				$output = dd_shared_ago( mysql2date( 'U', $item->date ) ) . '<br>';
 				$output .= mysql2date( get_option( 'date_format' ), $item->date ) . ' at ' . mysql2date( get_option( 'time_format' ), $item->date );
 				return $output;
 				break;
