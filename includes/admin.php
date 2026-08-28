@@ -1164,6 +1164,7 @@ function dedo_meta_boxes_save( $post_id ) {
 	
 	// Check for file nonce
 	if ( isset( $_POST['ddownload_file_save_nonce'] ) && wp_verify_nonce( $_POST['ddownload_file_save_nonce'], 'ddownload_file_save' ) ) {	
+		if ( isset( $_POST['dedo_source_type'] ) && 'folder' === sanitize_key( wp_unslash( $_POST['dedo_source_type'] ) ) ) return;
 
 		$file_url = trim( $_POST['dedo-file-url'] );
 		if (empty($file_url)) $file_url="none";

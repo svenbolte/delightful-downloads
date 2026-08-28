@@ -1,6 +1,6 @@
 # Delightful Downloads – PBMod Fork
 
-A professional WordPress download manager with secure file delivery, one-day-pass links, GDPR-friendly statistics, advanced shortcode support and extended download presentation.
+A professional WordPress download manager with secure file delivery, signed 7-day and 365-day ticket links, GDPR-friendly statistics, advanced shortcode support and extended download presentation.
 
 ## Why this Fork?
 
@@ -26,9 +26,9 @@ This PBMod fork combines the best improvements from multiple Delightful Download
 - Bot protection
 - Optional browser viewing for PDFs and media files
 
-### One-Day-Pass Links
-- Temporary encrypted download links
-- Valid until the end of the current day
+### Signed Ticket Links
+- Shareable signed download links
+- 7-day and 365-day validity options
 - Easy sharing with customers and partners
 
 ### Download Statistics
@@ -46,12 +46,12 @@ This PBMod fork combines the best improvements from multiple Delightful Download
 - Sorting by title, date, filesize and downloads
 
 ### Frontend Presentation
-- Download buttons
-- Download links
-- Infobox layouts
+- One canonical single-download display
+- One canonical download-list display
+- One unified singular template
 - File type icons
-- Custom templates
 - Extensive wildcard support
+- Folder downloads with SVG protection status and optional share tokens
 
 ### Developer Features
 - Filter hooks

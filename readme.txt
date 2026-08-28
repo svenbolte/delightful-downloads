@@ -2,13 +2,13 @@
 Contributors: A5hleyRich, Sven Bolte, PBMod
 Tags: download, manager, downloads, shortcode, secure downloads, statistics, file manager
 License: GPLv2 or later
-Version: 9.12.2001
-Stable tag: 9.12.2001
+Version: 9.13.9
+Stable tag: 9.13.9
 Requires at least: 6.0
 Tested up to: 7.0.2
 Requires PHP: 8.4
 
-A professional WordPress download manager with secure downloads, one-day-pass links, statistics, categories, tags, infoboxes and extensive shortcode customization.
+A professional WordPress download manager with secure downloads, signed 7-day and 365-day tickets, folder downloads, statistics, categories and tags.
 
 == Overview ==
 
@@ -30,23 +30,37 @@ This PBMod fork combines the best features from multiple Delightful Downloads fo
 4. Insert [ddownload id="123"] into a page or post.
 5. Use [ddownload_list] to create download archives.
 
+== Folder Downloads ==
+
+Delightful Downloads can manage an entire directory as a download in addition to individual files. The directory is selected from the subdirectories of the WordPress uploads directory. Visitors receive the familiar folder view and can download the files it contains through Delightful Downloads.
+
+= Quick guide =
+
+1. Go to Downloads and create a new download.
+2. Select "Folder" as the download type.
+3. Select the desired subdirectory below the WordPress uploads directory.
+4. Configure the folder display and protection level as required.
+5. Publish the download and insert it using the normal Delightful Downloads output, for example [ddownload id="123"]. A separate folder shortcode is not required.
+
+= Protection levels =
+
+* 0 - Open: The folder is publicly accessible.
+* 1 - Protected direct access: Visitors can download files through Delightful Downloads without a token. Direct static access to protected files is blocked. Administrators/editors can display and copy shareable token links in the frontend.
+* 2 - Token required: Visitors can download files only with a valid share token. Administrators/editors can display and copy shareable token links in the frontend.
+
+The folder view always shows the current protection state with an open or closed SVG lock icon. Share tokens are carried through folder navigation, search, sorting, pagination and individual file links.
+
+Important: Folder downloads must point to a directory inside the WordPress uploads base directory. The editor therefore offers the existing upload subdirectories for selection instead of accepting arbitrary filesystem paths.
+
 == Complete Documentation ==
 
 The original detailed documentation follows below and has intentionally been preserved because it contains the complete shortcode, wildcard, template and developer reference.
 
 --------------------------------------------------------------------------------
 
-=== Delightful Downloads ===
-Contributors: A5hleyRich, Sven Bolte, others (best of forks)
-Tags: download, manager, downloads, monitor, shortcode, delightful downloads, file, counter, tracking, infobox, fixed filetree,ipflag, chartscodes
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 9.12.000
-Stable tag: 9.12.000
-Requires at least: 6.0
-Tested up to: 6.9.4
-Requires PHP: 8.4
+== Historical Documentation ==
 
+The detailed legacy documentation below is retained for reference. Current plugin metadata and current output behavior are documented above.
 
 A super-awesome downloads manager for WordPress with htacces file limits and file icons and one day passes.
 
@@ -589,7 +603,6 @@ minor improvements
 PHP 8.2 compatibility 
 documentation was updated and put in the project in text form (/readme.txt)
 filetype handling: compact icon CSS is added inline only on dedo_download pages and shortcodes using icons
-same filetypes will also be uses when using dirlist shortcode from foldergallery/slider mod plugin
 (the will be only loaded when used too) 
 
 = 9.9.62 =

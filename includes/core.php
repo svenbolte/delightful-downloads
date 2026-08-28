@@ -904,12 +904,8 @@ add_filter( 'cron_schedules', 'dedo_cron_schedules' );
 // Register own template for downloads
 function dedo_template( $single_template ) {
     global $post;
-	$wpxtheme = wp_get_theme(); // gets the current theme
-	if ( 'Penguin' == $wpxtheme->name || 'Penguin' == $wpxtheme->parent_theme ) { $xpenguin = true;} else { $xpenguin=false; }
-    if ( $post->post_type == 'dedo_download' ) {
-        if ($xpenguin) { $single_template = dirname( __FILE__ ) . '/dedo-template-penguin.php';	} else {
-			$single_template = dirname( __FILE__ ) . '/dedo-template.php';
-		}
+    if ( $post && 'dedo_download' === $post->post_type ) {
+        return dirname( __FILE__ ) . '/dedo-template.php';
     }
     return $single_template;
 }
@@ -933,175 +929,28 @@ function dedo_heatcolor($visithotness) {
 
 // Shortcode Styles
 function dedo_get_shortcode_styles() {
-	$styles = array(
-		'infobox' => array(
-			'name' => __( 'Infobox im einheitlichen Kartenlayout', 'delightful-downloads' ),
-			'format' => '<article class="%class% dedo-list-item dedo-shortcode-card">
-				<div class="dedo-list-row">
-					<div class="dedo-list-icon-small">%icon%</div>
-					<div class="dedo-list-content">
-						<div class="dedo-card-body">
-							<div class="dedo-card-main">
-								<h6 class="dedo-list-title"><a href="%permalink%" title="' . __( 'download details', 'delightful-downloads' ) . '" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> %title%</a></h6>
-								<a class="button page-numbers" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a>
-								%filedate%
-								<div>%description%</div>
-							</div>
-							%thumb%
-						</div>
-						<div class="meta-icons dedo-meta-icons dedo-list-meta-bottom">
-							<div class="meta-icons__bar noprint">%locked% %adminedit% %datesymbol% %filesize% %downloadtime% %count%</div>
-							<div class="meta-icons__terms">%category% %tags%</div>
-						</div>
-					</div>
-				</div>
-			</article>'
-		),
-
-		'singlepost' => array(
-			'name' => __( 'Einheitliche Download-Karte mit erweiterten Singular-Details', 'delightful-downloads' ),
-			'format' => '<article class="%class% dedo-list-item dedo-shortcode-card dedo-single-download">
-				<div class="dedo-list-row">
-					<div class="dedo-list-icon-small">%icon%</div>
-					<div class="dedo-list-content">
-						<div class="dedo-card-body">
-							<div class="dedo-card-main">
-								<h6 class="dedo-list-title"><a href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> %title%</a></h6>
-								<a class="button page-numbers dedo-single-download-button" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a>
-							</div>
-						</div>
-						<div class="dedo-single-details">
-							<table class="dedo-download-meta-table">
-								<tr><td class="dedo-download-meta-label">' . __( 'filename', 'delightful-downloads' ) . '</td><td>%filename%</td></tr>
-								<tr><td>' . __( 'file size', 'delightful-downloads' ) . '</td><td>%filesize%</td></tr>
-								<tr><td>' . __( 'file date', 'delightful-downloads' ) . '</td><td>%filedate%</td></tr>
-								<tr><td>' . __( 'download time', 'delightful-downloads' ) . '</td><td>%downloadtime%</td></tr>
-								<tr><td>' . __( 'download count', 'delightful-downloads' ) . '</td><td>%count%</td></tr>
-								<tr class="dedo-single-admin-row"><td>' . __( 'Locked admin Onedaypass', 'delightful-downloads' ) . '</td><td>%locked% &nbsp; %adminedit%</td></tr>
-								<tr><td colspan="2">%id3tag%</td></tr>
-							</table>
-							%manexcerpt%
-						</div>
-					</div>
-				</div>
-			</article>'
-		),
-
-		'button' => array(
-			'name' => __( 'Button', 'delightful-downloads' ),
-			'format' => '<a href="%url%" title="%text%" rel="nofollow" class="%class%">%text%</a>'
-		),
-
-		'link' => array(
-			'name' => __( 'Link', 'delightful-downloads' ),
-			'format' => '<a href="%url%" title="%text%" rel="nofollow" class="%class%">%text%</a>'
-		),
-
-		'iconlink' => array(
-			'name' => __( 'Icon und Link', 'delightful-downloads' ),
-			'format' => '%icon% &nbsp; <a href="%url%" title="%text%" rel="nofollow" class="%class%">%text%</a>'
-		),
-
-		'plain_text' => array(
-			'name' => __( 'Plain Text', 'delightful-downloads' ),
-			'format' => '%url%'
-		)
-	);
-
-	return apply_filters( 'dedo_get_styles', $styles );
-	}
+    $format = '<article class="%class% dedo-list-item dedo-shortcode-card">
+        <div class="dedo-list-row">
+            <div class="dedo-list-icon-small">%icon%</div>
+            <div class="dedo-list-content">
+                <div class="dedo-card-body"><div class="dedo-card-main">
+                    <h6 class="dedo-list-title"><a href="%permalink%" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> %title%</a></h6>
+                    <a class="button page-numbers" href="%url%" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a>
+                    <div>%description%</div>
+                </div>%thumb%</div>
+                <div class="meta-icons dedo-meta-icons dedo-list-meta-bottom"><div class="meta-icons__bar noprint">%locked% %adminedit% %datesymbol% %filesize% %downloadtime% %count%</div><div class="meta-icons__terms">%category% %tags%</div></div>
+            </div>
+        </div>
+    </article>';
+    return apply_filters( 'dedo_get_styles', array( 'download' => array( 'name' => __( 'Download', 'delightful-downloads' ), 'format' => $format ) ) );
+}
 
 /**
  * Returns List Styles
  */
 function dedo_get_shortcode_lists() {
-	$lists = array(
-		'title' => array(
-			'name' => __( 'Title', 'delightful-downloads' ),
-			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-simple"><span class="dedo-list-simple-title">%title%</span></a>'
-		),
-
-		'title_date' => array(
-			'name' => __( 'Title/Date', 'delightful-downloads' ),
-			'format' => '<a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-simple"><span class="dedo-list-simple-title">%title%</span><span class="dedo-list-simple-meta">%datesymbol%</span></a>'
-		),
-
-		'title_count' => array(
-			'name' => __( 'Title/Count', 'delightful-downloads' ),
-			'format' => '<div class="dedo-list-simple"><a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-simple-title">%title%</a><span class="dedo-list-simple-meta">%count%</span></div>'
-		),
-
-		'title_filesize' => array(
-			'name' => __( 'Title/Filesize', 'delightful-downloads' ),
-			'format' => '<div class="dedo-list-simple"><a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-simple-title">%title%</a><span class="dedo-list-simple-meta">%filesize%</span></div>'
-		),
-
-		'title_ext_filesize' => array(
-			'name' => __( 'Title/Extension/Filesize', 'delightful-downloads' ),
-			'format' => '<div class="dedo-list-simple"><a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-simple-title">%title%</a><span class="dedo-list-simple-meta">%ext% %filesize%</span></div>'
-		),
-
-		'title_date_ext_filesize' => array(
-			'name' => __( 'Title/Date/Extension/Filesize', 'delightful-downloads' ),
-			'format' => '<div class="dedo-list-simple"><a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-simple-title">%title%</a><span class="dedo-list-simple-meta">%datesymbol% %ext% %filesize%</span></div>'
-		),
-
-		'title_ext_filesize_count' => array(
-			'name' => __( 'Title/Date/Extension/Filesize/Count', 'delightful-downloads' ),
-			'format' => '<div class="dedo-list-simple"><a href="%url%" title="%title%" rel="nofollow" class="%class% dedo-list-simple-title">%title%</a><span class="dedo-list-simple-meta">%datesymbol% %ext% %filesize%</span></div> &nbsp; %count%'
-		),
-
-		'icon_title_ext_filesize' => array(
-			'name' => __( 'Title/Icon/Category/File size', 'delightful-downloads' ),
-			'format' => '<div class="dedo-list-row">
-				<div class="dedo-list-icon">%icon%</div>
-				<div class="dedo-list-content">
-					<a class="headline dedo-list-headline" href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow">%title%</a><br>
-					<div class="meta-icons dedo-meta-icons"><div class="meta-icons__bar noprint">%adminedit% %locked% %filesize%</div><div class="meta-icons__terms">%category% %tags%</div></div>
-				</div>
-			</div>'
-		),
-
-		'icon_title_ext_filesize_count_datesymbol' => array(
-			'name' => __( 'Title/Icon/Category/File size/Count/Dateago', 'delightful-downloads' ),
-			'format' => '<div class="dedo-list-row">
-				<div class="dedo-list-icon-small">%icon%</div>
-				<div class="dedo-list-content-compact">
-					<h6 class="dedo-list-title">
-						<a href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> %title%</a>
-					</h6>
-					<div class="meta-icons dedo-meta-icons dedo-list-meta-bottom">
-						<div class="meta-icons__bar noprint">%locked% %adminedit% %dateago%%filesize%%count%</div>
-						<div class="meta-icons__terms">%category% %tags%</div>
-					</div>
-				</div>
-			</div>'
-		),
-
-		'infoboxlist' => array(
-			'name' => __( 'Infoboxliste (Icon/Date/Extension/Filesize/count/Thumb/descript)', 'delightful-downloads' ),
-			'format' => '<div class="dedo-list-row">
-				<div class="dedo-list-icon-small">%icon%</div>
-				<div class="dedo-list-content">
-					<div class="dedo-card-body">
-						<div class="dedo-card-main">
-							<h6 class="dedo-list-title">
-								<a href="%url%" title="' . __( 'download file', 'delightful-downloads' ) . '" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> %title%</a>
-							</h6>
-							<div>%filename%%filedate%%filesize%%count%%downloadtime%<br>%description%</div>
-						</div>
-						%thumb%
-					</div>
-					<div class="meta-icons dedo-meta-icons dedo-list-meta-bottom">
-						<div class="meta-icons__bar noprint">%locked% %adminedit% %datesymbol%</div>
-						<div class="meta-icons__terms">%category% %tags%</div>
-					</div>
-				</div>
-			</div>%id3tag%'
-		)
-	);
-
-	return apply_filters( 'dedo_get_lists', $lists );
+    $format = '<div class="dedo-list-row"><div class="dedo-list-icon-small">%icon%</div><div class="dedo-list-content"><div class="dedo-card-body"><div class="dedo-card-main"><h6 class="dedo-list-title"><a href="%url%" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> %title%</a></h6><div>%description%</div></div>%thumb%</div><div class="meta-icons dedo-meta-icons dedo-list-meta-bottom"><div class="meta-icons__bar noprint">%locked% %adminedit% %datesymbol% %filesize% %count%</div><div class="meta-icons__terms">%category% %tags%</div></div></div></div>';
+    return apply_filters( 'dedo_get_lists', array( 'list' => array( 'name' => __( 'Downloads', 'delightful-downloads' ), 'format' => $format ) ) );
 }
 
 /**
@@ -1247,7 +1096,7 @@ function dedo_ticket_is_valid( $download_id ) {
  	}
  	// url
  	if ( strpos( $string, '%url%' ) !== false ) {
- 		$value = dedo_download_link( $id );
+ 		$value = dedo_is_folder_download( $id ) ? get_permalink( $id ) : dedo_download_link( $id );
  		$string = str_replace( '%url%', $value, $string );
  	}
  	// title
@@ -1361,9 +1210,9 @@ function dedo_ticket_is_valid( $download_id ) {
  	if ( strpos( $string, '%filedate%' ) !== false ) {
  		if (!empty( get_post_meta( $id, '_dedo_file_url', true ) )) {
 			$fpath = dedo_get_abs_path(get_post_meta( $id, '_dedo_file_url', true));
-			$value = dd_shared_colordatebox( filectime($fpath), filemtime($fpath) ,NULL,1);
+			$value = ( $fpath && is_file( $fpath ) ) ? dd_shared_colordatebox( filectime($fpath), filemtime($fpath) ,NULL,1) : '';
 			// Post modified Datum aktualisieren, wenn File - Anhang neuer
-			if (filemtime($fpath) > get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z') ) {
+			if ( $fpath && is_file( $fpath ) && filemtime($fpath) > get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z') ) {
 				$mysql_time_format= "Y-m-d H:i:s";
 				$post_modified = wp_date( $mysql_time_format, filemtime($fpath) );
 				$post_modified_gmt = gmdate( $mysql_time_format, ( filemtime($fpath) + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS )  );
@@ -1388,13 +1237,18 @@ function dedo_ticket_is_valid( $download_id ) {
  	}
  	// filesize
  	if ( strpos( $string, '%filesize%' ) !== false ) {
-		$fpath = dedo_get_abs_path(get_post_meta( $id, '_dedo_file_url', true));
-		$fsfrommeta = size_format( get_post_meta( $id, '_dedo_file_size', true ), 0 );
-		$fsfromfile = size_format( filesize( $fpath ) );
+		if ( dedo_is_folder_download( $id ) ) {
+			$value = '<span class="dedo-meta-chip dedo-meta-chip--neutral">📁 ' . size_format( (int) get_post_meta( $id, '_dedo_file_size', true ), 1 ) . '</span>';
+			$string = str_replace( '%filesize%', $value, $string );
+		} else {
+			$fpath = dedo_get_abs_path( get_post_meta( $id, '_dedo_file_url', true ) );
+			$fsfrommeta = size_format( (int) get_post_meta( $id, '_dedo_file_size', true ), 0 );
+			$fsfromfile = ( $fpath && is_file( $fpath ) ) ? size_format( (int) filesize( $fpath ) ) : '';
 		if (!empty( get_post_meta( $id, '_dedo_file_size', true ) )) {
 			$value = '<span class="dedo-meta-chip dedo-meta-chip--neutral"><span class="dedo-icon dedo-icon--save" title="filesize: '.$fsfrommeta.'" aria-hidden="true"></span>'.$fsfromfile.'</span>';
 		} else { $value='';  }	
 		$string = str_replace( '%filesize%', $value, $string );
+        }
  	}
  	// downloadtime
  	if ( strpos( $string, '%downloadtime%' ) !== false ) {
@@ -1410,19 +1264,23 @@ function dedo_ticket_is_valid( $download_id ) {
 			// Wenn heatcolor aus penguin_mod vorhanden
 			$hotcolor = dedo_heatcolor($perctotal);
 		} else { $perctotal = 0; $hotcolor = '#fff'; }
+		$filedlc = (int) $filedlc;
 		$fullcounter = number_format_i18n( $filedlc );
-		$shortcounter = dedo_number_format_short($filedlc);
+		$shortcounter = dedo_number_format_short( $filedlc );
  		$value = '<span title="DLCounter: '.$fullcounter.' Ranking: '.$perctotal.'%" class="dedo-meta-chip" style="--dedo-chip-bg:'.$hotcolor.'" ><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> ' . $shortcounter .'</span>';
  		$string = str_replace( '%count%', $value, $string );
  	}
  	// file name
  	if ( strpos( $string, '%filename%' ) !== false ) {
- 		$value = '<span title="Dateiname" class="dedo-meta-chip dedo-meta-chip--neutral"><span class="dedo-icon dedo-icon--file" aria-hidden="true"></span> ' . dedo_get_file_name( get_post_meta( $id, '_dedo_file_url', true ) ).'</span>';
+ 		$value = dedo_is_folder_download( $id ) ? '<span class="dedo-meta-chip dedo-meta-chip--neutral">📁 ' . esc_html( basename( dedo_folder_path( $id ) ) ) . '</span>' : '<span title="Dateiname" class="dedo-meta-chip dedo-meta-chip--neutral"><span class="dedo-icon dedo-icon--file" aria-hidden="true"></span> ' . dedo_get_file_name( get_post_meta( $id, '_dedo_file_url', true ) ).'</span>';
  		$string = str_replace( '%filename%', $value, $string );
  	}
  	// protected file
  	if ( strpos( $string, '%locked%' ) !== false ) {
- 		if (post_password_required($id)) {
+        if ( dedo_is_folder_download( $id ) && function_exists( 'dedo_folder_status_icon' ) ) {
+            $folder_protect = (int) get_post_meta( $id, '_dedo_folder_protect', true );
+            $value = dedo_folder_status_icon( 2 === $folder_protect, 2 === $folder_protect ? __( 'Protected - token required', 'delightful-downloads' ) : __( 'Download available', 'delightful-downloads' ) );
+        } elseif ( post_password_required( $id ) ) {
 			$value='<span class="dedo-icon dedo-icon--lock dedo-icon--danger" title="Kennwortgeschützt" aria-hidden="true"></span>';
 		} else {
 			$value='<span class="dedo-icon dedo-icon--unlock" title="öffentlich" aria-hidden="true"></span>';
@@ -1431,13 +1289,13 @@ function dedo_ticket_is_valid( $download_id ) {
  	}
  	// file extension
  	if ( strpos( $string, '%ext%' ) !== false ) {
- 		$value = '<span class="dedo-icon dedo-icon--file" title="filename" aria-hidden="true"></span> '.strtoupper( dedo_get_file_ext( get_post_meta( $id, '_dedo_file_url', true ) ) );
+ 		$value = dedo_is_folder_download( $id ) ? 'DIR' : '<span class="dedo-icon dedo-icon--file" title="filename" aria-hidden="true"></span> '.strtoupper( dedo_get_file_ext( get_post_meta( $id, '_dedo_file_url', true ) ) );
  		$string = str_replace( '%ext%', $value, $string );
  	}
   	// file icon
  	if ( strpos( $string, '%icon%' ) !== false ) {
  		$ffile = ( get_post_meta( $id, '_dedo_file_url', true ) );
-		$value = ' <a href="'.get_the_permalink($id).'">'.dedo_get_file_icon( $ffile ).'</a>';
+		$value = dedo_is_folder_download( $id ) ? '<a class="dedo-folder-icon" href="' . esc_url( get_permalink($id) ) . '">📁</a>' : ' <a href="'.get_the_permalink($id).'">'.dedo_get_file_icon( $ffile ).'</a>';
  		$string = str_replace( '%icon%', $value, $string );
  	}
  	// file mime
@@ -1710,6 +1568,11 @@ function dedo_delete_all_transients() {
  * Also allows absolute path to store files outsite the document root.
  */
 function dedo_get_abs_path( $requested_file ) {
+	$requested_file = (string) $requested_file;
+	// Folder downloads are virtual sources, never filesystem/URL wrappers.
+	if ( 0 === strpos( $requested_file, 'folder://' ) ) {
+		return false;
+	}
 	$parsed_file = parse_url( $requested_file );
 	// Check for absolute path
 	if ( ( !isset( $parsed_file['scheme'] ) || !in_array( $parsed_file['scheme'], array( 'http', 'https' ) ) ) && isset( $parsed_file['path'] ) && file_exists( $requested_file ) ) {
@@ -1793,7 +1656,7 @@ function dedo_get_file_ext( $path ) {
 function dedo_get_file_status( $url ) {
 	$url = is_string( $url ) ? trim( $url ) : '';
 
-	if ( '' === $url ) {
+	if ( '' === $url || 0 === strpos( $url, 'folder://' ) ) {
 		return false;
 	}
 
@@ -1982,7 +1845,7 @@ function dedo_get_options() {
 			'name'    => __( 'Default Style', 'delightful-downloads' ),
 			'tab'     => 'shortcodes',
 			'type'    => 'dropdown',
-			'default' => 'infobox',
+			'default' => 'download',
 		),
 		'default_button'      => array(
 			'name'    => __( 'Default Button Style', 'delightful-downloads' ),
@@ -1994,7 +1857,7 @@ function dedo_get_options() {
 			'name'    => __( 'Default List Style', 'delightful-downloads' ),
 			'tab'     => 'shortcodes',
 			'type'    => 'dropdown',
-			'default' => 'infoboxlist',
+			'default' => 'list',
 		),
 		'log_admin_downloads' => array(
 			'name'    => __( 'Admin Events', 'delightful-downloads' ),
@@ -2189,17 +2052,23 @@ function dedo_download_column_contents( $column_name, $post_id ) {
 	
 	// File column
 	if ( $column_name == 'file' ) {
+		if ( function_exists( 'dedo_is_folder_download' ) && dedo_is_folder_download( $post_id ) ) {
+			$folder = function_exists( 'dedo_folder_path' ) ? dedo_folder_path( $post_id ) : '';
+			$label = $folder ? basename( $folder ) : __( 'Folder unavailable', 'delightful-downloads' );
+			echo '<span style="font-weight:700">📁 ' . esc_html( $label ) . '</span>';
+			return;
+		}
 		$file_url = get_post_meta( $post_id, '_dedo_file_url', true );
 		$file_path = dedo_get_abs_path($file_url);
 		if (isset($_GET['aktion'])) {
-		  if ( current_user_can('administrator') && $_GET['aktion'] == 'dedodelete' && $_GET['post'] == $post_id ) {
+		  if ( current_user_can('administrator') && $_GET['aktion'] == 'dedodelete' && $_GET['post'] == $post_id && $file_path ) {
 			  wp_delete_file( $file_path );
 			  wp_redirect( admin_url( "edit.php?post_type=dedo_download") );
 		  }	
 		} 
 		$file_url = dedo_get_file_name( $file_url );
 		echo ( ! $file_url ) ? '<span class="blank">--</span>' : '<span style="font-weight:700">'. esc_attr( $file_url ) .'</span>';
-		if (file_exists($file_path)) { 
+		if ( $file_path && file_exists( $file_path ) ) { 
 			echo '<br><a style="color:tomato;padding-top:7px" title="'.$file_path.'" onclick="return confirm(\''.__( 'really delete attached file from server?', 'delightful-downloads' ).'\');" href ="'.admin_url( "edit.php?post_type=dedo_download&post=$post_id&aktion=dedodelete").'">' . __( 'delete file', 'delightful-downloads' ) .'</a>';
 		} else { echo '<br>'.__( 'file is deleted', 'delightful-downloads' ); }
 	}
@@ -2375,11 +2244,12 @@ function dedo_onedaypass_process( $download_id ) {
 	set_time_limit( 0 );
 
     // Signed ticket prüfen (7 oder 365 Tage; alte heutige One-Day-Links bleiben kompatibel).
-	if ( file_exists( dedo_get_abs_path( $download_url ) ) && dedo_ticket_is_valid( $download_id ) ) {
+	$ticket_path = dedo_get_abs_path( $download_url );
+	if ( $ticket_path && file_exists( $ticket_path ) && dedo_ticket_is_valid( $download_id ) ) {
         // Only valid ticket downloads are logged and counted.
         do_action( 'ddownload_download_before', $download_id );
 		// $path = ABSPATH.'wp-content/uploads/delightful-downloads/2019/software.zip'; // the file made available for download via this PHP file
-		$path = dedo_get_abs_path( $download_url );
+		$path = $ticket_path;
 		$mm_type="application/octet-stream"; // modify accordingly to the file type of $path, but in most cases no need to do so
 		header("Pragma: public");
 		header("Expires: 0");
@@ -2423,6 +2293,12 @@ function dedo_download_process( $download_id ) {
 	// Get file meta
 	$download_url = get_post_meta( $download_id, '_dedo_file_url', true );
 	$options      = get_post_meta( $download_id, '_dedo_file_options', true );
+
+	// A folder download represents a collection and must be opened on its singular view.
+	if ( function_exists( 'dedo_is_folder_download' ) && dedo_is_folder_download( $download_id ) ) {
+		wp_safe_redirect( get_permalink( $download_id ) );
+		exit();
+	}
 
 	// Check for members only
 	if ( ! dedo_download_permission( $options ) ) {
@@ -2667,6 +2543,11 @@ function dedo_shortcode_ddownload( $atts ) {
 		return __( 'Invalid download ID.', 'delightful-downloads' );
 	}
 
+	// One canonical display. Legacy style names stay accepted for old content.
+	$legacy_styles = array( 'infobox','singlepost','button','link','iconlink','plain_text' );
+	if ( in_array( $style, $legacy_styles, true ) ) $style = 'download';
+	if ( dedo_is_folder_download( $id ) ) return dedo_render_folder_download( $id );
+
 	// Check style against registered styles
 	$registered_styles = dedo_get_shortcode_styles();
 
@@ -2869,6 +2750,8 @@ function dedo_shortcode_ddownload_list( $atts ) {
 		}
 	}
 
+	// One canonical list display. Map all former list styles to it.
+	$style = 'list';
 	// Check style against registered styles
 	$registered_styles = dedo_get_shortcode_lists();
 	$style_class       = ' list-' . $style;
@@ -3002,7 +2885,7 @@ function dedo_shortcode_ddownload_list( $atts ) {
 			$classes .= ' ext-' . dedo_get_file_ext( get_post_meta( get_the_ID(), '_dedo_file_url', true ) ); // File extension
 			$new_style_format = str_replace( '%class%', $classes, $style_format );
 			$filecount++;
-			$dlcount += get_post_meta( get_the_ID(), '_dedo_file_count', true );
+			$dlcount += (int) get_post_meta( get_the_ID(), '_dedo_file_count', true );
 			$tfilesize += (int) get_post_meta( get_the_ID(), '_dedo_file_size', true );
 			echo '<article class="dedo-list-item"><span class="dedo-list-index" aria-hidden="true">' . $filecount . '</span>' . dedo_search_replace_wildcards( $new_style_format, get_the_ID() ) . '</article>';
 			// Reset classes for next iteration
