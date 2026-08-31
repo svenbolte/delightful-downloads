@@ -2,8 +2,8 @@
 Contributors: A5hleyRich, Sven Bolte, PBMod
 Tags: download, manager, downloads, shortcode, secure downloads, statistics, file manager
 License: GPLv2 or later
-Version: 9.13.9
-Stable tag: 9.13.9
+Version: 9.13.10
+Stable tag: 9.13.10
 Requires at least: 6.0
 Tested up to: 7.0.2
 Requires PHP: 8.4

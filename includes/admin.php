@@ -314,10 +314,17 @@ class DEDO_List_Table extends WP_List_Table {
 				}
 				break;
 			case 'ip_address':
-				if ( empty( $item->user_ip) ) return;
-				// Wenn ipflag plugin aktiv
-				if( class_exists( 'ipflag' ) ) $flagge = '<br>' . do_shortcode('[ipflag ip="'.inet_ntop( $item->user_ip ).'"]');
-				return inet_ntop( $item->user_ip ) . $flagge;
+				if ( empty( $item->user_ip ) ) return;
+				$ip = inet_ntop( $item->user_ip );
+				if ( false === $ip ) return '';
+
+				$flagge = '';
+				// Direkte Chartscodes-Helper-API; keine IPFlag-Klasse und kein Shortcode-Fallback.
+				if ( function_exists( 'pb_chartscodes_flag_for_ip' ) ) {
+					$flagge = pb_chartscodes_flag_for_ip( $ip, true );
+				}
+
+				return esc_html( $ip ) . ( $flagge !== '' ? '<br>' . $flagge : '' );
 				break;
 			case 'user_agent':
 				return esc_attr( $item->user_agent );
