@@ -70,6 +70,8 @@ jQuery( document ).ready( function( $ ) {
 
 			$.ajax( {
 				url: self.options.ajaxURL,
+				type: 'POST',
+				timeout: 15000,
 				data: {
 					action: self.options.action,
 					nonce: self.options.nonce,
@@ -93,6 +95,9 @@ jQuery( document ).ready( function( $ ) {
 					} else {
 						$( '.file-status .status' ).removeClass( 'spinner' ).addClass( 'warning' ).attr( 'title', self.options.lang_warning );
 					}
+				},
+				error: function() {
+					$( '.file-status .status' ).removeClass( 'spinner local remote' ).addClass( 'warning' ).attr( 'title', self.options.lang_warning );
 				}
 			} );
 		}
@@ -250,6 +255,8 @@ jQuery( document ).ready( function( $ ) {
 			self.$browser.html( '<p>Loading...</p>' );
 			$.ajax( {
 				url: self.options.ajaxURL,
+				type: 'POST',
+				timeout: 15000,
 				dataType: 'json',
 				data: {
 					action: self.options.action,

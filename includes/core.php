@@ -1666,14 +1666,64 @@ function dedo_get_file_status( $url ) {
 		$size = @filesize( $file );
 	}
 	else {
-		$response = @get_headers( $url, 1 );
-		if ( ( false === $response || 'HTTP/1.1 404 Not Found' == $response[0] || 'HTTP/1.1 403 Forbidden' == $response[0] ) || !isset( $response['Content-Length'] ) ) {		
+		// Cache the status check itself so repeated admin loads do not hammer
+		// remote file hosts. The previous cache was populated only after the
+		// request and therefore could not prevent repeated requests.
+		$cache_key = 'dedo_remote_status_' . md5( $url );
+		$cached    = get_transient( $cache_key );
+
+		if ( is_array( $cached ) && isset( $cached['checked'] ) ) {
+			if ( empty( $cached['ok'] ) ) {
+				return false;
+			}
+
+			return array(
+				'type' => 'remote',
+				'size' => $cached['size'],
+			);
+		}
+
+		$request_args = apply_filters( 'dedo_remote_status_request_args', array(
+			'timeout'             => 8,
+			'redirection'         => 3,
+			'reject_unsafe_urls'  => true,
+			'user-agent'          => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . home_url( '/' ),
+		) );
+
+		$response = wp_remote_head( $url, $request_args );
+
+		if ( is_wp_error( $response ) ) {
+			set_transient( $cache_key, array( 'checked' => true, 'ok' => false ), 300 );
 			return false;
 		}
-		else {
-			$type = 'remote';
-			$size = $response['Content-Length'];
+
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
+
+		// Back off longer when the remote host explicitly rate-limits us.
+		if ( 429 === $status_code ) {
+			set_transient( $cache_key, array( 'checked' => true, 'ok' => false ), 900 );
+			return false;
 		}
+
+		if ( $status_code < 200 || $status_code >= 400 ) {
+			set_transient( $cache_key, array( 'checked' => true, 'ok' => false ), 300 );
+			return false;
+		}
+
+		$content_length = wp_remote_retrieve_header( $response, 'content-length' );
+		if ( '' === $content_length || ! is_numeric( $content_length ) ) {
+			set_transient( $cache_key, array( 'checked' => true, 'ok' => false ), 300 );
+			return false;
+		}
+
+		$type = 'remote';
+		$size = (int) $content_length;
+
+		set_transient( $cache_key, array(
+			'checked' => true,
+			'ok'      => true,
+			'size'    => $size,
+		), 900 );
 	}
 	return array(
 		'type'	=> $type,
@@ -2474,7 +2524,7 @@ function dedo_admin_enqueue_scripts( $page ) {
 	wp_register_script( 'dedo-admin-js-post-download', $src, array(
 		'jquery',
 		'plupload-all'
-	), $version, true );
+	), $version . '-status-fix1', true );
 	// Register styles
 	$src = DEDO_PLUGIN_URL . 'assets/css/delightful-downloads-admin.css';
 	wp_register_style( 'dedo-css-admin', $src, array(), $version, 'all' );
@@ -2486,7 +2536,7 @@ function dedo_admin_enqueue_scripts( $page ) {
 	$src = DEDO_PLUGIN_URL . 'assets/js/copy-to-clipboard' . $suffix . '.js';
 	wp_enqueue_script( 'dedo-copy-to-clipboard', $src, array(
 		'jquery',
-	), $version, true );
+	), $version . '-clipboard-fix1', true );
 	// Enqueue on dedo_download post add/edit screen
 	if ( in_array( $page, array(
 			'post.php',
