@@ -24,6 +24,9 @@
 .dedo-list-headline{font-size:1.05rem}
 .dedo-card-body{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
 .dedo-card-main{flex:1;min-width:0}
+.dedo-shortcode-title-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;min-width:0}
+.dedo-shortcode-title-row .dedo-list-title{flex:1 1 auto;min-width:0}
+.dedo-shortcode-title-row .dedo-shortcode-download-button{flex:0 0 auto;margin:0}
 .dedo-thumb-inline{flex:0 0 160px;max-width:160px;text-align:right;overflow:hidden;border-radius:var(--pb-radius-small,7px)}
 .dedo-thumb-inline img{display:block;width:100%;height:105px;object-fit:cover}
 .dedo-download-meta-table{width:100%;margin:.65rem 0;border-collapse:collapse}
@@ -123,4 +126,22 @@ a.dedo-list-simple:hover,.dedo-list-simple:hover{background:color-mix(in srgb,va
 
 .dedo-list-content,.dedo-list-content-compact{display:flex;flex-direction:column;flex:1 1 auto}
 
-
+/* Singular download details: keep the established file header/button; only the facts use the theme blockquote. */
+.dedo-singular-download{margin-block:1em}
+.dedo-singular-download .dedo-single-head{display:flex;align-items:center;gap:.75em;min-width:0}
+.dedo-singular-download .dedo-single-icon{flex:0 0 auto}
+.dedo-singular-download .dedo-single-icon .ftyp{display:inline-flex}
+.dedo-singular-download .dedo-single-primary{display:flex;flex:1 1 auto;min-width:0;flex-direction:column;gap:.1em}
+.dedo-singular-download .dedo-single-name{overflow-wrap:anywhere}
+.dedo-singular-download .dedo-single-type{opacity:.8}
+.dedo-singular-download .dedo-single-preview{flex:0 0 auto;margin-left:auto}
+.dedo-singular-download .dedo-single-preview img{display:block;width:auto;height:auto;max-width:160px;max-height:none;object-fit:cover}
+.dedo-singular-download .dedo-single-download-button{display:inline-flex;align-items:center;gap:.35em;white-space:nowrap;margin:0}
+.dedo-singular-download .dedo-single-details-box{margin-block:.8em;padding-block:.55em}
+.dedo-singular-download .dedo-single-details-grid{display:grid;grid-template-columns:minmax(9.5em,max-content) minmax(0,1fr);column-gap:1.25em;row-gap:.28em;align-items:baseline}
+.dedo-singular-download .dedo-single-detail-row{display:contents}
+.dedo-singular-download .dedo-single-detail-label{display:inline-flex;align-items:center;gap:.38em;min-width:0;white-space:nowrap}
+.dedo-singular-download .dedo-single-detail-value{min-width:0;overflow-wrap:anywhere}
+.dedo-singular-download .dedo-single-speed{cursor:help;border-bottom:1px dotted currentColor}
+.dedo-singular-download .timeline{margin-top:.75em}
+@media screen and (max-width:600px){.dedo-singular-download .dedo-single-head{align-items:flex-start;flex-wrap:wrap}.dedo-singular-download .dedo-single-preview{flex:0 0 auto;margin-left:0;max-width:160px}.dedo-singular-download .dedo-single-preview img{width:auto;max-width:100%;height:auto}.dedo-singular-download .dedo-single-download-button{width:100%;justify-content:center}.dedo-singular-download .dedo-single-details-grid{column-gap:.7em}}

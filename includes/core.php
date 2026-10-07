@@ -45,6 +45,39 @@ if ( ! function_exists( 'dd_shared_colordatebox' ) ) {
 }
 
 /**
+ * Return the filesystem modification time for a download.
+ *
+ * For folder downloads the newest contained file wins. Remote/unresolvable
+ * downloads fall back to the WordPress post modification time.
+ *
+ * @param int $post_id Download post ID.
+ * @return int Unix timestamp.
+ */
+function dedo_get_file_modified_time( $post_id ) {
+	$post_id = absint( $post_id );
+
+	if ( function_exists( 'dedo_is_folder_download' ) && dedo_is_folder_download( $post_id ) && function_exists( 'dedo_folder_download_scan' ) ) {
+		$files = dedo_folder_download_scan( $post_id );
+		if ( ! empty( $files ) ) {
+			$mtimes = array_map( static fn( $file ) => (int) ( $file['mtime'] ?? 0 ), $files );
+			$mtime = max( $mtimes );
+			if ( $mtime > 0 ) return $mtime;
+		}
+	}
+
+	$file_url = get_post_meta( $post_id, '_dedo_file_url', true );
+	if ( $file_url ) {
+		$file_path = dedo_get_abs_path( $file_url );
+		if ( $file_path && is_file( $file_path ) ) {
+			$mtime = (int) @filemtime( $file_path );
+			if ( $mtime > 0 ) return $mtime;
+		}
+	}
+
+	return (int) get_post_modified_time( 'U', true, $post_id );
+}
+
+/**
  * Cache Class
  * @package  	Delightful Downloads
  * @author   	Ashley Rich
@@ -901,15 +934,159 @@ add_filter( 'cron_schedules', 'dedo_cron_schedules' );
  * Delightful Downloads Functions
 */
 
-// Register own template for downloads
-function dedo_template( $single_template ) {
-    global $post;
-    if ( $post && 'dedo_download' === $post->post_type ) {
-        return dirname( __FILE__ ) . '/dedo-template.php';
+/**
+ * Append complete download details to the normal theme content on singular posts.
+ * The active theme keeps full control of the single template and its own meta area.
+ */
+function dedo_append_singular_download_details( $content ) {
+    if ( ! is_singular( 'dedo_download' ) || ! in_the_loop() || ! is_main_query() ) {
+        return $content;
     }
-    return $single_template;
+
+    $download_id = get_the_ID();
+    if ( ! $download_id || ! dedo_download_valid( $download_id ) ) {
+        return $content;
+    }
+
+    return $content . dedo_render_singular_download_details( $download_id );
 }
-add_filter( 'single_template', 'dedo_template' );
+add_filter( 'the_content', 'dedo_append_singular_download_details', 20 );
+
+/**
+ * Render the singular download information independently from compact shortcode cards.
+ */
+function dedo_render_singular_download_details( $id ) {
+    $id = absint( $id );
+    if ( ! $id || ! dedo_download_valid( $id ) ) {
+        return '';
+    }
+
+    $is_folder = dedo_is_folder_download( $id );
+    $file_url  = get_post_meta( $id, '_dedo_file_url', true );
+    $file_path = $is_folder ? '' : dedo_get_abs_path( $file_url );
+    $file_name = $is_folder ? basename( dedo_folder_path( $id ) ) : dedo_get_file_name( $file_url );
+    $file_ext  = $is_folder ? 'DIR' : strtoupper( dedo_get_file_ext( $file_url ) );
+    $mime      = $is_folder ? __( 'Folder', 'delightful-downloads' ) : dedo_get_file_mime( $file_url );
+
+    $stored_size = (int) get_post_meta( $id, '_dedo_file_size', true );
+    $actual_size = ( ! $is_folder && $file_path && is_file( $file_path ) ) ? (int) filesize( $file_path ) : $stored_size;
+    $created     = get_post_time( 'U', false, $id, true ) - get_post_time( 'Z' );
+    $modified    = dedo_get_file_modified_time( $id );
+    $downloads   = (int) get_post_meta( $id, '_dedo_file_count', true );
+    $total       = max( 0, (int) dedo_total_downloads() );
+    $share       = $total > 0 ? round( $downloads / $total * 100 ) : 0;
+
+    $status = post_password_required( $id ) ? __( 'Password protected', 'delightful-downloads' ) : __( 'Public download', 'delightful-downloads' );
+    if ( $is_folder ) {
+        $folder_protect = (int) get_post_meta( $id, '_dedo_folder_protect', true );
+        $status = 2 === $folder_protect ? __( 'Protected - token required', 'delightful-downloads' ) : __( 'Public download', 'delightful-downloads' );
+    }
+
+    $download_url = $is_folder ? get_permalink( $id ) : dedo_download_link( $id );
+    $icon_html    = $is_folder ? '<span class="dedo-icon dedo-icon--file" aria-hidden="true"></span>' : dedo_get_file_icon( $file_url );
+    $thumb_html   = has_post_thumbnail( $id ) ? '<div class="dedo-single-preview">' . get_the_post_thumbnail( $id, 'medium' ) . '</div>' : '';
+
+    $speed_title = '';
+    $speed_main  = '';
+    if ( $stored_size > 0 ) {
+        foreach ( array( 16, 25, 50, 100, 200, 300, 500, 1000 ) as $speed ) {
+            $seconds = floor( $stored_size * 8 / ( $speed * 1024 * 1024 ) );
+            $s = $seconds % 60;
+            $m = floor( ( $seconds % 3600 ) / 60 );
+            $h = floor( ( $seconds % 86400 ) / 3600 );
+            $formatted = ( $h > 0 ? $h . 'h ' : '' ) . ( $m > 0 ? $m . 'm ' : '' ) . $s . 's';
+            $speed_title .= ( $speed_title ? "\n" : '' ) . $formatted . ' @ ' . $speed . ' MBit/s';
+            if ( 300 === $speed ) {
+                $speed_main = $formatted . ' @ 300 MBit/s';
+            }
+        }
+    }
+
+    // Compact facts inside the theme's native blockquote styling. No card/border override here.
+    $facts = array();
+    $facts[] = array( 'file', __( 'File name', 'delightful-downloads' ), esc_html( $file_name ) );
+    $facts[] = array( 'file', __( 'File type', 'delightful-downloads' ), esc_html( $mime . ( $file_ext ? ' · ' . $file_ext : '' ) ) );
+    $facts[] = array( 'calendar', __( 'Created', 'delightful-downloads' ), esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $created ) ) );
+    $facts[] = array( 'clock', __( 'Modified', 'delightful-downloads' ), esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $modified ) . ' · ' . human_time_diff( $modified, current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'delightful-downloads' ) ) );
+
+    if ( $actual_size > 0 ) {
+        $size_value = size_format( $actual_size );
+        if ( $stored_size > 0 && $actual_size !== $stored_size ) {
+            $size_value .= ' (' . sprintf( __( 'stored: %s', 'delightful-downloads' ), size_format( $stored_size ) ) . ')';
+        }
+        $facts[] = array( 'file-size', __( 'File size', 'delightful-downloads' ), esc_html( $size_value ) );
+    }
+    if ( $speed_main ) {
+        $facts[] = array( 'clock', __( 'Download time', 'delightful-downloads' ), '<span class="dedo-single-speed" title="' . esc_attr( $speed_title ) . '">' . esc_html( $speed_main ) . '</span>' );
+    }
+
+    $facts[] = array( 'download', __( 'Downloads', 'delightful-downloads' ), esc_html( number_format_i18n( $downloads ) . ( $total > 0 ? ' · ' . sprintf( __( '%d%% of all downloads', 'delightful-downloads' ), $share ) : '' ) ) );
+    $is_protected = post_password_required( $id ) || ( $is_folder && isset( $folder_protect ) && 2 === $folder_protect );
+    $facts[] = array( $is_protected ? 'lock' : 'unlock', __( 'Access', 'delightful-downloads' ), esc_html( $status ) );
+
+    $categories = get_the_terms( $id, 'ddownload_category' );
+    if ( $categories && ! is_wp_error( $categories ) ) {
+        $links = array();
+        foreach ( $categories as $term ) {
+            $url = get_term_link( $term, 'ddownload_category' );
+            if ( ! is_wp_error( $url ) ) {
+                $links[] = '<a href="' . esc_url( $url ) . '">' . esc_html( $term->name ) . '</a>';
+            }
+        }
+        if ( $links ) {
+            $facts[] = array( 'filter', __( 'Categories', 'delightful-downloads' ), implode( ', ', $links ) );
+        }
+    }
+
+    $tags = get_the_terms( $id, 'ddownload_tag' );
+    if ( $tags && ! is_wp_error( $tags ) ) {
+        $links = array();
+        foreach ( $tags as $term ) {
+            $url = get_term_link( $term, 'ddownload_tag' );
+            if ( ! is_wp_error( $url ) ) {
+                $links[] = '<a href="' . esc_url( $url ) . '">' . esc_html( $term->name ) . '</a>';
+            }
+        }
+        if ( $links ) {
+            $facts[] = array( 'hashtag', __( 'Tags', 'delightful-downloads' ), implode( ', ', $links ) );
+        }
+    }
+
+    $details = '';
+    foreach ( $facts as $fact ) {
+        $details .= '<div class="dedo-single-detail-row">'
+            . '<span class="dedo-single-detail-label"><span class="dedo-icon dedo-icon--' . esc_attr( $fact[0] ) . '" aria-hidden="true"></span><strong>' . esc_html( $fact[1] ) . '</strong></span>'
+            . '<span class="dedo-single-detail-value">' . $fact[2] . '</span>'
+            . '</div>';
+    }
+
+    if ( current_user_can( 'edit_post', $id ) ) {
+        $details .= '<div class="dedo-single-detail-row">'
+            . '<span class="dedo-single-detail-label"><span class="dedo-icon dedo-icon--edit" aria-hidden="true"></span><strong>' . esc_html__( 'Edit download', 'delightful-downloads' ) . '</strong></span>'
+            . '<span class="dedo-single-detail-value"><a class="dedo-single-adminlink" href="' . esc_url( get_edit_post_link( $id ) ) . '">' . esc_html__( 'Edit download', 'delightful-downloads' ) . '</a></span>'
+            . '</div>';
+        $ticket = dedo_ticket_url( $id, 7 );
+        if ( $ticket ) {
+            $details .= '<div class="dedo-single-detail-row">'
+                . '<span class="dedo-single-detail-label"><span class="dedo-icon dedo-icon--ticket" aria-hidden="true"></span><strong>' . esc_html__( '7-day ticket', 'delightful-downloads' ) . '</strong></span>'
+                . '<span class="dedo-single-detail-value"><input type="text" class="copy-to-clipboard" value="' . esc_url( $ticket ) . '" readonly></span>'
+                . '</div>';
+        }
+    }
+
+    $id3 = dedo_search_replace_wildcards( '%id3tag%', $id );
+
+    return '<div class="dedo-singular-download">'
+        . '<div class="dedo-single-head">'
+            . '<div class="dedo-single-icon">' . $icon_html . '</div>'
+            . '<div class="dedo-single-primary"><strong class="dedo-single-name">' . esc_html( $file_name ) . '</strong><span class="dedo-single-type">' . esc_html( $mime . ( $file_ext ? ' · ' . $file_ext : '' ) ) . '</span></div>'
+            . $thumb_html
+            . '<a class="button page-numbers dedo-single-download-button noprint" href="' . esc_url( $download_url ) . '" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> ' . esc_html__( 'download file', 'delightful-downloads' ) . '</a>'
+        . '</div>'
+        . '<blockquote class="dedo-single-details-box" aria-label="' . esc_attr__( 'Download details', 'delightful-downloads' ) . '"><div class="dedo-single-details-grid">' . $details . '</div></blockquote>'
+        . $id3
+        . '</div>';
+}
 
 // k,M,G T formatieren bei großen Zahlen
 function dedo_number_format_short( $n ) {
@@ -934,22 +1111,24 @@ function dedo_get_shortcode_styles() {
             <div class="dedo-list-icon-small">%icon%</div>
             <div class="dedo-list-content">
                 <div class="dedo-card-body"><div class="dedo-card-main">
-                    <h6 class="dedo-list-title"><a href="%permalink%" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> %title%</a></h6>
-                    <a class="button page-numbers" href="%url%" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a>
+                    <div class="dedo-shortcode-title-row"><h6 class="dedo-list-title"><a href="%permalink%" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> %title%</a></h6><a class="button page-numbers dedo-shortcode-download-button" href="%url%" rel="nofollow">' . __( 'download file', 'delightful-downloads' ) . '</a></div>
                     <div>%description%</div>
                 </div>%thumb%</div>
-                <div class="meta-icons dedo-meta-icons dedo-list-meta-bottom"><div class="meta-icons__bar noprint">%locked% %adminedit% %datesymbol% %filesize% %downloadtime% %count%</div><div class="meta-icons__terms">%category% %tags%</div></div>
+                <div class="meta-icons dedo-meta-icons dedo-list-meta-bottom"><div class="meta-icons__bar noprint">%locked% %adminedit% %filename% %datesymbol% %filesize% %downloadtime% %count%</div><div class="meta-icons__terms">%category% %tags%</div></div>
             </div>
         </div>
     </article>';
-    return apply_filters( 'dedo_get_styles', array( 'download' => array( 'name' => __( 'Download', 'delightful-downloads' ), 'format' => $format ) ) );
+
+    return apply_filters( 'dedo_get_styles', array(
+        'download' => array( 'name' => __( 'Download', 'delightful-downloads' ), 'format' => $format ),
+    ) );
 }
 
 /**
  * Returns List Styles
  */
 function dedo_get_shortcode_lists() {
-    $format = '<div class="dedo-list-row"><div class="dedo-list-icon-small">%icon%</div><div class="dedo-list-content"><div class="dedo-card-body"><div class="dedo-card-main"><h6 class="dedo-list-title"><a href="%url%" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> %title%</a></h6><div>%description%</div></div>%thumb%</div><div class="meta-icons dedo-meta-icons dedo-list-meta-bottom"><div class="meta-icons__bar noprint">%locked% %adminedit% %datesymbol% %filesize% %count%</div><div class="meta-icons__terms">%category% %tags%</div></div></div></div>';
+    $format = '<div class="dedo-list-row"><div class="dedo-list-icon-small">%icon%</div><div class="dedo-list-content"><div class="dedo-card-body"><div class="dedo-card-main"><h6 class="dedo-list-title"><a href="%url%" rel="nofollow"><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> %title%</a></h6><div>%description%</div></div>%thumb%</div><div class="meta-icons dedo-meta-icons dedo-list-meta-bottom"><div class="meta-icons__bar noprint">%locked% %adminedit% %filename% %datesymbol% %filesize% %downloadtime% %count%</div><div class="meta-icons__terms">%category% %tags%</div></div></div></div>';
     return apply_filters( 'dedo_get_lists', array( 'list' => array( 'name' => __( 'Downloads', 'delightful-downloads' ), 'format' => $format ) ) );
 }
 
@@ -1224,14 +1403,14 @@ function dedo_ticket_is_valid( $download_id ) {
 	// datesymbol Datum, farbig mit symbol und allen created und mod date.
  	if ( strpos( $string, '%datesymbol%' ) !== false ) {
 		$erstelldat = get_post_time('U', false, $id, true) - get_post_time('Z');
-		$moddat = get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z');
+		$moddat = dedo_get_file_modified_time( $id );
 		$value = dd_shared_colordatebox( $erstelldat, $moddat, NULL, 1);
 		$string = str_replace( '%datesymbol%', $value, $string );
  	}
 	// dateago   - so viele Tage wochen her, sonntags rot, samstags orange
  	if ( strpos( $string, '%dateago%' ) !== false ) {
 		$erstelldat = get_post_time('U', false, $id, true) - get_post_time('Z');
-		$moddat = get_the_modified_time('U', false, $id, true) - get_the_modified_time('Z');
+		$moddat = dedo_get_file_modified_time( $id );
 		$value = dd_shared_colordatebox( $erstelldat, $moddat, NULL, 2);
 		$string = str_replace( '%dateago%', $value, $string );
  	}
@@ -1270,7 +1449,17 @@ function dedo_ticket_is_valid( $download_id ) {
  		$value = '<span title="DLCounter: '.$fullcounter.' Ranking: '.$perctotal.'%" class="dedo-meta-chip" style="--dedo-chip-bg:'.$hotcolor.'" ><span class="dedo-icon dedo-icon--download" aria-hidden="true"></span> ' . $shortcounter .'</span>';
  		$string = str_replace( '%count%', $value, $string );
  	}
- 	// file name
+ 	// raw file name (for structured singular layouts)
+ 	if ( strpos( $string, '%filenameplain%' ) !== false ) {
+        $value = dedo_is_folder_download( $id ) ? basename( dedo_folder_path( $id ) ) : dedo_get_file_name( get_post_meta( $id, '_dedo_file_url', true ) );
+        $string = str_replace( '%filenameplain%', esc_html( $value ), $string );
+    }
+	// raw file extension (for structured singular layouts)
+ 	if ( strpos( $string, '%extplain%' ) !== false ) {
+        $value = dedo_is_folder_download( $id ) ? 'DIR' : strtoupper( dedo_get_file_ext( get_post_meta( $id, '_dedo_file_url', true ) ) );
+        $string = str_replace( '%extplain%', esc_html( $value ), $string );
+    }
+	// file name
  	if ( strpos( $string, '%filename%' ) !== false ) {
  		$value = dedo_is_folder_download( $id ) ? '<span class="dedo-meta-chip dedo-meta-chip--neutral">📁 ' . esc_html( basename( dedo_folder_path( $id ) ) ) . '</span>' : '<span title="Dateiname" class="dedo-meta-chip dedo-meta-chip--neutral"><span class="dedo-icon dedo-icon--file" aria-hidden="true"></span> ' . dedo_get_file_name( get_post_meta( $id, '_dedo_file_url', true ) ).'</span>';
  		$string = str_replace( '%filename%', $value, $string );
@@ -2132,8 +2321,9 @@ function dedo_download_column_contents( $column_name, $post_id ) {
 
 	// Modified date column
 	if ( $column_name == 'modified' ) {
-		$file_datum = get_the_modified_date(get_option('date_format').' '.get_option('time_format'),$post_id);
-		echo '<i title="modified">'.$file_datum.' '.dd_shared_ago(get_the_modified_date('U')).'</i>';
+		$file_mtime = dedo_get_file_modified_time( $post_id );
+		$file_datum = $file_mtime > 0 ? wp_date( get_option('date_format').' '.get_option('time_format'), $file_mtime ) : '';
+		echo '<i title="' . esc_attr__( 'File modified', 'delightful-downloads' ) . '">' . esc_html( $file_datum ) . ' ' . esc_html( dd_shared_ago( $file_mtime ) ) . '</i>';
 	}
 
 	// Shortcode column
@@ -2593,8 +2783,13 @@ function dedo_shortcode_ddownload( $atts ) {
 		return __( 'Invalid download ID.', 'delightful-downloads' );
 	}
 
-	// One canonical display. Legacy style names stay accepted for old content.
-	$legacy_styles = array( 'infobox','singlepost','button','link','iconlink','plain_text' );
+	// The singular detail view has its own renderer and never reuses the compact card.
+	if ( 'singlepost' === $style ) {
+		return dedo_render_singular_download_details( $id );
+	}
+
+	// Other legacy style names remain accepted for old content.
+	$legacy_styles = array( 'infobox','button','link','iconlink','plain_text' );
 	if ( in_array( $style, $legacy_styles, true ) ) $style = 'download';
 	if ( dedo_is_folder_download( $id ) ) return dedo_render_folder_download( $id );
 
